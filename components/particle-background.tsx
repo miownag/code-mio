@@ -25,8 +25,8 @@ export default function ParticleBackground() {
 
     // Set canvas size
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvas.width = document.documentElement.clientWidth;
+      canvas.height = innerHeight;
     };
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
@@ -43,7 +43,10 @@ export default function ParticleBackground() {
 
     // Mouse move handler
     const handleMouseMove = (e: MouseEvent) => {
-      mouseRef.current = { x: e.clientX, y: e.clientY };
+      mouseRef.current = {
+        x: e.clientX,
+        y: e.clientY + scrollY,
+      };
     };
     window.addEventListener("mousemove", handleMouseMove);
 
