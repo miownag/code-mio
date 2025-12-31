@@ -159,9 +159,9 @@ export default function Home() {
                 <Badge
                   variant="outline"
                   className={cn(
-                    "text-base px-4 py-2 transition-colors cursor-default",
+                    "text-base px-4 py-2 transition-colors cursor-default font-mono border-2",
                     tech.category === "Technology"
-                      ? "border-primary/50 hover:bg-primary/10 text-white"
+                      ? "border-primary/50 hover:bg-primary/10"
                       : "border-pink-300/50 hover:bg-pink-300/10"
                   )}
                 >
