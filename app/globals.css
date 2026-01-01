@@ -122,3 +122,7 @@
   background-color: var(--color-primary);
   color: #000000;
 }
+
+.pixel-font {
+  font-family: var(--font-jersey-10), monospace;
+}

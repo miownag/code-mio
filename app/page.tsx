@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import ParticleBackground from "@/components/particle-background";
 import TypeWriter from "@/components/type-writer";
+import Navigation from "@/components/navigation";
+import AboutMe from "@/components/about-me";
 import { FiGithub } from "react-icons/fi";
 import { LuMail, LuExternalLink } from "react-icons/lu";
 import { experiences, projects, recentLearning, tags } from "./constants";
@@ -35,6 +37,9 @@ const itemVariants = {
 export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* Navigation Bar */}
+      <Navigation />
+
       {/* Particle Background with Mouse Interaction */}
       <ParticleBackground />
 
@@ -60,7 +65,14 @@ export default function Home() {
             >
               <h1 className="text-5xl md:text-7xl font-bold mb-4">
                 <span className="text-foreground">Hi, I&apos;m </span>
-                <span className="text-primary">Mio</span>
+                {["M", "i", "o"].map((char, index) => (
+                  <span
+                    key={index}
+                    className="text-primary pixel-font text-8xl mr-1 leading-12"
+                  >
+                    {char}
+                  </span>
+                ))}
               </h1>
               <div className="h-1 w-24 bg-primary rounded-full mb-6" />
             </motion.div>
@@ -72,7 +84,7 @@ export default function Home() {
               <TypeWriter
                 textProps={{
                   baseText:
-                    "A Frontend Engineer based in Beijing, China. I'm focusing on ",
+                    "A Frontend Engineer working in Tencent. I'm focusing on ",
                   dynamicTexts: [
                     {
                       text: "Web Tech.",
@@ -89,8 +101,7 @@ export default function Home() {
                   ],
                 }}
                 delay={100}
-                className="text-4xl text-muted-foreground"
-                style={{ fontFamily: "var(--font-jersey-10)" }}
+                className="text-4xl text-muted-foreground pixel-font"
                 cursorClassName="bg-neutral-500 w-2 h-6 translate-y-1/20"
                 loop
                 loopDelay={3000}
@@ -101,7 +112,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.5 }}
-              className="flex gap-6 mt-4"
+              className="flex gap-6 mt-4 items-center"
             >
               <Button
                 variant="default"
@@ -129,6 +140,7 @@ export default function Home() {
                   Contact
                 </a>
               </Button>
+              <AboutMe />
             </motion.div>
           </div>
         </motion.section>
@@ -219,6 +231,7 @@ export default function Home() {
 
         {/* Projects Section */}
         <motion.section
+          id="projects"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -277,6 +290,7 @@ export default function Home() {
 
         {/* Recent Reading Section */}
         <motion.section
+          id="articles"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
@@ -289,7 +303,7 @@ export default function Home() {
             className="text-3xl font-bold flex items-center gap-3"
           >
             <div className="h-8 w-1 bg-primary" />
-            Recent Learning
+            Articles & Learning
           </motion.h2>
           <div className="grid md:grid-cols-2 gap-6 mt-8">
             {recentLearning.map((article, index) => (
@@ -369,6 +383,54 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
+        </motion.section>
+
+        {/* Photos Section */}
+        <motion.section
+          id="photos"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="mb-20"
+        >
+          <motion.h2
+            variants={itemVariants}
+            className="text-3xl font-bold mb-8 flex items-center gap-3"
+          >
+            <div className="h-8 w-1 bg-primary" />
+            Photography
+          </motion.h2>
+          <motion.div
+            variants={itemVariants}
+            className="flex items-center justify-center h-64 border-2 border-dashed border-border rounded-lg"
+          >
+            <p className="text-muted-foreground text-lg">Coming Soon...</p>
+          </motion.div>
+        </motion.section>
+
+        {/* Likes Section */}
+        <motion.section
+          id="likes"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="mb-20"
+        >
+          <motion.h2
+            variants={itemVariants}
+            className="text-3xl font-bold mb-8 flex items-center gap-3"
+          >
+            <div className="h-8 w-1 bg-primary" />
+            Things I Like
+          </motion.h2>
+          <motion.div
+            variants={itemVariants}
+            className="flex items-center justify-center h-64 border-2 border-dashed border-border rounded-lg"
+          >
+            <p className="text-muted-foreground text-lg">Coming Soon...</p>
+          </motion.div>
         </motion.section>
 
         {/* Footer */}
