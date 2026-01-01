@@ -14,8 +14,13 @@ const navItems = [
 
 export default function Navigation() {
   const [activeItem, setActiveItem] = useState<string | null>(null);
-  const [isScrolled, setIsScrolled] = useState(() => window.scrollY > 50);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsScrolled(window.scrollY > 50);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
