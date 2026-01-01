@@ -12,6 +12,7 @@ import { FiGithub } from "react-icons/fi";
 import { LuMail, LuExternalLink } from "react-icons/lu";
 import { experiences, projects, recentLearning, tags } from "./constants";
 import { cn } from "@/lib/utils";
+import useSound from "use-sound";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -35,6 +36,15 @@ const itemVariants = {
 };
 
 export default function Home() {
+  const [playHoverTechSound] = useSound("/click.wav", {
+    volume: 0.3,
+    playbackRate: 0.8,
+  });
+  const [playHoverHobbySound] = useSound("/click.wav", {
+    volume: 0.3,
+    playbackRate: 1.2,
+  });
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Navigation Bar */}
@@ -167,6 +177,11 @@ export default function Home() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.1 }}
                 viewport={{ once: true }}
+                onMouseEnter={() =>
+                  tech.category === "Technology"
+                    ? playHoverTechSound()
+                    : playHoverHobbySound()
+                }
               >
                 <Badge
                   variant="outline"

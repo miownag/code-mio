@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { LuMenu, LuX } from "react-icons/lu";
+import useSound from "use-sound";
 
 const navItems = [
   { name: "Articles", href: "#articles" },
@@ -16,6 +17,9 @@ export default function Navigation() {
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [playHoverSound] = useSound("/click.wav", {
+    volume: 0.5,
+  });
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -39,11 +43,11 @@ export default function Navigation() {
     href: string
   ) => {
     e.preventDefault();
+    setActiveItem(null);
     const element = document.querySelector(href);
     if (element) {
       element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    // Collapse menu after clicking on mobile
     if (isScrolled) {
       setIsExpanded(false);
     }
@@ -72,7 +76,10 @@ export default function Navigation() {
                 key={item.name}
                 href={item.href}
                 onClick={(e) => handleClick(e, item.href)}
-                onMouseEnter={() => setActiveItem(item.name)}
+                onMouseEnter={() => {
+                  setActiveItem(item.name);
+                  playHoverSound();
+                }}
                 onMouseLeave={() => setActiveItem(null)}
                 className="relative px-4 py-2 text-sm font-medium transition-colors cursor-pointer overflow-hidden rounded-t-xl"
                 whileHover={{ scale: 1.05 }}
@@ -155,6 +162,11 @@ export default function Navigation() {
                       key={item.name}
                       href={item.href}
                       onClick={(e) => handleClick(e, item.href)}
+                      onMouseEnter={() => {
+                        setActiveItem(item.name);
+                        playHoverSound();
+                      }}
+                      onMouseLeave={() => setActiveItem(null)}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}

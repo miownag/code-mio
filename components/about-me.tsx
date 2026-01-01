@@ -10,6 +10,7 @@ import { HiOutlineMinusCircle } from "react-icons/hi";
 import { VscPinned } from "react-icons/vsc";
 import { VscPinnedDirty } from "react-icons/vsc";
 import { cn } from "@/lib/utils";
+import useSound from "use-sound";
 
 export default function AboutMe() {
   const [isOpened, setIsOpened] = useState(false);
@@ -18,6 +19,10 @@ export default function AboutMe() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const popoverRef = useRef<HTMLDivElement>(null);
+  const [playPopSound] = useSound("/pop.wav", {
+    volume: 0.8,
+  });
+  const [playSwitchSound] = useSound("/switch.wav");
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -101,7 +106,14 @@ export default function AboutMe() {
         className="flex items-center gap-2 py-2 rounded-lg cursor-pointer"
         whileHover={{ scale: isOpened ? 1 : 1.1 }}
         whileTap={{ scale: 0.95 }}
-        onClick={() => !isPinned && setIsOpened((prev) => !prev)}
+        onClick={() => {
+          if (!isPinned) {
+            setIsOpened((prev) => !prev);
+            if (!isOpened) {
+              playPopSound();
+            }
+          }
+        }}
         title="Click to check more"
       >
         <span
@@ -169,7 +181,10 @@ export default function AboutMe() {
                       <h3 className="text-xl font-bold text-foreground">Mio</h3>
                       <div className="flex items-center gap-2 self-start h-full">
                         <motion.div
-                          onClick={() => setIsPinned((prev) => !prev)}
+                          onClick={() => {
+                            setIsPinned((prev) => !prev);
+                            playSwitchSound();
+                          }}
                           className={cn(
                             "cursor-pointer hover:text-primary text-muted-foreground",
                             {
