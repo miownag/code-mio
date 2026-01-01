@@ -13,7 +13,7 @@ Use Bun to install dependencies and run commands.
 
 ## Common Commands
 
-- `bun run dev` - Start development server (runs on http://localhost:3000)
+- `bun run dev` - Start development server (No need to run this command after claude code work, I will check it by myself)
 - `bun run build` - Build for production
 - `bun run start` - Start production server
 - `bun run lint` - Run ESLint

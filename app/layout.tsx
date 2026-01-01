@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Jersey_10 } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Jersey_10,
+  Noto_Sans_SC,
+  Noto_Sans,
+} from "next/font/google";
 import "./globals.css";
+import Navigation from "@/components/navigation";
+import ParticleBackground from "@/components/particle-background";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,6 +26,16 @@ const jersey10 = Jersey_10({
   subsets: ["latin"],
 });
 
+const notoSansSc = Noto_Sans_SC({
+  variable: "--font-noto-sans-sc",
+  weight: "400",
+});
+
+const notoSans = Noto_Sans({
+  variable: "--font-noto-sans",
+  weight: "400",
+});
+
 export const metadata: Metadata = {
   title: "Code Mio",
   description: "A personal website about me.",
@@ -32,9 +49,24 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${jersey10.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${jersey10.variable} ${notoSansSc.variable} ${notoSans.variable} antialiased`}
       >
-        {children}
+        <div className="min-h-screen bg-background text-foreground english-font">
+          {/* Navigation Bar */}
+          <Navigation />
+
+          {/* Particle Background with Mouse Interaction */}
+          <ParticleBackground />
+
+          {/* Grid Background Effect with Green Glow */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#10b981_1px,transparent_1px),linear-gradient(to_bottom,#10b981_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-10 mask-[radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(16,185,129,0.15),transparent)]" />
+          </div>
+
+          {/* Main Content */}
+          {children}
+        </div>
       </body>
     </html>
   );

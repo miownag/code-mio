@@ -121,7 +121,7 @@ export default function AboutMe() {
             "text-primary": isOpened,
           })}
         >
-          More
+          Click Me
         </span>
       </motion.div>
 
@@ -137,7 +137,7 @@ export default function AboutMe() {
             className={cn("absolute z-50", {
               fixed: isPinned,
               "-top-10": !isPinned,
-              "left-16": !isPinned,
+              "left-22": !isPinned,
             })}
             style={
               isPinned
@@ -213,7 +213,7 @@ export default function AboutMe() {
                         </motion.div>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground chinese-font">
                       時空太過大，超脫我的喜與悲
                     </p>
                   </div>
