@@ -112,6 +112,15 @@
   }
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 /* Custom Text Selection - Black Background + Green Text */
 ::selection {
   background-color: var(--color-primary);
@@ -125,4 +134,20 @@
 
 .pixel-font {
   font-family: var(--font-jersey-10), monospace;
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    currentColor 0%,
+    currentColor 40%,
+    var(--color-primary) 50%,
+    currentColor 60%,
+    currentColor 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s ease-in-out infinite;
 }
