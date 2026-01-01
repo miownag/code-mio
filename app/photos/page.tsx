@@ -11,7 +11,7 @@ export default function PhotosPage() {
         transition={{ duration: 0.6 }}
         className="mb-12"
       >
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 flex items-center gap-4">
+        <h1 className="text-4xl md:text-6xl font-light pixel-font mb-4 flex items-center gap-4">
           <div className="h-10 w-1 bg-primary" />
           Photography
         </h1>
