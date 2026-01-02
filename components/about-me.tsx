@@ -22,7 +22,9 @@ export default function AboutMe() {
   const [playPopSound] = useSound("/pop.wav", {
     volume: 0.8,
   });
-  const [playSwitchSound] = useSound("/switch.wav");
+  const [playSwitchSound] = useSound("/switch.wav", {
+    volume: 0.8,
+  });
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

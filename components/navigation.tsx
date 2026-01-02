@@ -21,7 +21,7 @@ export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [playHoverSound] = useSound("/click.wav", {
-    volume: 0.5,
+    volume: 0.6,
   });
   const router = useRouter();
 
