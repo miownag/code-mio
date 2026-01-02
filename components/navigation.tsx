@@ -10,7 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [
   { name: "Home", href: "/" },
-  { name: "Articles", href: "/articles" },
+  { name: "Posts", href: "/posts" },
   { name: "Projects", href: "/projects" },
   { name: "Photos", href: "/photos" },
   { name: "Likes", href: "/likes" },
@@ -44,7 +44,7 @@ export default function Navigation() {
   }, [isExpanded]);
 
   const handleClick = (href: string) => {
-    if (isActive(href) || (isActive("/articles") && href === "/articles")) {
+    if (isActive(href) || (isActive("/posts") && href === "/posts")) {
       return;
     }
     setHoverItem(null);

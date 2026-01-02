@@ -7,7 +7,7 @@ export interface Article {
   tags: string[];
 }
 
-export const articles: Article[] = [
+export const posts: Article[] = [
   {
     id: "ai-agent-patterns",
     title: "Understanding AI Agent Design Patterns",
@@ -21,7 +21,7 @@ export const articles: Article[] = [
     title: "Next.js Performance Optimization Techniques",
     date: "2025-11-20",
     excerpt: "Learn how to optimize your Next.js applications for better performance.",
-    content: "Performance is crucial for modern web applications. In this article, we'll explore various techniques...",
+    content: "Performance is crucial for modern web applications. In this post, we'll explore various techniques...",
     tags: ["Next.js", "Performance", "React"],
   },
   {

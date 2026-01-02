@@ -4,19 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { articles } from "./data";
+import { posts } from "./data";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { BiHide, BiShow } from "react-icons/bi";
 
-export default function ArticlesLayout({
+export default function PostsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
-  const currentId = pathname?.split("/articles/")[1];
+  const currentId = pathname?.split("/posts/")[1];
 
   return (
     <div className="container mx-auto px-4 pt-16 pb-8 max-w-7xl">
@@ -30,7 +30,7 @@ export default function ArticlesLayout({
         <div className="mb-12">
           <h1 className="text-4xl md:text-6xl font-light pixel-font mb-4 flex items-center gap-4">
             <div className="h-10 w-1 bg-primary" />
-            Articles
+            Posts
           </h1>
           <p className="text-muted-foreground text-lg">
             My thoughts and learnings on web development, AI, and more.
@@ -62,7 +62,7 @@ export default function ArticlesLayout({
                 >
                   <div className="w-72 space-y-4">
                     <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-semibold">All Articles</h2>
+                      <h2 className="text-xl font-semibold">All Posts</h2>
                       {/* Sidebar Toggle Button */}
                       <Button
                         variant="ghost"
@@ -74,8 +74,8 @@ export default function ArticlesLayout({
                       </Button>
                     </div>
                     <nav className="flex flex-col gap-4">
-                      {articles.map((item) => (
-                        <Link key={item.id} href={`/articles/${item.id}`}>
+                      {posts.map((item) => (
+                        <Link key={item.id} href={`/posts/${item.id}`}>
                           <div
                             className={cn(
                               "cursor-pointer transition-all duration-300 hover:bg-primary/5 rounded-lg py-2 px-4 -ml-4 flex flex-col",

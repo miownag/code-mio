@@ -301,7 +301,7 @@ export default function Home() {
 
       {/* Recent Reading Section */}
       <motion.section
-        id="articles"
+        id="posts"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
@@ -315,9 +315,9 @@ export default function Home() {
         >
           <h2 className="text-3xl font-bold flex items-center gap-3">
             <div className="h-8 w-1 bg-primary" />
-            Articles & Learning
+            Posts & Learning
           </h2>
-          <Link href="/articles">
+          <Link href="/posts">
             <motion.div
               className="flex items-center gap-2 hover:text-primary transition-colors pixel-font text-xl"
               whileHover={{ scale: 1.1 }}
@@ -329,7 +329,7 @@ export default function Home() {
           </Link>
         </motion.div>
         <div className="grid md:grid-cols-2 gap-6 mt-8">
-          {recentLearning.map((article, index) => (
+          {recentLearning.map((post, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 30, rotate: -2 }}
@@ -353,7 +353,7 @@ export default function Home() {
             >
               <Card
                 className="bg-card border-border hover:border-primary/50 transition-all h-full group cursor-pointer overflow-hidden relative"
-                onClick={() => window.open(article.link, "_blank")}
+                onClick={() => window.open(post.link, "_blank")}
               >
                 {/* Decorative corner accent */}
                 <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-bl-full group-hover:bg-primary/10 transition-colors" />
@@ -361,7 +361,7 @@ export default function Home() {
                 <CardContent className="px-6 py-2 relative z-10">
                   <div className="flex items-start gap-2 mb-3">
                     <h3 className="text-xl font-semibold group-hover:text-primary transition-colors flex-1">
-                      {article.title}
+                      {post.title}
                     </h3>
                     <motion.div
                       whileHover={{ scale: 1.2, rotate: 45 }}
@@ -373,15 +373,15 @@ export default function Home() {
 
                   <div className="flex items-center gap-3 mb-4">
                     <Badge variant="secondary" className="text-xs font-medium">
-                      {article.source}
+                      {post.source}
                     </Badge>
                     <span className="text-sm text-muted-foreground">
-                      {article.date}
+                      {post.date}
                     </span>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    {article.tags.map((tag, tagIndex) => (
+                    {post.tags.map((tag, tagIndex) => (
                       <motion.div
                         key={tag}
                         initial={{ opacity: 0, scale: 0.8 }}
