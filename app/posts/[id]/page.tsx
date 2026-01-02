@@ -5,6 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { posts } from "../data";
 import { useEffect, useState } from "react";
+import { serialize } from "next-mdx-remote/serialize";
+import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
+import { mdxComponents } from "@/components/mdx-components";
+import rehypeHighlight from "rehype-highlight";
+import remarkGfm from "remark-gfm";
 import {
   Empty,
   EmptyContent,
@@ -36,6 +41,44 @@ const noPostContent = (
   </Card>
 );
 
+function MDXContent({ source }: { source: string }) {
+  const [mdxContent, setMdxContent] = useState<MDXRemoteSerializeResult | null>(
+    null
+  );
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsLoading(true);
+    serialize(source, {
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [rehypeHighlight],
+      },
+    })
+      .then(setMdxContent)
+      .finally(() => setIsLoading(false));
+  }, [source]);
+
+  if (isLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-4"
+      >
+        <div className="h-4 w-full bg-muted/20 rounded animate-pulse" />
+        <div className="h-4 w-full bg-muted/20 rounded animate-pulse" />
+        <div className="h-4 w-3/4 bg-muted/20 rounded animate-pulse" />
+      </motion.div>
+    );
+  }
+
+  if (!mdxContent) return null;
+
+  return <MDXRemote {...mdxContent} components={mdxComponents} />;
+}
+
 export default function PostPage({ params }: PostPageProps) {
   const [id, setId] = useState<string | null>(null);
 
@@ -66,9 +109,7 @@ export default function PostPage({ params }: PostPageProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">
-              {post.title}
-            </h1>
+            <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
 
             <div className="flex items-center gap-4 mb-6 text-muted-foreground">
               <span>{post.date}</span>
@@ -87,8 +128,8 @@ export default function PostPage({ params }: PostPageProps) {
                 {post.excerpt}
               </p>
 
-              <div className="text-foreground leading-relaxed chinese-font">
-                {post.content}
+              <div className="text-foreground leading-relaxed post-content-font mdx-content">
+                <MDXContent source={post.content} />
               </div>
             </div>
           </motion.div>

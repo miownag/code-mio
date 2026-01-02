@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { LuMenu, LuX } from "react-icons/lu";
 import useSound from "use-sound";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [

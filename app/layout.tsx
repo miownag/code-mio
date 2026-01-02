@@ -34,6 +34,7 @@ const notoSansSc = Noto_Sans_SC({
 const notoSans = Noto_Sans({
   variable: "--font-noto-sans",
   weight: "400",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
