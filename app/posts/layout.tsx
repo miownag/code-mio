@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,7 @@ import { posts } from "./data";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { BiHide, BiShow } from "react-icons/bi";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PostsLayout({
   children,
@@ -121,7 +122,26 @@ export default function PostsLayout({
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            {children}
+            <Suspense
+              fallback={
+                <div className="flex-1 p-8 space-y-6 min-h-screen">
+                  <Skeleton className="h-9 w-1/4 rounded-md" />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Skeleton className="h-48 rounded-lg" />
+                    <Skeleton className="h-48 rounded-lg" />
+                    <Skeleton className="h-48 rounded-lg" />
+                  </div>
+                  <div className="space-y-3">
+                    <Skeleton className="h-5 w-full rounded-md" />
+                    <Skeleton className="h-5 w-full rounded-md" />
+                    <Skeleton className="h-5 w-3/4 rounded-md" />
+                  </div>
+                  <Skeleton className="h-72 w-full rounded-lg" />
+                </div>
+              }
+            >
+              {children}
+            </Suspense>
           </motion.div>
         </div>
       </div>
