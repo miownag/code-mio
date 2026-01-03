@@ -9,7 +9,9 @@ import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
 import { mdxComponents } from "@/components/mdx-components";
 import rehypeHighlight from "rehype-highlight";
+import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+import TableOfContents from "@/components/table-of-contents";
 import {
   Empty,
   EmptyContent,
@@ -53,7 +55,7 @@ function MDXContent({ source }: { source: string }) {
     serialize(source, {
       mdxOptions: {
         remarkPlugins: [remarkGfm],
-        rehypePlugins: [rehypeHighlight],
+        rehypePlugins: [rehypeSlug, rehypeHighlight],
       },
     })
       .then(setMdxContent)
@@ -101,8 +103,9 @@ export default function PostPage({ params }: PostPageProps) {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
+      className="flex gap-8"
     >
-      <Card className="opacity-90 bg-[hsl(142,70%,2%)]">
+      <Card className="opacity-90 bg-[hsl(142,70%,2%)] flex-1 min-w-0">
         <CardContent className="px-8 py-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -135,6 +138,18 @@ export default function PostPage({ params }: PostPageProps) {
           </motion.div>
         </CardContent>
       </Card>
+
+      {/* Table of Contents - hidden on mobile */}
+      <motion.aside
+        className="hidden xl:block shrink-0"
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 1, delay: 0.5 }}
+      >
+        <div className="sticky top-20">
+          <TableOfContents content={post.content} />
+        </div>
+      </motion.aside>
     </motion.div>
   );
 }

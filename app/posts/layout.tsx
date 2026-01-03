@@ -19,8 +19,9 @@ export default function PostsLayout({
   const pathname = usePathname();
   const currentId = pathname?.split("/posts/")[1];
 
+  // Larger max-width for post page
   return (
-    <div className="container mx-auto px-4 pt-16 pb-8 max-w-7xl">
+    <div className="container mx-auto px-4 pt-16 pb-8 max-w-9xl">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

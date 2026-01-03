@@ -6,18 +6,21 @@ export const mdxComponents = {
   // Headings
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h1
+      id={props.id}
       className="text-4xl md:text-5xl font-bold text-foreground mt-10 mb-6 scroll-m-20"
       {...props}
     />
   ),
   h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h2
+      id={props.id}
       className="text-3xl md:text-4xl font-bold text-foreground mt-8 mb-4 pb-2 scroll-m-20"
       {...props}
     />
   ),
   h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h3
+      id={props.id}
       className="text-2xl md:text-3xl font-bold text-foreground mt-6 mb-3 scroll-m-20"
       {...props}
     />
