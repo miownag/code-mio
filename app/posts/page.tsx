@@ -1,23 +1,21 @@
-"use client";
-
 import { redirect } from "next/navigation";
-import { useEffect } from "react";
-import { useGetPostMetaData } from "@/hooks";
-import PostsLoading from "@/components/posts-loading";
 import NoPost from "@/components/no-post";
+import { getPostsMetadata } from "@/lib/posts";
 
-export default function PostsPage() {
-  const { data: { data: metaData = [] } = {}, isLoading } =
-    useGetPostMetaData();
+async function getFirstPostId() {
+  try {
+    const data = await getPostsMetadata();
+    return data[0].id;
+  } catch {
+    return null;
+  }
+}
 
-  useEffect(() => {
-    if (!isLoading && metaData.length > 0) {
-      redirect(`/posts/${metaData[0].id}`);
-    }
-  }, [isLoading, metaData]);
+export default async function PostsPage() {
+  const id = await getFirstPostId();
 
-  if (isLoading) {
-    return <PostsLoading />;
+  if (id) {
+    redirect(`/posts/${id}`);
   }
 
   return <NoPost title="No post available" content="Coming soon..." />;

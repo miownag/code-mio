@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -43,118 +43,90 @@ export default function PostsLayout({
       </motion.div>
 
       {/* Main Content Area */}
-      <div className="relative">
-        <div className="flex gap-8">
-          {/* Article List - Collapsible Sidebar */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              transition={{ duration: 0.3 }}
-              className={cn("shrink-0", {
-                "-ml-18": !sidebarOpen,
-              })}
-            >
-              {sidebarOpen ? (
-                <motion.aside
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 300, opacity: 1 }}
-                  exit={{ width: 0, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="shrink-0"
-                >
-                  <div className="w-72 space-y-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-semibold">All Posts</h2>
-                      {/* Sidebar Toggle Button */}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="cursor-pointer"
-                        onClick={() => setSidebarOpen(false)}
-                      >
-                        <BiHide className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <nav className="flex flex-col gap-4">
-                      {isLoading ? (
-                        <>
-                          <Skeleton className="h-16 w-full rounded-lg" />
-                          <Skeleton className="h-16 w-full rounded-lg" />
-                          <Skeleton className="h-16 w-full rounded-lg" />
-                        </>
-                      ) : (
-                        metaData.map((item) => (
-                          <Link key={item.id} href={`/posts/${item.id}`}>
-                            <div
+      <div className="relative flex gap-8">
+        {/* Article List - Collapsible Sidebar */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3 }}
+            className={cn("shrink-0", {
+              "-ml-18": !sidebarOpen,
+            })}
+          >
+            {sidebarOpen ? (
+              <motion.aside
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: 300, opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="shrink-0"
+              >
+                <div className="w-72 space-y-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold">All Posts</h2>
+                    {/* Sidebar Toggle Button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="cursor-pointer"
+                      onClick={() => setSidebarOpen(false)}
+                    >
+                      <BiHide className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <nav className="flex flex-col gap-4">
+                    {isLoading ? (
+                      <>
+                        <Skeleton className="h-16 w-full rounded-lg" />
+                        <Skeleton className="h-16 w-full rounded-lg" />
+                        <Skeleton className="h-16 w-full rounded-lg" />
+                      </>
+                    ) : (
+                      metaData.map((item) => (
+                        <Link key={item.id} href={`/posts/${item.id}`}>
+                          <div
+                            className={cn(
+                              "cursor-pointer transition-all duration-300 hover:bg-primary/5 rounded-lg py-2 px-4 -ml-4 flex flex-col",
+                              {
+                                "text-primary": item.id === currentId,
+                              }
+                            )}
+                          >
+                            <h3
                               className={cn(
-                                "cursor-pointer transition-all duration-300 hover:bg-primary/5 rounded-lg py-2 px-4 -ml-4 flex flex-col",
-                                {
-                                  "text-primary": item.id === currentId,
-                                }
+                                "font-semibold mb-2 line-clamp-2",
+                                item.id === currentId && "text-primary"
                               )}
                             >
-                              <h3
-                                className={cn(
-                                  "font-semibold mb-2 line-clamp-2",
-                                  item.id === currentId && "text-primary"
-                                )}
-                              >
-                                {item.title}
-                              </h3>
-                              <p className="text-sm text-muted-foreground">
-                                {item.date}
-                              </p>
-                            </div>
-                          </Link>
-                        ))
-                      )}
-                    </nav>
-                  </div>
-                </motion.aside>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="cursor-pointer text-muted-foreground"
-                  onClick={() => setSidebarOpen(true)}
-                >
-                  <BiShow className="h-4 w-4" />
-                </Button>
-              )}
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Article Content Area */}
-          <motion.div
-            className="flex-1 min-w-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Suspense
-              fallback={
-                <div className="flex-1 p-8 space-y-6 min-h-screen">
-                  <Skeleton className="h-9 w-1/4 rounded-md" />
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Skeleton className="h-48 rounded-lg" />
-                    <Skeleton className="h-48 rounded-lg" />
-                    <Skeleton className="h-48 rounded-lg" />
-                  </div>
-                  <div className="space-y-3">
-                    <Skeleton className="h-5 w-full rounded-md" />
-                    <Skeleton className="h-5 w-full rounded-md" />
-                    <Skeleton className="h-5 w-3/4 rounded-md" />
-                  </div>
-                  <Skeleton className="h-72 w-full rounded-lg" />
+                              {item.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {item.date}
+                            </p>
+                          </div>
+                        </Link>
+                      ))
+                    )}
+                  </nav>
                 </div>
-              }
-            >
-              {children}
-            </Suspense>
+              </motion.aside>
+            ) : (
+              <Button
+                variant="outline"
+                size="icon"
+                className="cursor-pointer text-muted-foreground"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <BiShow className="h-4 w-4" />
+              </Button>
+            )}
           </motion.div>
-        </div>
+        </AnimatePresence>
+
+        {/* Article Content Area */}
+        <div className="flex-1 min-w-0">{children}</div>
       </div>
     </div>
   );
