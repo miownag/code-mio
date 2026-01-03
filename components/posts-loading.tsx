@@ -1,17 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Card } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
 
 function PostsLoading() {
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="flex gap-8"
-    >
+    <div className="flex gap-8">
       <Card className="p-8 w-3/4">
         <div className="space-y-4">
           <Skeleton className="h-10 w-3/4" />
@@ -27,7 +21,7 @@ function PostsLoading() {
           </div>
         </div>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 

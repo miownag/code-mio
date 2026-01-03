@@ -13,12 +13,7 @@ import {
 
 function NoPost({ title, content }: { title: string; content: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="flex gap-8"
-    >
+    <div className="flex gap-8">
       <Card className="p-8 w-3/4">
         <Empty>
           <EmptyHeader>
@@ -30,7 +25,7 @@ function NoPost({ title, content }: { title: string; content: string }) {
           <EmptyContent className="text-primary">{content}</EmptyContent>
         </Empty>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
