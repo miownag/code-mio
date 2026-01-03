@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import GithubSlugger from "github-slugger";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { BiHide, BiShow } from "react-icons/bi";
 import { Button } from "@/components/ui/button";
 

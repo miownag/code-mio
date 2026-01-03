@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
@@ -106,57 +106,45 @@ export default function PostPage() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="flex gap-8"
-    >
-      <Card className="opacity-90 bg-[hsl(142,70%,2%)] flex-1 min-w-0">
-        <CardContent className="px-8 py-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+    <AnimatePresence mode="wait">
+      <div className="flex gap-8">
+        <Card className="opacity-90 bg-[hsl(142,70%,2%)] flex-1 min-w-0">
+          <CardContent className="px-8 py-4">
+            <div>
+              <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
 
-            <div className="flex items-center gap-4 mb-6 text-muted-foreground">
-              <span>{post.date}</span>
-            </div>
+              <div className="flex items-center gap-4 mb-6 text-muted-foreground">
+                <span>{post.date}</span>
+              </div>
 
-            <div className="flex flex-wrap gap-2 mb-8">
-              {post.tags.map((tag) => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+              <div className="flex flex-wrap gap-2 mb-8">
+                {post.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
 
-            <div className="prose prose-invert max-w-none">
-              <p className="text-lg text-muted-foreground mb-6">
-                {post.excerpt}
-              </p>
+              <div className="prose prose-invert max-w-none">
+                <p className="text-lg text-muted-foreground mb-6">
+                  {post.excerpt}
+                </p>
 
-              <div className="text-foreground leading-relaxed post-content-font mdx-content">
-                <MDXContent source={post.content} />
+                <div className="text-foreground leading-relaxed post-content-font mdx-content">
+                  <MDXContent source={post.content} />
+                </div>
               </div>
             </div>
-          </motion.div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Table of Contents - hidden on mobile */}
-      <motion.aside
-        className="hidden xl:block shrink-0"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1, delay: 0.5 }}
-      >
-        <div className="sticky top-20">
-          <TableOfContents content={post.content} />
-        </div>
-      </motion.aside>
-    </motion.div>
+        {/* Table of Contents - hidden on mobile */}
+        <aside className="hidden xl:block shrink-0">
+          <div className="sticky top-20">
+            <TableOfContents content={post.content} />
+          </div>
+        </aside>
+      </div>
+    </AnimatePresence>
   );
 }
