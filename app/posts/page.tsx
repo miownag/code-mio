@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { useEffect } from "react";
 import { useGetPostMetaData } from "@/hooks";
+import PostsLoading from "@/components/posts-loading";
+import NoPost from "@/components/no-post";
 
 export default function PostsPage() {
   const { data: { data: metaData = [] } = {}, isLoading } =
@@ -15,17 +17,8 @@ export default function PostsPage() {
   }, [isLoading, metaData]);
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 pt-16 pb-8 max-w-7xl">
-        <p className="text-center text-muted-foreground">Loading...</p>
-      </div>
-    );
+    return <PostsLoading />;
   }
 
-  // Fallback if no posts exist
-  return (
-    <div className="container mx-auto px-4 pt-16 pb-8 max-w-7xl">
-      <p className="text-center text-muted-foreground">No posts available</p>
-    </div>
-  );
+  return <NoPost title="No post available" content="Coming soon..." />;
 }

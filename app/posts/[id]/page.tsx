@@ -12,39 +12,9 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import TableOfContents from "@/components/table-of-contents";
-import {
-  Empty,
-  EmptyContent,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
-import { MdBrowserNotSupported } from "react-icons/md";
 import { useParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-
-const noPostContent = (
-  <motion.div
-    initial={{ opacity: 0, x: 20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ duration: 0.5, delay: 0.2 }}
-    className="flex gap-8"
-  >
-    <Card className="p-8 w-3/4">
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <MdBrowserNotSupported />
-          </EmptyMedia>
-          <EmptyTitle>No such post</EmptyTitle>
-        </EmptyHeader>
-        <EmptyContent className="text-primary">
-          You can click posts left to read.
-        </EmptyContent>
-      </Empty>
-    </Card>
-  </motion.div>
-);
+import NoPost from "@/components/no-post";
 
 const loadingContent = (
   <motion.div
@@ -114,7 +84,12 @@ export default function PostPage() {
   const { data: { data: post } = {}, isLoading } = useGetPostContent(id);
 
   if (!id) {
-    return noPostContent;
+    return (
+      <NoPost
+        title="No such post"
+        content="You can check posts by click left list."
+      />
+    );
   }
 
   if (isLoading) {
@@ -122,7 +97,12 @@ export default function PostPage() {
   }
 
   if (!post) {
-    return noPostContent;
+    return (
+      <NoPost
+        title="No such post"
+        content="You can check posts by click left list."
+      />
+    );
   }
 
   return (
