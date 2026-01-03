@@ -1,0 +1,71 @@
+# Advanced TypeScript Types
+
+TypeScript's type system is incredibly powerful. Let's explore advanced features that make your code more type-safe and maintainable.
+
+## Mapped Types
+
+Transform existing types into new types:
+
+```typescript
+type Readonly<T> = {
+  readonly [P in keyof T]: T[P];
+}
+
+type Partial<T> = {
+  [P in keyof T]?: T[P];
+}
+```
+
+## Conditional Types
+
+Create types that depend on conditions:
+
+```typescript
+type IsString<T> = T extends string ? true : false;
+
+type A = IsString<"hello">; // true
+type B = IsString<42>;      // false
+```
+
+## Template Literal Types
+
+Build types from string patterns:
+
+```typescript
+type EventName = `on${Capitalize<string>}`;
+// "onClick", "onHover", etc.
+
+type CSSProperty = `--${string}`;
+// "--primary-color", "--font-size", etc.
+```
+
+## Utility Types in Practice
+
+Here's a real-world example:
+
+```typescript
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+}
+
+// Public user data (exclude password)
+type PublicUser = Omit<User, 'password'>;
+
+// User update data (all optional except id)
+type UserUpdate = Partial<User> & Pick<User, 'id'>;
+```
+
+### Key Benefits:
+- **Type Safety**: Catch errors at compile time
+- **Intellisense**: Better IDE support
+- **Refactoring**: Safe code changes
+- **Documentation**: Types as documentation
+
+---
+
+> "TypeScript doesn't just catch bugs, it prevents them from being written."
+
+一个好的类型系统可以让代码更加健壮和易于维护。

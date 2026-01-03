@@ -10,6 +10,7 @@ import "./globals.css";
 import Navigation from "@/components/navigation";
 import ParticleBackground from "@/components/particle-background";
 import ScrollToTop from "@/components/scroll-to-top";
+import QueryProvider from "../providers/query-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -67,7 +68,7 @@ export default function RootLayout({
           </div>
 
           {/* Main Content */}
-          {children}
+          <QueryProvider>{children}</QueryProvider>
 
           {/* Scroll to Top Button */}
           <ScrollToTop />

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "ai-agent-patterns",
+    "title": "Understanding AI Agent Design Patterns",
+    "date": "2025-12-15",
+    "excerpt": "Exploring common patterns and best practices in building AI agents.",
+    "tags": ["AI", "Agent", "Design Patterns"]
+  },
+  {
+    "id": "nextjs-performance",
+    "title": "Next.js Performance Optimization Techniques",
+    "date": "2025-11-20",
+    "excerpt": "Learn how to optimize your Next.js applications for better performance.",
+    "tags": ["Next.js", "Performance", "React"]
+  },
+  {
+    "id": "typescript-advanced",
+    "title": "Advanced TypeScript Types",
+    "date": "2025-10-10",
+    "excerpt": "Deep dive into advanced TypeScript type system features.",
+    "tags": ["TypeScript", "Programming"]
+  }
+]

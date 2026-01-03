@@ -4,11 +4,11 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { posts } from "./data";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { BiHide, BiShow } from "react-icons/bi";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetPostMetaData } from "../../hooks";
 
 export default function PostsLayout({
   children,
@@ -18,6 +18,8 @@ export default function PostsLayout({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
   const currentId = pathname?.split("/posts/")[1];
+  const { data: { data: metaData = [] } = {}, isLoading } =
+    useGetPostMetaData();
 
   // Larger max-width for post page
   return (
@@ -76,30 +78,38 @@ export default function PostsLayout({
                       </Button>
                     </div>
                     <nav className="flex flex-col gap-4">
-                      {posts.map((item) => (
-                        <Link key={item.id} href={`/posts/${item.id}`}>
-                          <div
-                            className={cn(
-                              "cursor-pointer transition-all duration-300 hover:bg-primary/5 rounded-lg py-2 px-4 -ml-4 flex flex-col",
-                              {
-                                "text-primary": item.id === currentId,
-                              }
-                            )}
-                          >
-                            <h3
+                      {isLoading ? (
+                        <>
+                          <Skeleton className="h-16 w-full rounded-lg" />
+                          <Skeleton className="h-16 w-full rounded-lg" />
+                          <Skeleton className="h-16 w-full rounded-lg" />
+                        </>
+                      ) : (
+                        metaData.map((item) => (
+                          <Link key={item.id} href={`/posts/${item.id}`}>
+                            <div
                               className={cn(
-                                "font-semibold mb-2 line-clamp-2",
-                                item.id === currentId && "text-primary"
+                                "cursor-pointer transition-all duration-300 hover:bg-primary/5 rounded-lg py-2 px-4 -ml-4 flex flex-col",
+                                {
+                                  "text-primary": item.id === currentId,
+                                }
                               )}
                             >
-                              {item.title}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">
-                              {item.date}
-                            </p>
-                          </div>
-                        </Link>
-                      ))}
+                              <h3
+                                className={cn(
+                                  "font-semibold mb-2 line-clamp-2",
+                                  item.id === currentId && "text-primary"
+                                )}
+                              >
+                                {item.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                {item.date}
+                              </p>
+                            </div>
+                          </Link>
+                        ))
+                      )}
                     </nav>
                   </div>
                 </motion.aside>
