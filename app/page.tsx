@@ -4,6 +4,13 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import TypeWriter from "@/components/type-writer";
 import AboutMe from "@/components/about-me";
 import { FiGithub } from "react-icons/fi";
@@ -12,6 +19,8 @@ import { experiences, projects, recentLearning, tags } from "./constants";
 import { cn } from "@/lib/utils";
 import useSound from "use-sound";
 import Link from "next/link";
+import Image from "next/image";
+import Autoplay from "embla-carousel-autoplay";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -260,43 +269,80 @@ export default function Home() {
             </motion.div>
           </Link>
         </motion.div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
-            <motion.div key={index} variants={itemVariants}>
-              <Card
-                className="bg-card border-border hover:border-primary/50 transition-all h-full group cursor-pointer"
-                onClick={() => window.open(project.link, "_blank")}
-              >
-                <CardContent
-                  className="px-6 py-2 flex flex-col h-full"
-                  title="Go to GitHub repository"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">
-                      {project.name}
-                    </h3>
-                    <motion.div
-                      whileHover={{ scale: 1.2, rotate: 45 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <LuExternalLink className="h-5 w-5 group-hover:text-primary transition-colors" />
-                    </motion.div>
-                  </div>
-                  <p className="text-muted-foreground mb-4 grow">
-                    {project.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tech.map((tech) => (
-                      <Badge key={tech} variant="secondary" className="text-xs">
-                        {tech}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+        <motion.div variants={itemVariants}>
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            plugins={[
+              Autoplay({
+                delay: 3000,
+                stopOnInteraction: true,
+                stopOnMouseEnter: true,
+              }),
+            ]}
+            className="w-full"
+          >
+            <CarouselContent>
+              {projects.map((project, index) => (
+                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/2">
+                  <Card
+                    className="bg-card border-border hover:border-primary/50 transition-all h-full group cursor-pointer"
+                    onClick={() => window.open(project.link, "_blank")}
+                  >
+                    <CardContent className="pl-4 flex flex-col md:flex-row h-full">
+                      {/* Left side - Image */}
+                      <div className="w-full md:w-2/5 bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center min-h-[200px] md:min-h-[250px] rounded-2xl">
+                        {project.image ? (
+                          <Image
+                            src={project.image || ""}
+                            alt={project.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : null}
+                      </div>
+
+                      {/* Right side - Content */}
+                      <div className="w-full md:w-3/5 px-6 py-4 flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between mb-3">
+                            <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">
+                              {project.name}
+                            </h3>
+                            <motion.div
+                              whileHover={{ scale: 1.2, rotate: 45 }}
+                              transition={{ duration: 0.2 }}
+                              className="py-1"
+                            >
+                              <LuExternalLink className="h-5 w-5 group-hover:text-primary transition-colors" />
+                            </motion.div>
+                          </div>
+                          <p className="text-muted-foreground mb-4">
+                            {project.description}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {project.tech.map((tech) => (
+                            <Badge
+                              key={tech}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {tech}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="cursor-pointer" />
+            <CarouselNext className="cursor-pointer" />
+          </Carousel>
+        </motion.div>
       </motion.section>
 
       {/* Recent Reading Section */}

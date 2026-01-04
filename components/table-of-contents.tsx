@@ -108,9 +108,9 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
       >
         {isOpen ? (
           <motion.nav
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: "auto", opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 20, opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="shrink-0"
           >

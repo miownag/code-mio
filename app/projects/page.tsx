@@ -58,13 +58,14 @@ export default function ProjectsPage() {
               onClick={() => window.open(project.link, "_blank")}
             >
               <CardContent className="px-6 py-2 flex flex-col h-full">
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex justify-between mb-3">
                   <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">
                     {project.name}
                   </h3>
                   <motion.div
                     whileHover={{ scale: 1.2, rotate: 45 }}
                     transition={{ duration: 0.2 }}
+                    className="py-1"
                   >
                     <LuExternalLink className="h-5 w-5 group-hover:text-primary transition-colors" />
                   </motion.div>

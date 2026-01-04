@@ -45,6 +45,7 @@ const projects = [
     description: "A full-stack AI chatbot desktop app boilerplate 🤖",
     tech: ["React", "Bun", "Hono", "PostgreSQL"],
     link: "https://github.com/miownag/chat-desktop-app-boilerplate",
+    image: undefined, // Optional: Add image URL here
   },
   {
     name: "Billionaire CLI Framework",
@@ -52,12 +53,14 @@ const projects = [
       "A File-based Conventional CLI Framework built on Commander.js 💰",
     tech: ["Node.js", "TypeScript", "commander.js"],
     link: "https://github.com/miownag/bn-cli-framework",
+    image: undefined, // Optional: Add image URL here
   },
   {
     name: "Open Source Projects",
     description: "Contribute to open source projects and learn from others 😊",
     tech: ["Ant Design", "TDesign", "..."],
     link: "https://github.com/miownag?tab=repositories",
+    image: undefined, // Optional: Add image URL here
   },
 ];
 
