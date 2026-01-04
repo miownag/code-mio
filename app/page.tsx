@@ -285,15 +285,18 @@ export default function Home() {
             className="w-full"
           >
             <CarouselContent>
-              {projects.map((project, index) => (
-                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/2">
+              {projects.map((project) => (
+                <CarouselItem
+                  key={project.name}
+                  className="md:basis-1/2 lg:basis-1/2"
+                >
                   <Card
                     className="bg-card border-border hover:border-primary/50 transition-all h-full group cursor-pointer"
                     onClick={() => window.open(project.link, "_blank")}
                   >
-                    <CardContent className="pl-4 flex flex-col md:flex-row h-full">
+                    <CardContent className="flex flex-col md:flex-row gap-6">
                       {/* Left side - Image */}
-                      <div className="w-full md:w-2/5 bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center min-h-[200px] md:min-h-[250px] rounded-2xl">
+                      <div className="w-full md:w-2/5 bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center min-h-48 md:min-h-56 rounded-2xl">
                         {project.image ? (
                           <Image
                             src={project.image || ""}
@@ -304,7 +307,7 @@ export default function Home() {
                       </div>
 
                       {/* Right side - Content */}
-                      <div className="w-full md:w-3/5 px-6 py-4 flex flex-col justify-between">
+                      <div className="w-full md:w-3/5 flex flex-col justify-between">
                         <div>
                           <div className="flex justify-between mb-3">
                             <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">
