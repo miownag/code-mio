@@ -1,6 +1,88 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { Check, Copy } from "lucide-react";
+import { Button } from "./ui/button";
+
+// Code block component with language label and copy button
+function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
+  const [copied, setCopied] = useState(false);
+
+  // Extract language from className (e.g., "language-tsx")
+  const className = props.className || "";
+  const languageMatch = className.match(/language-(\w+)/);
+  const language = languageMatch ? languageMatch[1] : "code";
+
+  // Get the code content - recursively extract text from React elements
+  const getCodeContent = (): string => {
+    const extractText = (node: React.ReactNode): string => {
+      if (typeof node === "string") {
+        return node;
+      }
+      if (typeof node === "number") {
+        return String(node);
+      }
+      if (Array.isArray(node)) {
+        return node.map(extractText).join("");
+      }
+      if (React.isValidElement(node)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return extractText((node.props as any).children);
+      }
+      return "";
+    };
+
+    return extractText(props.children);
+  };
+
+  const handleCopy = async () => {
+    const code = getCodeContent();
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="relative group my-6">
+      {/* Language label and copy button bar */}
+      <div className="flex items-center justify-between px-4 py-2 bg-muted border border-primary/20 border-b-0 rounded-t-lg">
+        <span className="text-xs font-mono text-foreground/70 uppercase tracking-wider font-semibold">
+          {language}
+        </span>
+        <Button
+          variant="ghost"
+          onClick={handleCopy}
+          className={cn(
+            "rounded-lg text-xs transition-colors hover:bg-primary/10 text-foreground/70 hover:text-primary",
+            { "cursor-pointer": !copied }
+          )}
+        >
+          {copied ? (
+            <>
+              <Check className="w-3.5 h-3.5" />
+              <span>Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-3.5 h-3.5" />
+              <span>Copy</span>
+            </>
+          )}
+        </Button>
+      </div>
+      {/* Code block */}
+      <pre
+        {...props}
+        className={cn(
+          "rounded-t-none rounded-b-lg overflow-x-auto shadow-lg text-sm text-shadow-none border border-primary/20 px-4 py-3 font-mono bg-muted/70 m-0",
+          props.className
+        )}
+      />
+    </div>
+  );
+}
 
 export const mdxComponents = {
   // Headings
@@ -69,38 +151,27 @@ export const mdxComponents = {
 
   // Code
   code: (props: React.HTMLAttributes<HTMLElement>) => {
-    // Inline code (when not inside pre)
-    const isInline = !props.className?.includes("hljs");
-    if (isInline) {
-      return (
-        <code
-          className="px-1.5 rounded bg-muted text-[#e6c07b] text-sm font-mono border border-primary/20"
-          {...props}
-        />
-      );
-    }
-    // Block code (inside pre, handled by highlight.js)
-    return <code className={cn("text-sm", props.className)} {...props} />;
+    return (
+      <code
+        className="rounded px-1.5 py-0.5 mx-1 text-sm text-primary border border-primary/20 bg-muted text-shadow-none"
+        {...props}
+      />
+    );
   },
 
   // Pre (code blocks)
-  pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
-    <pre
-      className="rounded-lg bg-[hsl(0,0%,3%)] overflow-x-auto my-6 shadow-lg"
-      {...props}
-    />
-  ),
+  pre: CodeBlock,
 
   // Lists
   ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
     <ul
-      className="list-disc pl-6 space-y-2 mb-4 marker:text-primary"
+      className="list-disc pl-6 space-y-2 mb-4 marker:text-primary/80"
       {...props}
     />
   ),
   ol: (props: React.OlHTMLAttributes<HTMLOListElement>) => (
     <ol
-      className="list-decimal pl-6 space-y-2 mb-4 marker:text-primary marker:font-semibold"
+      className="list-decimal pl-6 space-y-2 mb-4 marker:text-primary/80 marker:font-semibold"
       {...props}
     />
   ),

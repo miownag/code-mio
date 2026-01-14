@@ -1,0 +1,56 @@
+# Markdown 渲染优化
+
+在这篇文章中，我们将分析两个常见的 Markdown 渲染库：X Markdown 和 prompt kit Markdown 来了解它们的渲染原理和优化技巧。
+其中，X Markdown 是国内最流行的 React 组件库 Ant Design 团队所开发的，而 prompt kit Markdown 基于 shadcn 组件库所开发的，可以说是国内国外两个最常用的 Markdown 渲染库。
+
+## X Markdown
+
+### 渲染结果
+
+```tsx
+<div className={mergedCls} style={mergedStyle}>
+  {renderer.render(htmlString)}
+</div>
+```
+
+### 主要逻辑
+
+1. useStreaming —— 流式解析 markdown string，主要作用是补全+pending
+   1. 判断前缀：如果当前的 string 的前缀和之前缓存的前缀一致，则认为是增量，正常解析；如果是不一致的，则重置缓存，从而从头解析
+   2. 增量解析：将新增的内容逐 char 解析
+   3. 支持 MD 节点 loading：如果判断是一个非 text 的组件，比如 Link，并且还在 loading 中，则会展示占位符（由用户配置指定，可以是自定义 html 标签）
+2. parser —— 使用 parser.parse 解析上述字符串，获得 html 字符串
+   1. 使用 marked，默认设置了几个配置项，每次都 parse
+3. renderer —— 使用 renderer.render 渲染上述 html 字符串，转为 html react element，作为容器的 children
+   1. 使用 html-react-parser，经过 purify 后，将 html 字符串解析为 react element
+   2. 支持设置 replacement，将某些 html 节点替换为配置里指定的组件的 element
+   3. 支持 HTML 节点 loading：如果判断是一个非闭合的标签，可以支持先展示 loading
+
+## prompt-kit Markdown
+
+### 渲染结果
+
+一个 div 做容器，里面使用 React Markdown 做分块渲染
+
+```tsx
+<div className={className}>
+  {blocks.map((block, index) => (
+    <MemoizedMarkdownBlock
+      key={`${blockId}-block-${index}`}
+      content={block}
+      components={components}
+    />
+  ))}
+</div>
+```
+
+### 主要逻辑
+
+1. parseMarkdownIntoBlocks：把 markdown string 切分为不同的块，而不是 html 字符串(memo)
+   1. 使用 marked 的 lexer 进行分词，比如 h1、link 等，而不是直接生成<h1 />
+2. 遍历块进行渲染
+   1. 渲染 key 为`${blockId}-block-${index}` ，block id 为用户传入，在渲染时传入，防止列表中混淆
+   2. 做了 memo，只有 content 变化时才重渲染，考虑到 components 一般是静态配置，因此不在比较函数内
+3. 使用 ReactMarkdown 渲染
+   1. 通过该组件直接渲染 md 块（其实就是 string）
+   2. 使用 GFM 插件支持 GitHub Flavored Markdown（超集）

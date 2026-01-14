@@ -15,28 +15,33 @@ import QueryProvider from "../providers/query-provider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const jersey10 = Jersey_10({
   variable: "--font-jersey-10",
   weight: "400",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const notoSansSc = Noto_Sans_SC({
   variable: "--font-noto-sans-sc",
   weight: "400",
+  display: "swap",
 });
 
 const notoSans = Noto_Sans({
   variable: "--font-noto-sans",
   weight: "400",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {

@@ -1,4 +1,4 @@
-@import "highlight.js/styles/atom-one-dark.css";
+/* @import "prismjs/themes/prism-tomorrow.css"; */
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -166,4 +166,80 @@
     -webkit-text-fill-color: transparent;
     animation: shimmer 3s ease-in-out infinite;
   }
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: hsl(0, 0%, 55%);
+  font-style: italic;
+}
+
+.token.punctuation {
+  color: hsl(0, 0%, 55%);
+}
+
+.token.tag {
+  color: #e36464;
+}
+
+.token.property,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: hsl(183, 100%, 50%);
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: var(--color-primary);
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: hsl(300, 94%, 68%);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: hsl(271, 100%, 73%);
+}
+
+.token.function {
+  color: hsl(203, 88%, 65%);
+  font-weight: 500;
+}
+.token.class-name {
+  color: hsl(28, 98%, 59%);
+  font-weight: 500;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: hsl(283, 85%, 56%);
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
 }

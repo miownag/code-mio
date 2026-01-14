@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import { PostMetadata, Post } from "@/types/post";
 
-const POSTS_DIRECTORY = path.join(process.cwd(), "content/posts");
+const POSTS_DIRECTORY = path.join(process.cwd(), "content");
 
 /**
  * Read metadata for all posts from posts.json
@@ -32,7 +32,7 @@ export async function getPostById(id: string): Promise<Post | null> {
     }
 
     // Get content from MDX file
-    const contentPath = path.join(POSTS_DIRECTORY, `${id}.mdx`);
+    const contentPath = path.join(POSTS_DIRECTORY, "posts", `${id}.mdx`);
     const content = await fs.readFile(contentPath, "utf8");
 
     return {

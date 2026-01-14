@@ -1,5 +1,12 @@
 [
   {
+    "id": "markdown-render-optimization",
+    "title": "Markdown 渲染优化",
+    "date": "2026-01-15",
+    "excerpt": "通过常见的处理Markdown渲染的优化技巧，提升Markdown内容的显示效果。",
+    "tags": ["Markdown", "Render", "React"]
+  },
+  {
     "id": "ai-agent-patterns",
     "title": "Understanding AI Agent Design Patterns",
     "date": "2025-12-15",

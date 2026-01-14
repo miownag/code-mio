@@ -8,7 +8,7 @@ import { serialize } from "next-mdx-remote/serialize";
 import { useGetPostContent } from "@/hooks";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
 import { mdxComponents } from "@/components/mdx-components";
-import rehypeHighlight from "rehype-highlight";
+import rehypePrism from "rehype-prism-plus";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import TableOfContents from "@/components/table-of-contents";
@@ -53,7 +53,7 @@ function MDXContent({ source }: { source: string }) {
     serialize(source, {
       mdxOptions: {
         remarkPlugins: [remarkGfm],
-        rehypePlugins: [rehypeSlug, rehypeHighlight],
+        rehypePlugins: [rehypeSlug, rehypePrism],
       },
     })
       .then(setMdxContent)
@@ -110,7 +110,9 @@ export default function PostPage() {
       <Card className="opacity-90 bg-[hsl(142,70%,2%)] flex-1 min-w-0">
         <CardContent className="px-8 py-4">
           <div>
-            <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">
+              {post.title}
+            </h1>
 
             <div className="flex items-center gap-4 mb-6 text-muted-foreground">
               <span>{post.date}</span>
