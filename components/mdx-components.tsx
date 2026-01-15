@@ -45,9 +45,9 @@ function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
   };
 
   return (
-    <div className="relative group my-6">
+    <div className="relative group my-6 border border-primary/20 rounded-lg overflow-hidden">
       {/* Language label and copy button bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-muted border border-primary/20 border-b-0 rounded-t-lg">
+      <div className="flex items-center justify-between px-4 py-2 bg-muted">
         <span className="text-xs font-mono text-foreground/70 uppercase tracking-wider font-semibold">
           {language}
         </span>
@@ -76,7 +76,7 @@ function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
       <pre
         {...props}
         className={cn(
-          "rounded-t-none rounded-b-lg overflow-x-auto shadow-lg text-sm text-shadow-none border border-primary/20 px-4 py-3 font-mono bg-muted/70 m-0",
+          "overflow-x-auto shadow-lg text-sm text-shadow-none px-4 py-3 font-mono bg-muted/70 m-0",
           props.className
         )}
       />

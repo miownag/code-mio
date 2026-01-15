@@ -1,9 +1,11 @@
 # Markdown 渲染优化
 
-在这篇文章中，我们将分析两个常见的 Markdown 渲染库：X Markdown 和 prompt kit Markdown 来了解它们的渲染原理和优化技巧。
-其中，X Markdown 是国内最流行的 React 组件库 Ant Design 团队所开发的，而 prompt kit Markdown 基于 shadcn 组件库所开发的，可以说是国内国外两个最常用的 Markdown 渲染库。
+在这篇文章中，我们将分析两个常见的 Markdown 渲染库：X Markdown 和 prompt kit Markdown。我们会了解它们的渲染原理和优化技巧。
+其中，X Markdown 是国内最广泛使用的 React 组件库 Ant Design 团队所开发的，而 prompt kit Markdown 基于 shadcn 组件库所开发的，可以说是国内国外两个最常用的 Markdown 渲染库。
 
 ## X Markdown
+
+X Markdown 的优化点主要是预解析 markdown string，支持用户自定义组件以及添加 loading 态等。
 
 ### 渲染结果
 
@@ -15,22 +17,175 @@
 
 ### 主要逻辑
 
-1. useStreaming —— 流式解析 markdown string，主要作用是补全+pending
-   1. 判断前缀：如果当前的 string 的前缀和之前缓存的前缀一致，则认为是增量，正常解析；如果是不一致的，则重置缓存，从而从头解析
-   2. 增量解析：将新增的内容逐 char 解析
-   3. 支持 MD 节点 loading：如果判断是一个非 text 的组件，比如 Link，并且还在 loading 中，则会展示占位符（由用户配置指定，可以是自定义 html 标签）
-2. parser —— 使用 parser.parse 解析上述字符串，获得 html 字符串
-   1. 使用 marked，默认设置了几个配置项，每次都 parse
-3. renderer —— 使用 renderer.render 渲染上述 html 字符串，转为 html react element，作为容器的 children
-   1. 使用 html-react-parser，经过 purify 后，将 html 字符串解析为 react element
-   2. 支持设置 replacement，将某些 html 节点替换为配置里指定的组件的 element
-   3. 支持 HTML 节点 loading：如果判断是一个非闭合的标签，可以支持先展示 loading
+1. useStreaming —— 流式解析 markdown string，主要作用是补全进行中的解析 + 补充占位符
 
-## prompt-kit Markdown
+   1. 判断前缀：如果当前的 string 的前缀和之前缓存的前缀一致，则认为是增量，正常解析；如果是不一致的，则重置缓存，从而从头解析
+      前缀为解析完毕的字符串 + 进行中的解析字符串（指流式输出中还未闭合的内容，比如 # 标题 1 后面还没有换行符，则认为是一个正在输出中的 H1）
+
+      ```ts
+      // 比较前缀，判断是否是增量解析，如果无法对齐，则重置缓存从头解析
+      const expectedPrefix =
+        cacheRef.current.completeMarkdown + cacheRef.current.pending;
+      // Reset cache if input doesn't continue from previous state
+      if (!text.startsWith(expectedPrefix)) {
+        cacheRef.current = getInitialCache();
+      }
+      ```
+
+   2. 增量解析：将新增的内容逐 char 解析，解析的结果可能为 complete 或 pending
+
+      ```ts
+      const cache = cacheRef.current;
+      const chunk = text.slice(cache.processedLength);
+      if (!chunk) return;
+
+      cache.processedLength += chunk.length;
+      const isTextInBlock = isInCodeBlock(text);
+      for (const char of chunk) {
+        cache.pending += char;
+        // Skip processing if inside code block
+        // 如果是 block 则提前提交解析结果，因为 code block 是有结束符的，所以可以提前提交解析结果
+        if (isTextInBlock) {
+          commitCache(cache);
+          continue;
+        }
+        // 如果上次解析的结果是 Text，则需要根据当前 char 来判断是否是一个新的 token
+        // 这里通过各种类型的 recognizeHandlers 来认知并判断
+        if (cache.token === StreamCacheTokenType.Text) {
+          for (const handler of recognizeHandlers) handler.recognize(cache);
+        } else {
+          // 如果上次解析的结果不是 Text，则认为现在是在解析某一个特殊的 token，比如 Link
+          const handler = recognizeHandlers.find(
+            (handler) => handler.tokenType === cache.token
+          );
+          handler?.recognize(cache);
+        }
+        // 最终解析完毕后，如果还是 Text，则提交解析结果，Text 永远不会 pending
+        if (cache.token === StreamCacheTokenType.Text) {
+          commitCache(cache);
+        }
+      }
+      // 如果有未完成的 token，则需要补充占位符
+      const incompletePlaceholder = handleIncompleteMarkdown(cache);
+      setOutput(cache.completeMarkdown + (incompletePlaceholder || ""));
+      ```
+
+      handler 解析逻辑
+
+      ```ts
+      const recognize = (
+        cache: StreamCache,
+        tokenType: StreamCacheTokenType
+      ): void => {
+        const recognizer = tokenRecognizerMap[tokenType];
+        if (!recognizer) return;
+        const { token, pending } = cache;
+        if (
+          token === StreamCacheTokenType.Text &&
+          recognizer.isStartOfToken(pending)
+        ) {
+          // 如果之前解析的是 Text 并且判断是一个新的 token，则修改状态机，然后去解析下一个 char
+          cache.token = tokenType;
+          return;
+        }
+        if (token === tokenType && !recognizer.isStreamingValid(pending)) {
+          // 如果之前解析的 tokenType 无效了（或者说无效等同于该类型解析结束了），则提交解析结果
+          commitCache(cache);
+        }
+      };
+
+      // Example Image
+      [StreamCacheTokenType.Image]: {
+         tokenType: StreamCacheTokenType.Image,
+         // 以 ! 开头则认为是一个 Image
+         isStartOfToken: (markdown: string) => markdown.startsWith('!'),
+         // 通过正则表达式判断当前解析的字符串是否仍然是一个有效的 Image
+         isStreamingValid: (markdown: string) =>
+           STREAM_INCOMPLETE_REGEX.image.some((re) => re.test(markdown)),
+      },
+      ```
+
+   3. 支持 MD 节点 loading：如果判断是一个非 text 的组件，比如 Link，并且还在 loading 中，则会展示占位符（由用户配置指定，自定义 HTML 标签）
+
+      ```ts
+      // 如果命中了自定义组件，则使用自定义组件
+      return components?.[componentName]
+        ? `<${componentName} data-raw="${encodedPending}" />`
+        : undefined;
+      ```
+
+   这里就会在 markdown string 中插入自定义组件的占位符，比如 `<loading-link data-raw="https://www.goog" />`
+
+2. parser —— 使用 parser.parse 解析上述字符串，获得 html 字符串，会保留自定义组件的占位符
+
+   1. 使用 marked，默认设置了几个配置项，useStreaming 的结果一变，就会重新 parse
+
+      ```ts
+      class Parser {
+        options: ParserOptions;
+        markdownInstance: Marked;
+
+        constructor(options: ParserOptions = {}) {
+          const { markedConfig = {} } = options;
+          this.options = options;
+          this.markdownInstance = new Marked();
+
+          this.configureLinkRenderer();
+          this.configureParagraphRenderer();
+          this.configureCodeRenderer();
+          // user config at last
+          this.markdownInstance.use(markedConfig);
+        }
+
+        // ...
+
+        public parse(content: string) {
+          return this.markdownInstance.parse(content) as string;
+        }
+      }
+      ```
+
+3. renderer —— 使用 renderer.render 渲染上述 html 字符串，转为 html react element，作为容器的 children
+
+   1. 使用 html-react-parser，经过 purify 后，将 html 字符串解析为 react element
+   2. 支持设置 replacement，将某些 html 节点替换为用户指定的自定义组件的 element（html-react-parser 的能力）
+   3. 支持 HTML 节点 loading：如果判断是一个非闭合的标签，会给该标签添加一个 `streamStatus="loading"` 入参，需用户自己决定展示 loading
+
+      ```tsx
+      // 示例，用户指定custom-line组件并实现，当自定义组件还未闭合时，可以展示一个骨架屏
+      // 组件实现
+      const LineCompt = (props: Record<string, any>) => {
+        const { children, axisXTitle, axisYTitle, streamStatus } = props;
+
+        if (streamStatus === "loading") {
+          return (
+            <Skeleton.Image active={true} style={{ width: 901, height: 408 }} />
+          );
+        }
+        return (
+          <Line
+            data={JSON.parse(children)}
+            axisXTitle={axisXTitle}
+            axisYTitle={axisYTitle}
+          />
+        );
+      };
+
+      // 配置
+      <XMarkdown components={{ "custom-line": LineCompt }}>
+        {content}
+      </XMarkdown>;
+      ```
+
+## prompt kit Markdown
+
+prompt kit 的思路比较清晰，主要优化点是分块渲染，即先把 markdown string 切分为不同的块，然后对每个块做 memo 的优化，防止重复渲染。
+
+在 markdown string 较大时，分块渲染可以避免一次性渲染所有内容，导致性能问题。
 
 ### 渲染结果
 
-一个 div 做容器，里面使用 React Markdown 做分块渲染
+使用 React Markdown 做分块渲染
 
 ```tsx
 <div className={className}>
@@ -46,11 +201,80 @@
 
 ### 主要逻辑
 
-1. parseMarkdownIntoBlocks：把 markdown string 切分为不同的块，而不是 html 字符串(memo)
-   1. 使用 marked 的 lexer 进行分词，比如 h1、link 等，而不是直接生成<h1 />
+1. 分块：把 markdown string 切分为不同的块，而不是 html 字符串 (memo)
+   1. 使用 marked 的 lexer 进行分词，比如 h1 为 # xxx 等，而不是直接生成 <h1 />
+   ```tsx
+   function parseMarkdownIntoBlocks(markdown: string): string[] {
+     const tokens = marked.lexer(markdown);
+     return tokens.map((token) => token.raw);
+   }
+   ```
 2. 遍历块进行渲染
+
    1. 渲染 key 为`${blockId}-block-${index}` ，block id 为用户传入，在渲染时传入，防止列表中混淆
    2. 做了 memo，只有 content 变化时才重渲染，考虑到 components 一般是静态配置，因此不在比较函数内
-3. 使用 ReactMarkdown 渲染
+
+   ```tsx
+   function MarkdownComponent({
+     children,
+     id,
+     className,
+     components = INITIAL_COMPONENTS,
+   }: MarkdownProps) {
+     const generatedId = useId();
+     const blockId = id ?? generatedId;
+     // string 变化时才会重新分块
+     const blocks = useMemo(
+       () => parseMarkdownIntoBlocks(children),
+       [children]
+     );
+
+     return (
+       <div className={className}>
+         {blocks.map((block, index) => (
+           // 分块渲染的key，防止多块渲染时混淆
+           <MemoizedMarkdownBlock
+             key={`${blockId}-block-${index}`}
+             content={block}
+             components={components}
+           />
+         ))}
+       </div>
+     );
+   }
+
+   const MemoizedMarkdownBlock = memo(
+     function MarkdownBlock({
+       content,
+       components = INITIAL_COMPONENTS,
+     }: {
+       content: string;
+       components?: Partial<Components>;
+     }) {
+       return (
+         <ReactMarkdown
+           remarkPlugins={[remarkGfm, remarkBreaks]}
+           components={components}
+         >
+           {content}
+         </ReactMarkdown>
+       );
+     },
+     // 只有 content 变化时才会重渲染
+     function propsAreEqual(prevProps, nextProps) {
+       return prevProps.content === nextProps.content;
+     }
+   );
+   ```
+
+3. 使用 ReactMarkdown 渲染每个块
    1. 通过该组件直接渲染 md 块（其实就是 string）
    2. 使用 GFM 插件支持 GitHub Flavored Markdown（超集）
+   ```tsx
+   <ReactMarkdown
+     remarkPlugins={[remarkGfm, remarkBreaks]}
+     components={components}
+   >
+     {content}
+   </ReactMarkdown>
+   ```
