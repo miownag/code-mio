@@ -10,6 +10,7 @@ import "./globals.css";
 import Navigation from "@/components/navigation";
 import ParticleBackground from "@/components/particle-background";
 import ScrollToTop from "@/components/scroll-to-top";
+import Logo from "@/components/logo";
 import QueryProvider from "../providers/query-provider";
 
 const geistSans = Geist({
@@ -55,22 +56,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      style={{
+        scrollbarWidth: "thin",
+        scrollbarColor: "hsl(142, 76%, 20%) #0D0D0D",
+      }}
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jersey10.variable} ${notoSansSc.variable} ${notoSans.variable} antialiased`}
       >
         <div className="min-h-screen bg-background text-foreground english-font">
+          {/* Logo */}
+          <Logo />
+
           {/* Navigation Bar */}
           <Navigation />
 
           {/* Particle Background with Mouse Interaction */}
           <ParticleBackground />
-
-          {/* Grid Background Effect with Green Glow */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#10b981_1px,transparent_1px),linear-gradient(to_bottom,#10b981_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-10 mask-[radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(16,185,129,0.15),transparent)]" />
-          </div>
 
           {/* Main Content */}
           <QueryProvider>{children}</QueryProvider>

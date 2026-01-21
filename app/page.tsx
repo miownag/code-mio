@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/carousel";
 import TypeWriter from "@/components/type-writer";
 import AboutMe from "@/components/about-me";
+import Terminal from "@/components/terminal";
 import { FiGithub } from "react-icons/fi";
 import { LuMail, LuExternalLink, LuArrowRight } from "react-icons/lu";
 import { experiences, projects, recentLearning, tags } from "./constants";
@@ -21,6 +22,7 @@ import useSound from "use-sound";
 import Link from "next/link";
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
+import { useState } from "react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -52,9 +54,11 @@ export default function Home() {
     volume: 0.3,
     playbackRate: 1.2,
   });
+  const [isTerminalFullscreen, setIsTerminalFullscreen] = useState(false);
+  const [isTerminalMinizied, setIsTerminalMinimized] = useState(false);
 
   return (
-    <div className="container mx-auto px-4 pt-16 pb-8 max-w-6xl">
+    <div className="container mx-auto px-4 pt-24 pb-8 max-w-6xl">
       {/* Hero Section */}
       <motion.section
         initial={{ opacity: 0, y: -20 }}
@@ -62,94 +66,132 @@ export default function Home() {
         transition={{ duration: 0.6 }}
         className="mb-20"
       >
-        <div className="flex flex-col gap-6">
+        <div
+          className={cn(
+            "grid gap-6 transition-all duration-500",
+            isTerminalFullscreen
+              ? "grid-cols-1"
+              : isTerminalMinizied
+                ? "grid-cols-1 md:grid-cols-[8fr_1fr]"
+                : "grid-cols-1 md:grid-cols-[1fr_1fr]",
+          )}
+        >
+          {/* Left: Hero Content */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
+            animate={{
+              opacity: isTerminalFullscreen ? 0 : 1,
+              x: isTerminalFullscreen ? -100 : 0,
+            }}
+            transition={{ duration: 0.3 }}
+            className={cn(
+              "flex flex-col gap-6",
+              isTerminalFullscreen && "hidden",
+            )}
           >
-            <h1 className="text-5xl md:text-7xl font-bold mb-4">
-              <span className="text-foreground">Hi, I&apos;m </span>
-              {["M", "i", "o"].map((char, index) => (
-                <span
-                  key={index}
-                  className="text-primary pixel-font text-8xl mr-1 leading-12"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              <h1 className="text-5xl md:text-7xl font-bold mb-4">
+                <span className="text-foreground">Hi, I&apos;m </span>
+                {["M", "i", "o"].map((char, index) => (
+                  <span
+                    key={index}
+                    className="text-primary pixel-font text-8xl mr-1 leading-12"
+                  >
+                    {char}
+                  </span>
+                ))}
+              </h1>
+              <div className="h-1 w-24 bg-primary rounded-full mb-6" />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+            >
+              <TypeWriter
+                textProps={{
+                  baseText:
+                    "A Frontend Engineer working in Tencent. I'm focusing on ",
+                  dynamicTexts: [
+                    {
+                      text: "Web Tech.",
+                      className: "text-pink-400",
+                    },
+                    {
+                      text: "Node.js & Bun.",
+                      className: "text-green-400",
+                    },
+                    {
+                      text: "AI Agent.",
+                      className: "text-cyan-400",
+                    },
+                  ],
+                }}
+                delay={100}
+                className="text-4xl text-muted-foreground pixel-font"
+                cursorClassName="bg-neutral-500 w-2 h-6 translate-y-1/20"
+                loop
+                loopDelay={3000}
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className="flex gap-6 mt-4 items-center"
+            >
+              <Button
+                variant="default"
+                size="lg"
+                className="font-semibold"
+                asChild
+              >
+                <a
+                  href="https://github.com/miownag"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  {char}
-                </span>
-              ))}
-            </h1>
-            <div className="h-1 w-24 bg-primary rounded-full mb-6" />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-          >
-            <TypeWriter
-              textProps={{
-                baseText:
-                  "A Frontend Engineer working in Tencent. I'm focusing on ",
-                dynamicTexts: [
-                  {
-                    text: "Web Tech.",
-                    className: "text-pink-400",
-                  },
-                  {
-                    text: "Node.js & Bun.",
-                    className: "text-green-400",
-                  },
-                  {
-                    text: "AI Agent.",
-                    className: "text-cyan-400",
-                  },
-                ],
-              }}
-              delay={100}
-              className="text-4xl text-muted-foreground pixel-font"
-              cursorClassName="bg-neutral-500 w-2 h-6 translate-y-1/20"
-              loop
-              loopDelay={3000}
-            />
+                  <FiGithub className="mr-1 h-5 w-5" />
+                  GitHub
+                </a>
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="font-semibold"
+                asChild
+              >
+                <a href="mailto:miownag@gmail.com">
+                  <LuMail className="mr-1 h-5 w-5" />
+                  Contact
+                </a>
+              </Button>
+              <AboutMe />
+            </motion.div>
+            <div className="opacity-20 hover:opacity-30 bg-no-repeat bg-center bg-contain w-60 h-40 bg-[url(/code.svg)]" />
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="flex gap-6 mt-4 items-center"
-          >
-            <Button
-              variant="default"
-              size="lg"
-              className="font-semibold"
-              asChild
-            >
-              <a
-                href="https://github.com/miownag"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FiGithub className="mr-1 h-5 w-5" />
-                GitHub
-              </a>
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="font-semibold"
-              asChild
-            >
-              <a href="mailto:miownag@gmail.com">
-                <LuMail className="mr-1 h-5 w-5" />
-                Contact
-              </a>
-            </Button>
-            <AboutMe />
-          </motion.div>
+          {/* Right: Terminal */}
+          <Terminal
+            isFullscreen={isTerminalFullscreen}
+            isMinimized={isTerminalMinizied}
+            onToggleFullscreen={() => {
+              setIsTerminalFullscreen((prev) => !prev);
+              setIsTerminalMinimized(false);
+            }}
+            onMinimize={() => {
+              setIsTerminalMinimized((prev) => !prev);
+              setIsTerminalFullscreen(false);
+            }}
+          />
         </div>
       </motion.section>
 
+      {/* Tags Section */}
       <motion.section
         variants={containerVariants}
         initial="hidden"
@@ -186,7 +228,7 @@ export default function Home() {
                   "text-base px-4 py-2 transition-colors cursor-default font-mono border-2",
                   tech.category === "Technology"
                     ? "border-primary/50 hover:bg-primary/10"
-                    : "border-pink-300/50 hover:bg-pink-300/10"
+                    : "border-pink-300/50 hover:bg-pink-300/10",
                 )}
               >
                 {tech.name}

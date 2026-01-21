@@ -8,6 +8,7 @@ interface Particle {
   vx: number;
   vy: number;
   size: number;
+  twinkleSpeed: number;
 }
 
 export default function ParticleBackground() {
@@ -31,14 +32,15 @@ export default function ParticleBackground() {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    // Initialize particles
-    const particleCount = 100;
+    // Initialize particles with pixel sizes
+    const particleCount = 40;
     particlesRef.current = Array.from({ length: particleCount }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
       vx: (Math.random() - 0.5) * 0.5,
       vy: (Math.random() - 0.5) * 0.5,
-      size: Math.random() * 2 + 1,
+      size: Math.random() * 2 + 3,
+      twinkleSpeed: Math.random() * 0.02 + 0.01, // Different twinkle speeds
     }));
 
     // Mouse move handler
@@ -77,13 +79,16 @@ export default function ParticleBackground() {
           particle.y -= (dy / distance) * force * 2;
         }
 
-        // Draw particle
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        // Draw pixel particle (square instead of circle)
         ctx.fillStyle = `rgba(16, 185, 129, ${0.6 - distance / 1000})`;
-        ctx.fill();
+        ctx.fillRect(
+          Math.floor(particle.x),
+          Math.floor(particle.y),
+          particle.size,
+          particle.size,
+        );
 
-        // Draw connections
+        // Draw pixel-style connections
         particlesRef.current.forEach((otherParticle, j) => {
           if (i === j) return;
 
@@ -91,12 +96,15 @@ export default function ParticleBackground() {
           const dy2 = particle.y - otherParticle.y;
           const dist = Math.sqrt(dx2 * dx2 + dy2 * dy2);
 
-          if (dist < 100) {
+          if (dist < 120) {
+            ctx.strokeStyle = `rgba(16, 185, 129, ${0.2 * (1 - dist / 120)})`;
+            ctx.lineWidth = 1; // Thicker line for pixel look
             ctx.beginPath();
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(otherParticle.x, otherParticle.y);
-            ctx.strokeStyle = `rgba(16, 185, 129, ${0.15 * (1 - dist / 100)})`;
-            ctx.lineWidth = 0.5;
+            ctx.moveTo(Math.floor(particle.x), Math.floor(particle.y));
+            ctx.lineTo(
+              Math.floor(otherParticle.x + 2),
+              Math.floor(otherParticle.y + 2),
+            );
             ctx.stroke();
           }
         });
@@ -104,13 +112,16 @@ export default function ParticleBackground() {
         // Draw line to mouse if close
         const mouseDistance = Math.sqrt(dx * dx + dy * dy);
         if (mouseDistance < 200) {
-          ctx.beginPath();
-          ctx.moveTo(particle.x, particle.y);
-          ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
           ctx.strokeStyle = `rgba(16, 185, 129, ${
-            0.3 * (1 - mouseDistance / 200)
+            0.4 * (1 - mouseDistance / 200)
           })`;
           ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(Math.floor(particle.x), Math.floor(particle.y));
+          ctx.lineTo(
+            Math.floor(mouseRef.current.x + 2),
+            Math.floor(mouseRef.current.y + 2),
+          );
           ctx.stroke();
         }
       });

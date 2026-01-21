@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaArrowUp } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import useSound from "use-sound";
+import { cn } from "@/lib/utils";
 
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
@@ -46,7 +46,7 @@ export default function ScrollToTop() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
           transition={{ duration: 0.3 }}
-          className="fixed bottom-8 right-8 z-50"
+          className="fixed bottom-8 right-8 z-50 group"
         >
           <Button
             onClick={scrollToTop}
@@ -54,13 +54,13 @@ export default function ScrollToTop() {
             className="h-10 w-10 rounded-full shadow-lg transition-all cursor-pointer"
             title="Scroll to top"
           >
-            <motion.div
-              whileHover={{ y: -2 }}
-              whileTap={{ y: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <FaArrowUp className="h-6 w-6" />
-            </motion.div>
+            <div
+              className={cn(
+                "h-5 w-5",
+                "bg-[url(/pixel-arrow-top.svg)] bg-no-repeat bg-contain bg-center",
+                "group-hover:-translate-y-0.5 transition-all duration-300",
+              )}
+            />
           </Button>
         </motion.div>
       )}

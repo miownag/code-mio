@@ -147,8 +147,12 @@
   }
 
   .post-content-font {
-    font-family: var(--font-noto-sans), var(--font-noto-sans-sc), -apple-system,
-      BlinkMacSystemFont, sans-serif;
+    font-family:
+      var(--font-noto-sans),
+      var(--font-noto-sans-sc),
+      -apple-system,
+      BlinkMacSystemFont,
+      sans-serif;
   }
 
   .shimmer {
