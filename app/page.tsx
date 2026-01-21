@@ -207,7 +207,7 @@ export default function Home() {
       </motion.section>
 
       {/* Tags Section */}
-      <motion.section
+      {/* <motion.section
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
@@ -251,7 +251,7 @@ export default function Home() {
             </motion.div>
           ))}
         </motion.div>
-      </motion.section>
+      </motion.section> */}
 
       {/* Experience Section */}
       <motion.section

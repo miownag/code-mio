@@ -61,9 +61,9 @@ export default function PostsLayout({
                 animate={{ width: 300, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="shrink-0"
+                className="shrink-0 h-full"
               >
-                <div className="w-72 space-y-4">
+                <div className="w-72 space-y-4 sticky top-20">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">All Posts</h2>
                     {/* Sidebar Toggle Button */}
@@ -91,13 +91,13 @@ export default function PostsLayout({
                               "cursor-pointer transition-all duration-300 hover:bg-primary/5 rounded-lg py-2 px-4 -ml-4 flex flex-col",
                               {
                                 "text-primary": item.id === currentId,
-                              }
+                              },
                             )}
                           >
                             <h3
                               className={cn(
                                 "font-semibold mb-2 line-clamp-2",
-                                item.id === currentId && "text-primary"
+                                item.id === currentId && "text-primary",
                               )}
                             >
                               {item.title}
@@ -116,7 +116,7 @@ export default function PostsLayout({
               <Button
                 variant="outline"
                 size="icon"
-                className="cursor-pointer text-muted-foreground"
+                className="cursor-pointer text-muted-foreground sticky top-20"
                 onClick={() => setSidebarOpen(true)}
               >
                 <BiShow className="h-4 w-4" />
