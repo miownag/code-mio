@@ -1,7 +1,9 @@
 <svg width="146" height="80" viewBox="0 0 146 80" xmlns="http://www.w3.org/2000/svg">
   <style>
     svg { shape-rendering: crispEdges; }
-    .pixel { fill: hsl(142, 76%, 45%); }
+    .pixel { fill: #848484; }
+    .pixel:nth-child(2n) { fill: #c9c9c9; }
+    .pixel-green { fill: #428542; }
   </style>
 
   <rect class="pixel" x="0" y="36" width="8" height="8"/>
@@ -23,14 +25,14 @@
   <rect class="pixel" x="28" y="64" width="8" height="8"/>
 
   <rect class="pixel" x="86" y="0" width="8" height="8"/>
-  <rect class="pixel" x="82" y="8" width="8" height="8"/>
+  <rect class="pixel-green" x="82" y="8" width="8" height="8"/>
   <rect class="pixel" x="78" y="16" width="8" height="8"/>
-  <rect class="pixel" x="74" y="24" width="8" height="8"/>
+  <rect class="pixel-green" x="74" y="24" width="8" height="8"/>
   <rect class="pixel" x="70" y="32" width="8" height="8"/>
   <rect class="pixel" x="66" y="40" width="8" height="8"/>
-  <rect class="pixel" x="62" y="48" width="8" height="8"/>
+  <rect class="pixel-green" x="62" y="48" width="8" height="8"/>
   <rect class="pixel" x="58" y="56" width="8" height="8"/>
-  <rect class="pixel" x="54" y="64" width="8" height="8"/>
+  <rect class="pixel-green" x="54" y="64" width="8" height="8"/>
   <rect class="pixel" x="50" y="72" width="8" height="8"/>
 
   <rect class="pixel" x="138" y="36" width="8" height="8"/>

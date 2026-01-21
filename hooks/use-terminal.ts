@@ -20,7 +20,7 @@ interface TerminalState {
 }
 
 const VALID_ROUTES = ["/", "/projects", "/posts", "/photos", "/likes"];
-const COMMANDS = ["ls", "cd", "clear", "help"];
+const COMMANDS = ["ls", "cd", "clear", "help"] as const;
 const MAX_COMMAND_HISTORY = 50;
 
 export const useTerminal = () => {
@@ -100,10 +100,10 @@ export const useTerminal = () => {
     return {
       output: [
         "Available commands:",
-        "  ls              - List available routes",
-        "  cd <route>      - Navigate to route",
-        "  clear           - Clear terminal",
-        "  help            - Show this message",
+        `  ls${" ".repeat(22)}- List available routes`,
+        `  cd <route>${" ".repeat(6)}- Navigate to route`,
+        `  clear${" ".repeat(16)}- Clear terminal`,
+        `  help${" ".repeat(18)}- Show this message`,
       ].join("\n"),
       type: "output" as const,
     };
@@ -232,7 +232,7 @@ export const useTerminal = () => {
           while (i < acc.length && i < curr.length && acc[i] === curr[i]) {
             i++;
           }
-          return acc.substring(0, i);
+          return acc.substring(0, i) as (typeof COMMANDS)[number];
         });
         setState((prev) => ({ ...prev, currentInput: commonPrefix }));
       }
@@ -250,12 +250,12 @@ export const useTerminal = () => {
   }, [state.currentInput]);
 
   // Initialize with ls command
-  const initializeTerminal = useCallback(() => {
-    // Add the initial ls command
-    addOutput("$ ls", "command");
-    const lsResult = executeLs();
-    addOutput(lsResult.output, lsResult.type, true); // animate: true for typewriter
-  }, [addOutput, executeLs]);
+  const initializeTerminal = useCallback(
+    (command: (typeof COMMANDS)[number] = "help") => {
+      executeCommand(command);
+    },
+    [executeCommand],
+  );
 
   return {
     history: state.history,
