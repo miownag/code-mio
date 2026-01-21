@@ -185,7 +185,7 @@ export default function Terminal({
               onToggleFullscreen={onToggleFullscreen}
               onMinimize={onMinimize}
             />
-            <div className="flex-1 text-center text-md text-muted-foreground pixel-font">
+            <div className="flex-1 text-center text-md text-muted-foreground pixel-font cursor-default select-none">
               Terminal
             </div>
             <div className="w-15" />
