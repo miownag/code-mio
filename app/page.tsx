@@ -84,7 +84,7 @@ export default function Home() {
             }}
             transition={{ duration: 0.3 }}
             className={cn(
-              "flex flex-col gap-6",
+              "flex flex-col gap-4",
               isTerminalFullscreen && "hidden",
             )}
           >
@@ -141,6 +141,22 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.7 }}
+              className="flex w-full gap-16 items-center"
+            >
+              <Image
+                className="rounded-full"
+                src="/man.png"
+                width={240}
+                height={240}
+                alt=""
+              />
+              <div className="opacity-20 hover:opacity-30 bg-no-repeat bg-center bg-contain w-50 h-30 bg-[url(/code.svg)]" />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.5 }}
               className="flex gap-6 mt-4 items-center"
             >
@@ -172,7 +188,6 @@ export default function Home() {
               </Button>
               <AboutMe />
             </motion.div>
-            <div className="opacity-20 hover:opacity-30 bg-no-repeat bg-center bg-contain w-60 h-40 bg-[url(/code.svg)]" />
           </motion.div>
 
           {/* Right: Terminal */}
