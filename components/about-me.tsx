@@ -118,7 +118,7 @@ export default function AboutMe() {
         title="Click to check more"
       >
         <span
-          className={cn("pixel-font text-2xl shimmer", {
+          className={cn("pixel-font text-2xl shimmer select-none", {
             "text-primary": isOpened,
           })}
         >
@@ -159,7 +159,7 @@ export default function AboutMe() {
               {
                 "cursor-move": isPinned && !isDragging,
                 "cursor-grabbing": isDragging,
-              }
+              },
             )}
             onMouseDown={handleMouseDown}
           >
@@ -193,7 +193,7 @@ export default function AboutMe() {
                           "cursor-pointer hover:text-primary text-muted-foreground",
                           {
                             "text-primary": isPinned,
-                          }
+                          },
                         )}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}

@@ -24,7 +24,7 @@ export default function Logo() {
   return (
     <Link href="/">
       <motion.div
-        className="fixed top-4 left-6 z-50 cursor-pointer"
+        className="fixed top-4 left-6 z-50 cursor-pointer select-none"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}

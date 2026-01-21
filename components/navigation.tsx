@@ -84,7 +84,7 @@ export default function Navigation() {
     <motion.nav
       className={cn(
         "top-0 right-0 z-50 p-4",
-        isScrolled ? "fixed" : "absolute"
+        isScrolled ? "fixed" : "absolute",
       )}
     >
       <AnimatePresence mode="wait">
@@ -109,7 +109,7 @@ export default function Navigation() {
                   {
                     "cursor-pointer": !isActive(item.href),
                     "cursor-default": isActive(item.href),
-                  }
+                  },
                 )}
                 whileHover={{ scale: isActive(item.href) ? 1 : 1.05 }}
                 whileTap={{ scale: isActive(item.href) ? 1 : 0.95 }}
@@ -119,7 +119,7 @@ export default function Navigation() {
                     layoutId="navbar-indicator"
                     className={cn("absolute inset-0", {
                       "bg-linear-to-b from-primary to-transparent": !isActive(
-                        item.href
+                        item.href,
                       ),
                     })}
                     transition={{
@@ -130,9 +130,12 @@ export default function Navigation() {
                   />
                 )}
                 <span
-                  className={cn("relative z-10 pixel-font text-2xl", {
-                    "text-primary": isActive(item.href),
-                  })}
+                  className={cn(
+                    "relative z-10 pixel-font text-2xl select-none",
+                    {
+                      "text-primary": isActive(item.href),
+                    },
+                  )}
                 >
                   {item.name}
                 </span>
@@ -155,7 +158,7 @@ export default function Navigation() {
               className={cn(
                 "flex items-center justify-center w-12 h-12 rounded-full",
                 "bg-card/90 backdrop-blur-md border-2 border-border shadow-lg",
-                "hover:border-primary/75 transition-colors"
+                "hover:border-primary/75 transition-colors",
               )}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -193,7 +196,7 @@ export default function Navigation() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute top-14 right-0 flex flex-col gap-1 bg-card/90 backdrop-blur-md border border-border rounded-2xl p-2 shadow-xl min-w-[160px]"
+                  className="absolute top-14 right-0 flex flex-col gap-1 bg-card/90 backdrop-blur-md border border-border rounded-2xl p-2 shadow-xl min-w-40"
                 >
                   {navItems.map((item, index) => (
                     <motion.div
@@ -206,13 +209,13 @@ export default function Navigation() {
                       transition={{ delay: index * 0.05 }}
                       className={cn(
                         "relative px-4 py-2.5 text-xl font-medium transition-colors rounded-lg pixel-font",
-                        "hover:text-primary",
+                        "hover:text-primary select-none",
                         {
                           "text-primary": isActive(item.href),
                           "hover:bg-primary/10": !isActive(item.href),
                           "cursor-pointer": !isActive(item.href),
                           "cursor-default": isActive(item.href),
-                        }
+                        },
                       )}
                       whileHover={{ scale: isActive(item.href) ? 1 : 1.02 }}
                       whileTap={{ scale: isActive(item.href) ? 1 : 0.98 }}
