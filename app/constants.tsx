@@ -21,7 +21,7 @@ const experiences = [
       "In charge of the low-code platform, PC Advertising SDK, and other related business.",
   },
   {
-    company: "Bytedance",
+    company: "ByteDance",
     icon: <SiTiktok />,
     position: "Frontend Engineer",
     department: "Customer Service Platform",
@@ -35,7 +35,7 @@ const experiences = [
     position: "Frontend Engineer",
     department: "APP Performance",
     period: "2022.07 - 2022.09",
-    description: "Develop APMS - App Performance Monitoring System.",
+    description: "Short-term employment, laid off as a fresh graduate.",
   },
 ];
 

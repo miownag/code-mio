@@ -14,15 +14,15 @@ import {
 import TypeWriter from "@/components/type-writer";
 import AboutMe from "@/components/about-me";
 import Terminal from "@/components/terminal";
+import { StepTimeline, StepTimelineItem } from "@/components/step-timeline";
 import { FiGithub } from "react-icons/fi";
 import { LuMail, LuExternalLink, LuArrowRight } from "react-icons/lu";
-import { experiences, projects, recentLearning, tags } from "./constants";
+import { experiences, projects, recentLearning } from "./constants";
 import { cn } from "@/lib/utils";
-import useSound from "use-sound";
 import Link from "next/link";
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
-import { useState } from "react";
+import { JSX, useState } from "react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -46,14 +46,6 @@ const itemVariants = {
 };
 
 export default function Home() {
-  const [playHoverTechSound] = useSound("/click.wav", {
-    volume: 0.3,
-    playbackRate: 0.8,
-  });
-  const [playHoverHobbySound] = useSound("/click.wav", {
-    volume: 0.3,
-    playbackRate: 1.2,
-  });
   const [isTerminalFullscreen, setIsTerminalFullscreen] = useState(false);
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
 
@@ -268,34 +260,21 @@ export default function Home() {
           <div className="h-8 w-1 bg-primary" />
           Work Experience
         </motion.h2>
-        <div className="space-y-6">
-          {experiences.map((exp, index) => (
-            <motion.div key={index} variants={itemVariants}>
-              <Card className="bg-card border-border hover:border-primary/50 transition-colors">
-                <CardContent className="px-6 py-2">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3">
-                    <h3 className="text-xl font-semibold text-primary">
-                      {exp.position}
-                    </h3>
-                    <span className="text-sm text-muted-foreground">
-                      {exp.period}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4 mb-3">
-                    <p className="text-lg font-medium flex items-center gap-2">
-                      {exp.icon}
-                      {exp.company}
-                    </p>
-                    <p className="text-lg text-muted-foreground">
-                      {exp.department}
-                    </p>
-                  </div>
-                  <p className="text-muted-foreground">{exp.description}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+        <StepTimeline
+          items={experiences.map((exp, index) => ({
+            id: index,
+            title: exp.position,
+            subtitle: exp.company,
+            meta: exp.department,
+            period: exp.period,
+            description: exp.description,
+            icon: exp.icon,
+            textClassNames: (exp: StepTimelineItem) =>
+              exp.subtitle === "Shopee"
+                ? "line-through decoration-muted-foreground/70 decoration-1"
+                : "",
+          }))}
+        />
       </motion.section>
 
       {/* Projects Section */}
