@@ -12,6 +12,7 @@ import ParticleBackground from "@/components/particle-background";
 import ScrollToTop from "@/components/scroll-to-top";
 import Logo from "@/components/logo";
 import QueryProvider from "../providers/query-provider";
+import BootScreen from "@/components/boot-screen";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -66,22 +67,24 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jersey10.variable} ${notoSansSc.variable} ${notoSans.variable} antialiased`}
       >
-        <div className="min-h-screen bg-background text-foreground english-font">
-          {/* Logo */}
-          <Logo />
+        <BootScreen>
+          <div className="min-h-screen bg-background text-foreground english-font">
+            {/* Logo */}
+            <Logo />
 
-          {/* Navigation Bar */}
-          <Navigation />
+            {/* Navigation Bar */}
+            <Navigation />
 
-          {/* Particle Background with Mouse Interaction */}
-          <ParticleBackground />
+            {/* Particle Background with Mouse Interaction */}
+            <ParticleBackground />
 
-          {/* Main Content */}
-          <QueryProvider>{children}</QueryProvider>
+            {/* Main Content */}
+            <QueryProvider>{children}</QueryProvider>
 
-          {/* Scroll to Top Button */}
-          <ScrollToTop />
-        </div>
+            {/* Scroll to Top Button */}
+            <ScrollToTop />
+          </div>
+        </BootScreen>
       </body>
     </html>
   );

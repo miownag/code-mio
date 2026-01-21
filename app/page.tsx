@@ -55,7 +55,7 @@ export default function Home() {
     playbackRate: 1.2,
   });
   const [isTerminalFullscreen, setIsTerminalFullscreen] = useState(false);
-  const [isTerminalMinizied, setIsTerminalMinimized] = useState(false);
+  const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
 
   return (
     <div className="container mx-auto px-4 pt-24 pb-8 max-w-6xl">
@@ -71,7 +71,7 @@ export default function Home() {
             "grid gap-6 transition-all duration-500",
             isTerminalFullscreen
               ? "grid-cols-1"
-              : isTerminalMinizied
+              : isTerminalMinimized
                 ? "grid-cols-1 md:grid-cols-[8fr_1fr]"
                 : "grid-cols-1 md:grid-cols-[1fr_1fr]",
           )}
@@ -145,7 +145,7 @@ export default function Home() {
               className="flex w-full gap-16 items-center"
             >
               <Image
-                className="rounded-full"
+                className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)]"
                 src="/man.png"
                 width={240}
                 height={240}
@@ -193,7 +193,7 @@ export default function Home() {
           {/* Right: Terminal */}
           <Terminal
             isFullscreen={isTerminalFullscreen}
-            isMinimized={isTerminalMinizied}
+            isMinimized={isTerminalMinimized}
             onToggleFullscreen={() => {
               setIsTerminalFullscreen((prev) => !prev);
               setIsTerminalMinimized(false);

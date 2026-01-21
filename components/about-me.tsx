@@ -140,7 +140,7 @@ export default function AboutMe() {
           transition={{ duration: 0.2, ease: "easeOut" }}
           className={cn("absolute z-50", {
             fixed: isPinned,
-            "-top-20": !isPinned,
+            "-top-48": !isPinned,
             "left-22": !isPinned,
             "pointer-events-none": !isOpened,
           })}
