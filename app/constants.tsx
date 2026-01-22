@@ -42,17 +42,38 @@ const experiences = [
 const projects = [
   {
     name: "Chat Desktop App Boilerplate",
-    description: "A full-stack AI chatbot desktop app boilerplate 🤖",
+    description: "A full-stack AI chatbot desktop app boilerplate",
     tech: ["React", "Bun", "Hono", "PostgreSQL"],
     link: "https://github.com/miownag/chat-desktop-app-boilerplate",
     image: undefined, // Optional: Add image URL here
   },
   {
+    name: "Ink Markdown ES",
+    description: "A lib for ink to render markdown in TUI",
+    tech: ["Ink", "Marked", "highlight.js"],
+    link: "https://github.com/miownag/ink-markdown-es",
+    image: undefined, // Optional: Add image URL here
+  },
+  {
+    name: "Code Agent Lite",
+    description: "Just like Claude Code, but lite",
+    tech: ["Ink", "Bun", "LangChain", "deepagents"],
+    link: "https://github.com/miownag/code-agent-lite",
+    image: undefined, // Optional: Add image URL here
+  },
+  {
     name: "Billionaire CLI Framework",
     description:
-      "A File-based Conventional CLI Framework built on Commander.js 💰",
+      "A File-based Conventional CLI Framework built on commander.js",
     tech: ["Node.js", "TypeScript", "commander.js"],
     link: "https://github.com/miownag/bn-cli-framework",
+    image: undefined, // Optional: Add image URL here
+  },
+  {
+    name: "3Domension",
+    description: "3Domension is a lib that can trans DOM into 3 dimension",
+    tech: ["CSS3"],
+    link: "https://github.com/miownag/three-domension",
     image: undefined, // Optional: Add image URL here
   },
   {
