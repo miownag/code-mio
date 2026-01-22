@@ -23,6 +23,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
 import { useState } from "react";
+import ThoughtBubble from "@/components/thought-bubble";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -155,15 +156,20 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.7 }}
-              className="flex w-full gap-16 items-center justify-between pr-12"
+              className="flex w-full gap-16 items-center justify-between pr-12 relative"
             >
               <Image
-                className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)]"
+                className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)] -ml-8"
                 src="/man.png"
                 width={240}
                 height={240}
                 alt=""
               />
+              <ThoughtBubble className="absolute! -top-4 left-40">
+                <div className="text-xl pixel-font text-muted-foreground">
+                  <span className="text-primary/80">Taste</span> is the Key
+                </div>
+              </ThoughtBubble>
               <div className="opacity-20 hover:opacity-30 bg-no-repeat bg-center bg-contain w-50 h-30 bg-[url(/code.svg)]" />
             </motion.div>
 
@@ -218,53 +224,6 @@ export default function Home() {
           />
         </div>
       </motion.section>
-
-      {/* Tags Section */}
-      {/* <motion.section
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        className="mb-20"
-      >
-        <motion.div
-          variants={itemVariants}
-          className="flex items-center justify-between mb-8"
-        >
-          <h2 className="text-3xl font-bold flex items-center gap-3">
-            <div className="h-8 w-1 bg-primary" />
-            My Tags
-          </h2>
-        </motion.div>
-        <motion.div variants={itemVariants} className="flex flex-wrap gap-3">
-          {tags.map((tech) => (
-            <motion.div
-              key={tech.name}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              whileHover={{ scale: 1.1 }}
-              viewport={{ once: true }}
-              onMouseEnter={() =>
-                tech.category === "Technology"
-                  ? playHoverTechSound()
-                  : playHoverHobbySound()
-              }
-            >
-              <Badge
-                variant="outline"
-                className={cn(
-                  "text-base px-4 py-2 transition-colors cursor-default font-mono border-2",
-                  tech.category === "Technology"
-                    ? "border-primary/50 hover:bg-primary/10"
-                    : "border-pink-300/50 hover:bg-pink-300/10",
-                )}
-              >
-                {tech.name}
-              </Badge>
-            </motion.div>
-          ))}
-        </motion.div>
-      </motion.section> */}
 
       {/* Experience Section */}
       <motion.section
