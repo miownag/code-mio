@@ -47,7 +47,7 @@ function useActiveHeading(headingIds: string[]) {
         if (visibleHeadings.length > 0) {
           // Get the one closest to the top
           const sortedByTop = visibleHeadings.sort(
-            (a, b) => a.boundingClientRect.top - b.boundingClientRect.top
+            (a, b) => a.boundingClientRect.top - b.boundingClientRect.top,
           );
           setActiveId(sortedByTop[0].target.id);
         }
@@ -55,7 +55,7 @@ function useActiveHeading(headingIds: string[]) {
       {
         rootMargin: "-10% 0% -80% 0%", // Trigger when heading is in top 20% of viewport
         threshold: 0,
-      }
+      },
     );
 
     // Observe all heading elements
@@ -115,9 +115,7 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
             className="shrink-0"
           >
             <div className="flex justify-between items-center mb-4">
-              <h4 className="text-sm font-semibold text-muted-foreground">
-                Table of Contents
-              </h4>
+              <h4 className="text-sm font-semibold">Table of Contents</h4>
               <Button
                 variant="ghost"
                 size="icon"
@@ -143,7 +141,7 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
                       "text-left hover:text-primary transition-colors duration-200 line-clamp-2 cursor-pointer",
                       activeId === heading.id
                         ? "text-primary font-medium"
-                        : "text-muted-foreground"
+                        : "text-muted-foreground",
                     )}
                   >
                     {heading.text}
