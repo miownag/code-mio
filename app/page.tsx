@@ -167,7 +167,7 @@ export default function Home() {
               />
               <ThoughtBubble className="absolute! -top-4 left-40">
                 <div className="text-xl pixel-font text-muted-foreground">
-                  <span className="text-primary/80">Taste</span> is the Key
+                  <span className="text-primary/80">Taste</span> is all you need
                 </div>
               </ThoughtBubble>
               <div className="opacity-20 hover:opacity-30 bg-no-repeat bg-center bg-contain w-50 h-30 bg-[url(/code.svg)]" />

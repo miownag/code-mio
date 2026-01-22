@@ -20,9 +20,9 @@ const ThoughtBubble = ({ children, className = "" }: ThoughtBubbleProps) => {
       <div className="relative">
         {/* SVG Cloud Shape */}
         <svg
-          width="160"
+          width="215"
           height="72"
-          viewBox="0 0 155 72"
+          viewBox="0 0 200 72"
           className="w-full h-full"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -31,14 +31,14 @@ const ThoughtBubble = ({ children, className = "" }: ThoughtBubbleProps) => {
             d="M 0,37
                Q 0,28 15,25
                Q 20,16 40,16
-               Q 55,10 75,13
-               Q 95,10 110,16
-               Q 130,16 135,25
-               Q 150,28 150,37
-               Q 150,46 135,49
-               Q 130,58 110,58
-               Q 95,64 75,61
-               Q 55,64 40,58
+               Q 65,10 95,13
+               Q 125,10 150,16
+               Q 180,16 185,25
+               Q 200,28 200,37
+               Q 200,46 185,49
+               Q 180,58 150,58
+               Q 125,64 95,61
+               Q 65,64 40,58
                Q 20,58 15,49
                Q 0,46 0,37 Z"
             className="fill-card stroke-muted-foreground/50"
