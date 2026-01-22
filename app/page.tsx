@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
-import { JSX, useState } from "react";
+import { useState } from "react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -43,6 +43,27 @@ const itemVariants = {
       duration: 0.5,
     },
   },
+};
+
+const Subtitle = ({
+  children,
+  className,
+}: {
+  children: string;
+  className?: string;
+}) => {
+  return (
+    <motion.h2
+      variants={itemVariants}
+      className={cn(
+        "text-3xl md:text-4xl flex items-center gap-4 pixel-font",
+        className,
+      )}
+    >
+      <div className="h-8 w-1 bg-primary" />
+      {children}
+    </motion.h2>
+  );
 };
 
 export default function Home() {
@@ -134,7 +155,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.7 }}
-              className="flex w-full gap-16 items-center"
+              className="flex w-full gap-16 items-center justify-between pr-12"
             >
               <Image
                 className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)]"
@@ -253,13 +274,7 @@ export default function Home() {
         viewport={{ once: true, margin: "-100px" }}
         className="mb-20"
       >
-        <motion.h2
-          variants={itemVariants}
-          className="text-3xl font-bold mb-8 flex items-center gap-3"
-        >
-          <div className="h-8 w-1 bg-primary" />
-          Work Experience
-        </motion.h2>
+        <Subtitle className="mb-8">Work Exp</Subtitle>
         <StepTimeline
           items={experiences.map((exp, index) => ({
             id: index,
@@ -273,6 +288,7 @@ export default function Home() {
               exp.subtitle === "Shopee"
                 ? "line-through decoration-muted-foreground/70 decoration-1"
                 : "",
+            status: (exp) => (exp.subtitle === "Shopee" ? "failed" : undefined),
           }))}
         />
       </motion.section>
@@ -290,10 +306,7 @@ export default function Home() {
           variants={itemVariants}
           className="flex items-center justify-between mb-8"
         >
-          <h2 className="text-3xl font-bold flex items-center gap-3">
-            <div className="h-8 w-1 bg-primary" />
-            Featured Projects
-          </h2>
+          <Subtitle>Featured Projects</Subtitle>
           <Link href="/projects">
             <motion.div
               className="flex items-center gap-2 hover:text-primary transition-colors pixel-font text-xl"
@@ -398,10 +411,7 @@ export default function Home() {
           viewport={{ once: true }}
           className="flex items-center justify-between mb-8"
         >
-          <h2 className="text-3xl font-bold flex items-center gap-3">
-            <div className="h-8 w-1 bg-primary" />
-            Posts & Learning
-          </h2>
+          <Subtitle>Posts & Learning</Subtitle>
           <Link href="/posts">
             <motion.div
               className="flex items-center gap-2 hover:text-primary transition-colors pixel-font text-xl"
@@ -503,47 +513,8 @@ export default function Home() {
           variants={itemVariants}
           className="flex items-center justify-between mb-8"
         >
-          <h2 className="text-3xl font-bold flex items-center gap-3">
-            <div className="h-8 w-1 bg-primary" />
-            Photography
-          </h2>
+          <Subtitle>Photographs</Subtitle>
           <Link href="/photos">
-            <motion.div
-              className="flex items-center gap-2 hover:text-primary transition-colors pixel-font text-xl"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              View More
-              <LuArrowRight className="h-4 w-4" />
-            </motion.div>
-          </Link>
-        </motion.div>
-        <motion.div
-          variants={itemVariants}
-          className="flex items-center justify-center h-64 border-2 border-dashed border-border rounded-lg"
-        >
-          <p className="text-muted-foreground text-lg">Coming Soon...</p>
-        </motion.div>
-      </motion.section>
-
-      {/* Likes Section */}
-      <motion.section
-        id="likes"
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        className="mb-20"
-      >
-        <motion.div
-          variants={itemVariants}
-          className="flex items-center justify-between mb-8"
-        >
-          <h2 className="text-3xl font-bold flex items-center gap-3">
-            <div className="h-8 w-1 bg-primary" />
-            Things I Like
-          </h2>
-          <Link href="/likes">
             <motion.div
               className="flex items-center gap-2 hover:text-primary transition-colors pixel-font text-xl"
               whileHover={{ scale: 1.1 }}

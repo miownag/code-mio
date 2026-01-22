@@ -35,7 +35,7 @@ const experiences = [
     position: "Frontend Engineer",
     department: "APP Performance",
     period: "2022.07 - 2022.09",
-    description: "Short-term employment, laid off as a fresh graduate.",
+    description: "Laid off as a fresh graduate.",
   },
 ];
 

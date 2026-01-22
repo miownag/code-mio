@@ -3,10 +3,13 @@
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { MdOutlineClose, MdOutlineCheck } from "react-icons/md";
 
 // ============================================
 // Types and Interfaces
 // ============================================
+
+export type StepStatus = "completed" | "failed" | "in-progress" | "pending";
 
 export interface StepTimelineItem {
   id: string | number;
@@ -16,6 +19,7 @@ export interface StepTimelineItem {
   period?: string;
   description?: string;
   icon?: ReactNode;
+  status?: (exp: StepTimelineItem) => StepStatus | undefined;
   textClassNames?: (exp: StepTimelineItem) => string;
 }
 
@@ -31,6 +35,33 @@ interface StepItemProps {
 }
 
 // ============================================
+// Status Configuration
+// ============================================
+
+const statusConfig = {
+  completed: {
+    borderColor: "border-muted-foreground",
+    iconColor: "text-muted-foreground",
+    icon: <MdOutlineCheck />,
+  },
+  failed: {
+    borderColor: "border-muted-foreground",
+    iconColor: "text-muted-foreground",
+    icon: <MdOutlineClose />,
+  },
+  "in-progress": {
+    borderColor: "border-primary",
+    iconColor: "text-primary",
+    icon: null, // Will show blinking dot
+  },
+  pending: {
+    borderColor: "border-muted-foreground/50",
+    iconColor: "text-muted-foreground/50",
+    icon: null, // Will show static dot
+  },
+};
+
+// ============================================
 // Animation Variants
 // ============================================
 
@@ -39,17 +70,18 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15,
+      staggerChildren: 0.2,
+      delayChildren: 0.1,
     },
   },
 };
 
 const stepVariants = {
-  hidden: { opacity: 0, x: -20 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
-    x: 0,
-    transition: { duration: 0.4 },
+    y: 0,
+    transition: { duration: 0.5 },
   },
 };
 
@@ -57,29 +89,51 @@ const stepVariants = {
 // StepNode Component
 // ============================================
 
-function StepNode({ isLatest }: { isLatest: boolean }) {
+function StepNode({ status = "pending" }: { status?: StepStatus }) {
+  const config = statusConfig[status];
+  const showIcon = config.icon !== null;
+  const isInProgress = status === "in-progress";
+
   return (
-    <motion.div
+    <div
       className={cn(
-        "relative w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0",
-        isLatest
-          ? "border-primary bg-primary/20"
-          : "border-muted-foreground/50 bg-muted",
+        "relative w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
+        config.borderColor,
       )}
-      whileHover={{ scale: isLatest ? 1.2 : 1 }}
     >
-      {/* Inner dot */}
-      <div
-        className={cn(
-          "w-2 h-2 rounded-full",
-          isLatest ? "bg-primary" : "bg-muted-foreground/50",
-        )}
-      />
-      {/* Glow effect for latest */}
-      {isLatest && (
-        <div className="absolute inset-0 rounded-full bg-primary/30 blur-sm -z-10" />
+      {showIcon ? (
+        /* Status Icon */
+        <span
+          className={cn("text-xs font-bold leading-none", config.iconColor)}
+        >
+          {config.icon}
+        </span>
+      ) : (
+        /* Inner dot with optional blinking */
+        <motion.div
+          className={cn(
+            "w-2.5 h-2.5 rounded-full",
+            config.iconColor.replace("text-", "bg-"),
+          )}
+          animate={
+            isInProgress
+              ? {
+                  opacity: [1, 0, 1],
+                }
+              : undefined
+          }
+          transition={
+            isInProgress
+              ? {
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }
+              : undefined
+          }
+        />
       )}
-    </motion.div>
+    </div>
   );
 }
 
@@ -87,7 +141,9 @@ function StepNode({ isLatest }: { isLatest: boolean }) {
 // StepConnector Component
 // ============================================
 
-function StepConnector({ isLatest }: { isLatest: boolean }) {
+function StepConnector({ status = "pending" }: { status?: StepStatus }) {
+  const config = statusConfig[status];
+
   return (
     <motion.div
       initial={{ scaleY: 0 }}
@@ -95,8 +151,8 @@ function StepConnector({ isLatest }: { isLatest: boolean }) {
       transition={{ duration: 0.3, delay: 0.1 }}
       style={{ originY: 0 }}
       className={cn(
-        "w-0 flex-1 min-h-6 border-l-2",
-        isLatest ? "border-primary/50" : "border-muted-foreground/30",
+        "w-0 flex-1 min-h-6 border-l-2 border-dashed",
+        config.borderColor.replace("border-", "border-") + "/30",
       )}
     />
   );
@@ -107,6 +163,11 @@ function StepConnector({ isLatest }: { isLatest: boolean }) {
 // ============================================
 
 function StepItem({ item, isLatest, isLast }: StepItemProps) {
+  const status =
+    item.status?.(item) || (isLatest ? "in-progress" : "completed");
+  const config = statusConfig[status];
+  console.log(item, status);
+
   return (
     <motion.div
       variants={stepVariants}
@@ -114,8 +175,8 @@ function StepItem({ item, isLatest, isLast }: StepItemProps) {
     >
       {/* Node Column */}
       <div className="flex flex-col items-center">
-        <StepNode isLatest={isLatest} />
-        {!isLast && <StepConnector isLatest={isLatest} />}
+        <StepNode status={status} />
+        {!isLast && <StepConnector status={status} />}
       </div>
 
       {/* Content Column */}
@@ -125,7 +186,9 @@ function StepItem({ item, isLatest, isLast }: StepItemProps) {
           <h3
             className={cn(
               "text-lg font-semibold leading-none",
-              isLatest ? "text-primary" : "text-muted-foreground",
+              status === "completed" || status === "in-progress"
+                ? config.iconColor
+                : "text-muted-foreground",
             )}
           >
             {item.title}
@@ -134,7 +197,9 @@ function StepItem({ item, isLatest, isLast }: StepItemProps) {
             <span
               className={cn(
                 "text-md shrink-0",
-                isLatest ? "text-primary/70" : "text-muted-foreground/70",
+                status === "completed" || status === "in-progress"
+                  ? config.iconColor + "/70"
+                  : "text-muted-foreground/70",
               )}
             >
               {item.period}
@@ -149,7 +214,9 @@ function StepItem({ item, isLatest, isLast }: StepItemProps) {
               <span
                 className={cn(
                   "text-md",
-                  isLatest ? "text-foreground" : "text-muted-foreground",
+                  status === "in-progress"
+                    ? "text-foreground"
+                    : "text-muted-foreground",
                 )}
               >
                 {item.icon}
@@ -159,7 +226,9 @@ function StepItem({ item, isLatest, isLast }: StepItemProps) {
               <span
                 className={cn(
                   "font-medium",
-                  isLatest ? "text-foreground" : "text-muted-foreground",
+                  status === "in-progress"
+                    ? "text-foreground"
+                    : "text-muted-foreground",
                 )}
               >
                 {item.subtitle}
@@ -182,7 +251,9 @@ function StepItem({ item, isLatest, isLast }: StepItemProps) {
             className={cn(
               "text-md",
               item.textClassNames?.(item),
-              isLatest ? "text-muted-foreground" : "text-muted-foreground/70",
+              status === "completed" || status === "in-progress"
+                ? "text-muted-foreground"
+                : "text-muted-foreground/70",
             )}
           >
             {item.description}
@@ -198,6 +269,9 @@ function StepItem({ item, isLatest, isLast }: StepItemProps) {
 // ============================================
 
 export function StepTimeline({ items, className }: StepTimelineProps) {
+  // Reverse the items so the latest is at the bottom
+  const reversedItems = [...items].reverse();
+
   return (
     <motion.div
       variants={containerVariants}
@@ -206,12 +280,12 @@ export function StepTimeline({ items, className }: StepTimelineProps) {
       viewport={{ once: true, margin: "-100px" }}
       className={cn("flex flex-col", className)}
     >
-      {items.map((item, index) => (
+      {reversedItems.map((item, index) => (
         <StepItem
           key={item.id}
           item={item}
-          isLatest={index === 0}
-          isLast={index === items.length - 1}
+          isLatest={index === reversedItems.length - 1}
+          isLast={index === reversedItems.length - 1}
         />
       ))}
     </motion.div>

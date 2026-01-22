@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTerminal } from "@/hooks/use-terminal";
 import TerminalOutput from "./terminal-output";
+import { HiOutlineTerminal } from "react-icons/hi";
 
 interface TrafficLightsProps {
   fullscreen: boolean;
@@ -185,7 +186,13 @@ export default function Terminal({
               onToggleFullscreen={onToggleFullscreen}
               onMinimize={onMinimize}
             />
-            <div className="flex-1 text-center text-md text-muted-foreground pixel-font cursor-default select-none">
+            <div
+              className={cn(
+                "flex-1 text-center text-md text-muted-foreground pixel-font cursor-default select-none",
+                "flex justify-center items-center gap-2",
+              )}
+            >
+              <HiOutlineTerminal />
               Terminal
             </div>
             <div className="w-15" />
