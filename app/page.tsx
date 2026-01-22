@@ -156,7 +156,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.7 }}
-              className="flex w-full gap-16 items-center justify-between pr-12 relative"
+              className="flex w-full gap-16 items-end justify-between pr-12 relative"
             >
               <Image
                 className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)] -ml-8"
@@ -170,7 +170,7 @@ export default function Home() {
                   <span className="text-primary/80">Taste</span> is all you need
                 </div>
               </ThoughtBubble>
-              <div className="opacity-20 hover:opacity-30 bg-no-repeat bg-center bg-contain w-50 h-30 bg-[url(/code.svg)]" />
+              <div className="opacity-20 hover:opacity-30 bg-no-repeat bg-center bg-contain w-45 h-30 bg-[url(/code.svg)]" />
             </motion.div>
 
             <motion.div
