@@ -115,11 +115,19 @@ export default function Home() {
               isTerminalFullscreen && "hidden",
             )}
           >
+            <div
+              className={cn(
+                "opacity-7 pointer-events-none bg-no-repeat bg-center bg-contain bg-[url(/code.svg)]",
+                "absolute -top-16 -left-23",
+                "w-120 h-85",
+              )}
+            />
             <Image
-              className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)] -ml-8 -mt-2 max-w-[220px] max-h-[220px]"
+              className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)] -ml-8 -mt-4 max-w-[220px] max-h-[220px]"
               src="/man.png"
-              width={220}
-              height={220}
+              objectFit="fill"
+              width={215}
+              height={210}
               alt=""
             />
             <motion.div
@@ -176,7 +184,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
-                className="flex gap-6 mt-4 items-center w-full justify-center"
+                className="flex gap-6 mt-4 items-center w-full"
               >
                 <Button size="lg" className="font-semibold" asChild>
                   <a
@@ -202,7 +210,6 @@ export default function Home() {
                 <AboutMe />
               </motion.div>
             </motion.div>
-            {/* <div className="opacity-10 bg-no-repeat bg-center bg-contain w-45 h-30 bg-[url(/code.svg)]" /> */}
           </motion.div>
 
           {/* Right: Terminal */}
