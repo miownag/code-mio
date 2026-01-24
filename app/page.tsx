@@ -17,13 +17,25 @@ import Terminal from "@/components/terminal";
 import { StepTimeline, StepTimelineItem } from "@/components/step-timeline";
 import { FiGithub } from "react-icons/fi";
 import { LuMail, LuExternalLink, LuArrowRight } from "react-icons/lu";
-import { experiences, projects, recentLearning } from "./constants";
+import {
+  experiences,
+  projects,
+  photographs,
+  recentLearning,
+} from "./constants";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
 import { useState } from "react";
-import ThoughtBubble from "@/components/thought-bubble";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -72,7 +84,7 @@ export default function Home() {
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
 
   return (
-    <div className="container mx-auto px-4 pt-24 pb-8 max-w-6xl">
+    <div className="container mx-auto px-4 pt-36 pb-8 max-w-6xl">
       {/* Hero Section */}
       <motion.section
         initial={{ opacity: 0, y: -20 }}
@@ -87,44 +99,53 @@ export default function Home() {
               ? "grid-cols-1"
               : isTerminalMinimized
                 ? "grid-cols-1 md:grid-cols-[8fr_1fr]"
-                : "grid-cols-1 md:grid-cols-[1fr_1fr]",
+                : "grid-cols-1 md:grid-cols-[2fr_1fr]",
           )}
         >
           {/* Left: Hero Content */}
           <motion.div
+            initial={{ opacity: 0 }}
             animate={{
               opacity: isTerminalFullscreen ? 0 : 1,
               x: isTerminalFullscreen ? -100 : 0,
             }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.5 }}
             className={cn(
-              "flex flex-col gap-4",
+              "flex w-full gap-8 justify-between pr-12 relative",
               isTerminalFullscreen && "hidden",
             )}
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-            >
-              <h1 className="text-5xl md:text-7xl font-bold mb-4">
-                <span className="text-foreground">Hi, I&apos;m </span>
-                {["M", "i", "o"].map((char, index) => (
-                  <span
-                    key={index}
-                    className="text-primary pixel-font text-8xl mr-1 leading-12"
-                  >
-                    {char}
-                  </span>
-                ))}
-              </h1>
-              <div className="h-1 w-24 bg-primary rounded-full mb-6" />
-            </motion.div>
+            <Image
+              className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)] -ml-8 -mt-2 max-w-[220px] max-h-[220px]"
+              src="/man.png"
+              width={220}
+              height={220}
+              alt=""
+            />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4, duration: 0.5 }}
+              className="flex flex-col gap-8"
             >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                <h1 className="text-5xl md:text-7xl font-bold">
+                  <span className="text-foreground">Hi, I&apos;m </span>
+                  {["M", "i", "o"].map((char, index) => (
+                    <span
+                      key={index}
+                      className="text-primary pixel-font text-8xl mr-1 leading-12"
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </h1>
+                <div className="h-1 w-24 bg-primary rounded-full mt-4" />
+              </motion.div>
               <TypeWriter
                 textProps={{
                   baseText:
@@ -135,7 +156,7 @@ export default function Home() {
                       className: "text-pink-400",
                     },
                     {
-                      text: "Node.js & Bun.",
+                      text: "Node.js.",
                       className: "text-green-400",
                     },
                     {
@@ -150,63 +171,38 @@ export default function Home() {
                 loop
                 loopDelay={3000}
               />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.7 }}
-              className="flex w-full gap-16 items-end justify-between pr-12 relative"
-            >
-              <Image
-                className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)] -ml-8"
-                src="/man.png"
-                width={240}
-                height={240}
-                alt=""
-              />
-              <ThoughtBubble className="absolute! -top-4 left-40">
-                <div className="text-xl pixel-font text-muted-foreground">
-                  <span className="text-primary/80">Taste</span> is all you need
-                </div>
-              </ThoughtBubble>
-              <div className="opacity-20 hover:opacity-30 bg-no-repeat bg-center bg-contain w-45 h-30 bg-[url(/code.svg)]" />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-              className="flex gap-6 mt-4 items-center"
-            >
-              <Button
-                variant="default"
-                size="lg"
-                className="font-semibold"
-                asChild
+              {/* Contact */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+                className="flex gap-6 mt-4 items-center w-full justify-center"
               >
-                <a
-                  href="https://github.com/miownag"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Button size="lg" className="font-semibold" asChild>
+                  <a
+                    href="https://github.com/miownag"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FiGithub className="mr-1 h-5 w-5" />
+                    Github
+                  </a>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="font-semibold"
+                  asChild
                 >
-                  <FiGithub className="mr-1 h-5 w-5" />
-                  GitHub
-                </a>
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="font-semibold"
-                asChild
-              >
-                <a href="mailto:miownag@gmail.com">
-                  <LuMail className="mr-1 h-5 w-5" />
-                  Contact
-                </a>
-              </Button>
-              <AboutMe />
+                  <a href="mailto:miownag@gmail.com">
+                    <LuMail className="mr-1 h-5 w-5" />
+                    Contact
+                  </a>
+                </Button>
+                <AboutMe />
+              </motion.div>
             </motion.div>
+            {/* <div className="opacity-10 bg-no-repeat bg-center bg-contain w-45 h-30 bg-[url(/code.svg)]" /> */}
           </motion.div>
 
           {/* Right: Terminal */}
@@ -486,9 +482,56 @@ export default function Home() {
         </motion.div>
         <motion.div
           variants={itemVariants}
-          className="flex items-center justify-center h-64 border-2 border-dashed border-border rounded-lg"
+          className="grid grid-cols-3 md:grid-cols-4 gap-0.5"
         >
-          <p className="text-muted-foreground text-lg">Coming Soon...</p>
+          {photographs.map((photo) => (
+            <Dialog key={photo.id}>
+              <DialogTrigger asChild>
+                <motion.div
+                  className={cn(
+                    "relative overflow-hidden cursor-pointer aspect-square",
+                    photo.span === "tall" && "row-span-2 aspect-auto",
+                  )}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Image
+                    src={photo.src}
+                    alt={photo.alt}
+                    fill
+                    className="object-cover transition-all duration-300"
+                  />
+                </motion.div>
+              </DialogTrigger>
+              <DialogContent
+                showCloseButton={false}
+                className="max-w-3xl bg-neutral-900 border-neutral-800 p-0 overflow-hidden flex flex-col"
+              >
+                <div
+                  className="relative w-full max-h-[70vh] self-center"
+                  style={{ aspectRatio: photo.aspectRatio }}
+                >
+                  <Image
+                    src={photo.src}
+                    alt={photo.alt}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <DialogHeader className="p-6 pt-4">
+                  <DialogTitle className="text-neutral-100">
+                    {photo.title}
+                  </DialogTitle>
+                  <DialogDescription className="text-neutral-400">
+                    {photo.description}
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          ))}
         </motion.div>
       </motion.section>
 

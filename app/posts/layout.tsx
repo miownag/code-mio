@@ -23,7 +23,7 @@ export default function PostsLayout({
 
   // Larger max-width for post page
   return (
-    <div className="container mx-auto px-4 pt-16 pb-8 max-w-9xl">
+    <div className="container mx-auto px-4 pt-24 pb-8 max-w-9xl">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

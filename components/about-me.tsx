@@ -232,7 +232,7 @@ export default function AboutMe() {
               {/* Birthday Info */}
               <div className="flex items-center gap-2 mb-4 text-sm">
                 <HiCake className="h-4 w-4 text-pink-200" />
-                <span className="text-muted-foreground">Jan 13, 1998</span>
+                <span className="text-muted-foreground">Born 1998</span>
               </div>
 
               {/* Divider */}

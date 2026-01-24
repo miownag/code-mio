@@ -1,10 +1,42 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+import { photographs } from "../constants";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.3,
+    },
+  },
+};
 
 export default function PhotosPage() {
   return (
-    <div className="container mx-auto px-4 pt-16 pb-8 max-w-6xl">
+    <div className="container mx-auto px-4 pt-24 pb-8 max-w-6xl">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -15,23 +47,63 @@ export default function PhotosPage() {
           <div className="h-10 w-1 bg-primary" />
           Photography
         </h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-neutral-400 text-lg">
           My photography collection - capturing moments and memories.
         </p>
       </motion.div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="flex items-center justify-center h-96 border-2 border-dashed border-border rounded-lg"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0.5"
       >
-        <div className="text-center">
-          <p className="text-muted-foreground text-xl mb-2">Coming Soon...</p>
-          <p className="text-muted-foreground text-sm">
-            Stay tuned for my photography collection
-          </p>
-        </div>
+        {photographs.map((photo) => (
+          <Dialog key={photo.id}>
+            <DialogTrigger asChild>
+              <motion.div
+                variants={itemVariants}
+                className={cn(
+                  "relative overflow-hidden cursor-pointer aspect-square",
+                  photo.span === "tall" && "row-span-2 aspect-auto",
+                )}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  className="object-cover transition-all duration-300"
+                />
+              </motion.div>
+            </DialogTrigger>
+            <DialogContent
+              showCloseButton={false}
+              className="max-w-3xl bg-neutral-900 border-neutral-800 p-0 overflow-hidden flex flex-col"
+            >
+              <div
+                className="relative w-full max-h-[70vh] self-center"
+                style={{ aspectRatio: photo.aspectRatio }}
+              >
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <DialogHeader className="p-6 pt-4">
+                <DialogTitle className="text-neutral-100">
+                  {photo.title}
+                </DialogTitle>
+                <DialogDescription className="text-neutral-400">
+                  {photo.description}
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        ))}
       </motion.div>
     </div>
   );

@@ -172,7 +172,8 @@ export default function Terminal({
       className={cn(
         "flex flex-col rounded-lg overflow-hidden shadow-2xl border border-border",
         {
-          "h-135": !isMinimized,
+          "h-80": !isMinimized && !isFullscreen,
+          "h-120": isFullscreen,
           "h-fit": isMinimized,
           "w-fit": isMinimized,
         },
