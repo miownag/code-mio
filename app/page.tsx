@@ -36,6 +36,7 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import PhotosFeeds from "@/components/photos-feeds";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -487,59 +488,10 @@ export default function Home() {
             </motion.div>
           </Link>
         </motion.div>
-        <motion.div
-          variants={itemVariants}
-          className="grid grid-cols-3 md:grid-cols-4 gap-0.5"
-        >
-          {photographs.map((photo) => (
-            <Dialog key={photo.id}>
-              <DialogTrigger asChild>
-                <motion.div
-                  className={cn(
-                    "relative overflow-hidden cursor-pointer aspect-square",
-                    photo.span === "tall" && "row-span-2 aspect-auto",
-                  )}
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Image
-                    src={photo.src}
-                    alt={photo.alt}
-                    fill
-                    className="object-cover transition-all duration-300"
-                  />
-                </motion.div>
-              </DialogTrigger>
-              <DialogContent
-                showCloseButton={false}
-                className="max-w-3xl bg-neutral-900 border-neutral-800 p-0 overflow-hidden flex flex-col"
-              >
-                <div
-                  className="relative w-full max-h-[70vh] self-center"
-                  style={{ aspectRatio: photo.aspectRatio }}
-                >
-                  <Image
-                    src={photo.src}
-                    alt={photo.alt}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                <DialogHeader className="p-6 pt-4">
-                  <DialogTitle className="text-neutral-100">
-                    {photo.title}
-                  </DialogTitle>
-                  <DialogDescription className="text-neutral-400">
-                    {photo.description}
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
-          ))}
-        </motion.div>
+        <PhotosFeeds
+          photographs={photographs.slice(0, 6)}
+          itemVariants={itemVariants}
+        />
       </motion.section>
 
       {/* Footer */}

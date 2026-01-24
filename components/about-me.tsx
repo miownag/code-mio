@@ -19,10 +19,10 @@ export default function AboutMe() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const popoverRef = useRef<HTMLDivElement>(null);
-  const [playPopSound] = useSound("/pop.wav", {
+  const [playPopSound] = useSound("/sounds/pop.wav", {
     volume: 0.8,
   });
-  const [playSwitchSound] = useSound("/switch.wav", {
+  const [playSwitchSound] = useSound("/sounds/switch.wav", {
     volume: 0.8,
   });
 
@@ -118,7 +118,7 @@ export default function AboutMe() {
         title="Click to check more"
       >
         <span
-          className={cn("pixel-font text-2xl shimmer select-none", {
+          className={cn("pixel-font text-2xl shimmer select-none shrink-0", {
             "text-primary": isOpened,
           })}
         >

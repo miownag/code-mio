@@ -12,6 +12,7 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import PhotosFeeds from "@/components/photos-feeds";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -52,7 +53,18 @@ export default function PhotosPage() {
         </p>
       </motion.div>
 
-      <motion.div
+      <PhotosFeeds
+        photographs={photographs}
+        containerVariants={containerVariants}
+        itemVariants={itemVariants}
+        motionDivProps={{
+          initial: "hidden",
+          animate: "visible",
+        }}
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0.5"
+      />
+
+      {/* <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -80,10 +92,13 @@ export default function PhotosPage() {
             </DialogTrigger>
             <DialogContent
               showCloseButton={false}
-              className="max-w-3xl bg-neutral-900 border-neutral-800 p-0 overflow-hidden flex flex-col"
+              className={cn(
+                "max-w-3xl max-h-screen p-0 overflow-hidden flex flex-col gap-2",
+                "bg-neutral-900 border-muted border-2",
+              )}
             >
               <div
-                className="relative w-full max-h-[70vh] self-center"
+                className="relative w-full self-center"
                 style={{ aspectRatio: photo.aspectRatio }}
               >
                 <Image
@@ -104,7 +119,7 @@ export default function PhotosPage() {
             </DialogContent>
           </Dialog>
         ))}
-      </motion.div>
+      </motion.div> */}
     </div>
   );
 }

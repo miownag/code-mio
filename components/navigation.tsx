@@ -20,7 +20,7 @@ export default function Navigation() {
   const [hoverItem, setHoverItem] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [playHoverSound] = useSound("/click.wav", {
+  const [playHoverSound] = useSound("/sounds/click.wav", {
     volume: 0.6,
   });
   const router = useRouter();

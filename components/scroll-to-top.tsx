@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
-  const [playWoosh] = useSound("/woosh.wav", {
+  const [playWoosh] = useSound("/sounds/woosh.wav", {
     volume: 0.5,
   });
 
