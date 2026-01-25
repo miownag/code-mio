@@ -2,9 +2,9 @@ const photographs = [
   {
     id: 25,
     src: "/photos/sunset-of-shichahai.jpg",
-    alt: "Shichahai sunset",
-    title: "Shichahai Sunset",
-    description: "Beautiful sunset over Beijing's Houhai",
+    alt: "ShiChaHai sunset",
+    title: "ShiChaHai Sunset",
+    description: "Beautiful sunset over Beijing's ShiChaHai.",
     span: "normal" as const,
     aspectRatio: "1978/1280",
   },
