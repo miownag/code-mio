@@ -87,8 +87,8 @@ export default function PostsSection() {
       className="mb-20"
     >
       <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        whileInView={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         className="flex items-center justify-between mb-8"
       >
@@ -105,15 +105,18 @@ export default function PostsSection() {
         </Link>
       </motion.div>
 
-      <div className="flex flex-col">
+      <motion.div
+        className="flex flex-col"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        viewport={{ once: true }}
+      >
         {items.map((item, index) => {
           const isPost = item.type === "post";
 
           const content = (
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+            <div
               className={cn(
                 "group flex pr-4 items-start gap-4 py-5 transition-all cursor-pointer",
                 "border-b border-border/30",
@@ -159,7 +162,7 @@ export default function PostsSection() {
                   "group-hover:rotate-45 group-hover:text-primary ",
                 )}
               />
-            </motion.div>
+            </div>
           );
 
           if (isPost) {
@@ -181,7 +184,7 @@ export default function PostsSection() {
             </a>
           );
         })}
-      </div>
+      </motion.div>
     </motion.section>
   );
 }
