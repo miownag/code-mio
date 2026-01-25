@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { projects } from "../constants";
+import { projects } from "@/constants";
 import { LuExternalLink } from "react-icons/lu";
 
 const containerVariants = {
@@ -34,7 +34,7 @@ export default function ProjectsPage() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="mb-12"
+        className="mb-10"
       >
         <h1 className="text-4xl md:text-6xl font-light pixel-font mb-4 flex items-center gap-4">
           <div className="h-10 w-1 bg-primary" />

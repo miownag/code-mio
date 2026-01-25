@@ -1,17 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { photographs } from "../constants";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { photographs } from "@/constants/photos";
 import PhotosFeeds from "@/components/photos-feeds";
 
 const containerVariants = {
@@ -42,7 +32,7 @@ export default function PhotosPage() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="mb-12"
+        className="mb-10"
       >
         <h1 className="text-4xl md:text-6xl font-light pixel-font mb-4 flex items-center gap-4">
           <div className="h-10 w-1 bg-primary" />

@@ -31,15 +31,13 @@ export default function PostsLayout({
         transition={{ duration: 0.6 }}
         className="mb-12"
       >
-        <div className="mb-12">
-          <h1 className="text-4xl md:text-6xl font-light pixel-font mb-4 flex items-center gap-4">
-            <div className="h-10 w-1 bg-primary" />
-            Posts
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            My thoughts and learnings on web development, AI, and more.
-          </p>
-        </div>
+        <h1 className="text-4xl md:text-6xl font-light pixel-font mb-4 flex items-center gap-4">
+          <div className="h-10 w-1 bg-primary" />
+          Posts
+        </h1>
+        <p className="text-muted-foreground text-lg">
+          My thoughts and learnings on web development, AI, and more.
+        </p>
       </motion.div>
 
       {/* Main Content Area */}

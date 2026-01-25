@@ -17,25 +17,13 @@ import Terminal from "@/components/terminal";
 import { StepTimeline, StepTimelineItem } from "@/components/step-timeline";
 import { FiGithub } from "react-icons/fi";
 import { LuMail, LuExternalLink, LuArrowRight } from "react-icons/lu";
-import {
-  experiences,
-  projects,
-  photographs,
-  recentLearning,
-} from "./constants";
+import { experiences, projects, recentLearning } from "@/constants";
+import { photographs } from "@/constants/photos";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import PhotosFeeds from "@/components/photos-feeds";
 
 const containerVariants = {
@@ -489,7 +477,7 @@ export default function Home() {
           </Link>
         </motion.div>
         <PhotosFeeds
-          photographs={photographs.slice(0, 6)}
+          photographs={photographs.slice(0, 7)}
           itemVariants={itemVariants}
         />
       </motion.section>
