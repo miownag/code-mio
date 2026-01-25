@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { BiHide, BiShow } from "react-icons/bi";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetPostMetaData } from "../../hooks";
+import { useGetPostMetaData } from "@/hooks";
 
 export default function PostsLayout({
   children,

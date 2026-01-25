@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import NoPost from "@/components/no-post";
+import NoPost from "@/app/posts/_components/no-post";
 import { getPostsMetadata } from "@/lib/posts";
 
 async function getFirstPostId() {

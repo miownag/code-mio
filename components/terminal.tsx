@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTerminal } from "@/hooks/use-terminal";
-import TerminalOutput from "./terminal-output";
+import TerminalOutput from "@/components/terminal-output";
 import { HiOutlineTerminal } from "react-icons/hi";
 
 interface TrafficLightsProps {

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Check, Copy } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 
 // Code block component with language label and copy button
 function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
@@ -56,7 +56,7 @@ function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
           onClick={handleCopy}
           className={cn(
             "rounded-lg text-xs transition-colors hover:bg-primary/10 text-foreground/70 hover:text-primary",
-            { "cursor-pointer": !copied }
+            { "cursor-pointer": !copied },
           )}
         >
           {copied ? (
@@ -77,7 +77,7 @@ function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
         {...props}
         className={cn(
           "overflow-x-auto shadow-lg text-sm text-shadow-none px-4 py-3 font-mono bg-muted/70 m-0",
-          props.className
+          props.className,
         )}
       />
     </div>

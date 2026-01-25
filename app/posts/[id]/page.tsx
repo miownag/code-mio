@@ -7,14 +7,14 @@ import { useEffect, useState } from "react";
 import { serialize } from "next-mdx-remote/serialize";
 import { useGetPostContent } from "@/hooks";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
-import { mdxComponents } from "@/components/mdx-components";
+import { mdxComponents } from "@/app/posts/_components/mdx-components";
 import rehypePrism from "rehype-prism-plus";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
-import TableOfContents from "@/components/table-of-contents";
+import TableOfContents from "@/app/posts/_components/table-of-contents";
 import { useParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import NoPost from "@/components/no-post";
+import NoPost from "@/app/posts/_components/no-post";
 
 const loadingContent = (
   <motion.div
@@ -43,7 +43,7 @@ const loadingContent = (
 
 function MDXContent({ source }: { source: string }) {
   const [mdxContent, setMdxContent] = useState<MDXRemoteSerializeResult | null>(
-    null
+    null,
   );
   const [isLoading, setIsLoading] = useState(true);
 

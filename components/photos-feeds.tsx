@@ -9,7 +9,7 @@ import {
 import { motion, MotionProps, Variants } from "framer-motion";
 import { DialogHeader } from "./ui/dialog";
 import Image from "next/image";
-import { Photograph } from "@/app/constants";
+import { Photograph } from "@/constants/photos";
 import { FC } from "react";
 
 interface IProps {

@@ -12,7 +12,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import TypeWriter from "@/components/type-writer";
-import AboutMe from "@/components/about-me";
+import AboutMe from "@/app/_components/about-me";
 import Terminal from "@/components/terminal";
 import { StepTimeline, StepTimelineItem } from "@/components/step-timeline";
 import { FiGithub } from "react-icons/fi";

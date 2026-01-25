@@ -7,12 +7,12 @@ import {
   Noto_Sans,
 } from "next/font/google";
 import "./globals.css";
-import Navigation from "@/components/navigation";
-import ParticleBackground from "@/components/particle-background";
-import ScrollToTop from "@/components/scroll-to-top";
-import Logo from "@/components/logo";
-import QueryProvider from "../providers/query-provider";
-import BootScreen from "@/components/boot-screen";
+import Navigation from "@/app/_components/navigation";
+import ParticleBackground from "@/app/_components/particle-background";
+import ScrollToTop from "@/app/_components/scroll-to-top";
+import Logo from "@/app/_components/logo";
+import QueryProvider from "@/providers/query-provider";
+import BootScreen from "@/app/_components/boot-screen";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

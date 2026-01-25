@@ -1,14 +1,14 @@
 "use client";
 
 import { MdBrowserNotSupported } from "react-icons/md";
-import { Card } from "./ui/card";
+import { Card } from "@/components/ui/card";
 import {
   Empty,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
   EmptyContent,
-} from "./ui/empty";
+} from "@/components/ui/empty";
 
 function NoPost({ title, content }: { title: string; content: string }) {
   return (
