@@ -13,6 +13,7 @@ import ScrollToTop from "@/app/_components/scroll-to-top";
 import Logo from "@/app/_components/logo";
 import QueryProvider from "@/providers/query-provider";
 import BootScreen from "@/app/_components/boot-screen";
+import { ThemeProvider } from "next-themes";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,32 +60,35 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       style={{
         scrollbarWidth: "thin",
-        scrollbarColor: "hsl(142, 76%, 20%) #0D0D0D",
+        scrollbarColor: "var(--scrollbar-thumb) var(--scrollbar-track)",
       }}
     >
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jersey10.variable} ${notoSansSc.variable} ${notoSans.variable} antialiased`}
       >
-        <BootScreen>
-          <div className="min-h-screen bg-background text-foreground english-font">
-            {/* Logo */}
-            <Logo />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <BootScreen>
+            <div className="min-h-screen bg-background text-foreground english-font">
+              {/* Logo */}
+              <Logo />
 
-            {/* Navigation Bar */}
-            <Navigation />
+              {/* Navigation Bar */}
+              <Navigation />
 
-            {/* Particle Background with Mouse Interaction */}
-            <ParticleBackground />
+              {/* Particle Background with Mouse Interaction */}
+              <ParticleBackground />
 
-            {/* Main Content */}
-            <QueryProvider>{children}</QueryProvider>
+              {/* Main Content */}
+              <QueryProvider>{children}</QueryProvider>
 
-            {/* Scroll to Top Button */}
-            <ScrollToTop />
-          </div>
-        </BootScreen>
+              {/* Scroll to Top Button */}
+              <ScrollToTop />
+            </div>
+          </BootScreen>
+        </ThemeProvider>
       </body>
     </html>
   );

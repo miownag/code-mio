@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { BiHide, BiShow } from "react-icons/bi";
+import { PiSidebarSimpleBold } from "react-icons/pi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetPostMetaData } from "@/hooks";
 
@@ -50,18 +50,18 @@ export default function PostsLayout({
             exit={{ opacity: 0, x: -50 }}
             transition={{ duration: 0.3 }}
             className={cn("shrink-0", {
-              "-ml-18": !sidebarOpen,
+              "-ml-26": !sidebarOpen,
             })}
           >
             {sidebarOpen ? (
               <motion.aside
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 300, opacity: 1 }}
+                animate={{ width: "14rem", opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: 0.3 }}
                 className="shrink-0 h-full"
               >
-                <div className="w-72 space-y-4 sticky top-20">
+                <div className="w-56 space-y-4 sticky top-20">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">All Posts</h2>
                     {/* Sidebar Toggle Button */}
@@ -71,7 +71,7 @@ export default function PostsLayout({
                       className="cursor-pointer"
                       onClick={() => setSidebarOpen(false)}
                     >
-                      <BiHide className="h-4 w-4" />
+                      <PiSidebarSimpleBold />
                     </Button>
                   </div>
                   <nav className="flex flex-col gap-4">
@@ -94,7 +94,7 @@ export default function PostsLayout({
                           >
                             <h3
                               className={cn(
-                                "font-semibold mb-2 line-clamp-2",
+                                "font-semibold mb-2 line-clamp-2 overflow-hidden text-ellipsis text-sm",
                                 item.id === currentId && "text-primary",
                               )}
                             >
@@ -117,7 +117,7 @@ export default function PostsLayout({
                 className="cursor-pointer text-muted-foreground sticky top-20"
                 onClick={() => setSidebarOpen(true)}
               >
-                <BiShow className="h-4 w-4" />
+                <PiSidebarSimpleBold />
               </Button>
             )}
           </motion.div>

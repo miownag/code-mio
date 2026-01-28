@@ -1,10 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { projects } from "@/constants";
-import { LuExternalLink } from "react-icons/lu";
+import { ProjectCard } from "@/components/project-card";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -49,39 +47,11 @@ export default function ProjectsPage() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+        className="grid md:grid-cols-2 gap-6"
       >
         {projects.map((project, index) => (
           <motion.div key={index} variants={itemVariants}>
-            <Card
-              className="bg-card border-border hover:border-primary/50 transition-all h-full group cursor-pointer"
-              onClick={() => window.open(project.link, "_blank")}
-            >
-              <CardContent className="px-6 py-2 flex flex-col h-full">
-                <div className="flex justify-between mb-3">
-                  <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">
-                    {project.name}
-                  </h3>
-                  <motion.div
-                    whileHover={{ scale: 1.2, rotate: 45 }}
-                    transition={{ duration: 0.2 }}
-                    className="py-1"
-                  >
-                    <LuExternalLink className="h-5 w-5 group-hover:text-primary transition-colors" />
-                  </motion.div>
-                </div>
-                <p className="text-muted-foreground mb-4 grow">
-                  {project.description}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {project.tech.map((tech) => (
-                    <Badge key={tech} variant="secondary" className="text-xs">
-                      {tech}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <ProjectCard project={project} />
           </motion.div>
         ))}
       </motion.div>

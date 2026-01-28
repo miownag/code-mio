@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { LuMenu, LuX } from "react-icons/lu";
 import useSound from "use-sound";
 import { usePathname, useRouter } from "next/navigation";
+import ThemeToggle from "@/app/_components/theme-toggle";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -83,7 +84,7 @@ export default function Navigation() {
   return (
     <motion.nav
       className={cn(
-        "top-0 right-0 z-50 p-4",
+        "top-0 right-0 z-50 p-4 flex items-center gap-4",
         isScrolled ? "fixed" : "absolute",
       )}
     >
@@ -150,7 +151,7 @@ export default function Navigation() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="relative"
+            className="relative flex items-center gap-2"
           >
             {/* Toggle Button */}
             <motion.button
@@ -228,6 +229,7 @@ export default function Navigation() {
             </AnimatePresence>
           </motion.div>
         )}
+        <ThemeToggle className={isScrolled ? "hidden" : ""} />
       </AnimatePresence>
     </motion.nav>
   );

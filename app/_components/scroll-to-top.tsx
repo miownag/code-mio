@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import useSound from "use-sound";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
   const [playWoosh] = useSound("/sounds/woosh.wav", {
     volume: 0.5,
   });
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     const toggleVisibility = () => {
@@ -54,13 +56,23 @@ export default function ScrollToTop() {
             className="h-10 w-10 rounded-full shadow-lg transition-all cursor-pointer"
             title="Scroll to top"
           >
-            <div
-              className={cn(
-                "h-5 w-5",
-                "bg-[url(/pixel-arrow-top.svg)] bg-no-repeat bg-contain bg-center",
-                "group-hover:-translate-y-0.5 transition-all duration-300",
-              )}
-            />
+            {resolvedTheme === "dark" ? (
+              <div
+                className={cn(
+                  "h-5 w-5",
+                  "bg-[url(/pixel-arrow-up.svg)] bg-no-repeat bg-contain bg-center",
+                  "group-hover:-translate-y-0.5 transition-all duration-300",
+                )}
+              />
+            ) : (
+              <div
+                className={cn(
+                  "h-5 w-5",
+                  "bg-[url(/pixel-arrow-up-light.svg)] bg-no-repeat bg-contain bg-center",
+                  "group-hover:-translate-y-0.5 transition-all duration-300",
+                )}
+              />
+            )}
           </Button>
         </motion.div>
       )}

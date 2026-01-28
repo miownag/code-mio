@@ -38,6 +38,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-selected-text: var(--selected-text);
+  --color-editor: var(--editor);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -49,26 +51,31 @@
 
 :root {
   --radius: 0.5rem;
-  /* Black and Green Tech Theme */
-  --background: hsl(0, 0%, 5%);
-  --foreground: hsl(240, 10%, 98%);
-  --card: hsl(240, 10%, 8%);
-  --card-foreground: hsl(240, 10%, 98%);
-  --popover: hsl(240, 10%, 8%);
-  --popover-foreground: hsl(240, 10%, 98%);
-  --primary: hsl(142, 76%, 45%);
-  --primary-foreground: hsl(240, 10%, 5%);
-  --secondary: hsl(240, 10%, 15%);
-  --secondary-foreground: hsl(240, 10%, 98%);
-  --muted: hsl(240, 10%, 15%);
-  --muted-foreground: hsl(240, 10%, 60%);
-  --accent: hsl(240, 10%, 15%);
-  --accent-foreground: hsl(240, 10%, 98%);
+  /* Light Mode - Grayscale Theme */
+  --background: hsl(0, 0%, 95%);
+  --foreground: hsl(0, 0%, 15%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(0, 0%, 15%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(0, 0%, 15%);
+  --primary: hsl(142, 76%, 25%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(0, 0%, 90%);
+  --secondary-foreground: hsl(0, 0%, 15%);
+  --muted: hsl(0, 0%, 90%);
+  --muted-foreground: hsl(0, 0%, 45%);
+  --accent: hsl(0, 0%, 90%);
+  --accent-foreground: hsl(0, 0%, 15%);
   --destructive: hsl(0, 84%, 60%);
-  --destructive-foreground: hsl(240, 10%, 98%);
-  --border: hsl(240, 10%, 20%);
-  --input: hsl(240, 10%, 20%);
-  --ring: hsl(142, 76%, 45%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(0, 0%, 85%);
+  --input: hsl(0, 0%, 85%);
+  --ring: hsl(142, 76%, 25%);
+  --editor: hsl(0, 0%, 93%);
+  /* Scrollbar colors */
+  --scrollbar-thumb: hsl(142, 76%, 20%);
+  --scrollbar-track: hsl(0, 0%, 95%);
+  --selected-text: hsl(0, 0%, 100%);
 }
 
 .dark {
@@ -91,6 +98,11 @@
   --border: hsl(240, 10%, 20%);
   --input: hsl(240, 10%, 20%);
   --ring: hsl(142, 76%, 45%);
+  --editor: hsl(0, 0%, 8%);
+  /* Scrollbar colors */
+  --scrollbar-thumb: hsl(142, 76%, 20%);
+  --scrollbar-track: hsl(0, 0%, 5%);
+  --selected-text: hsl(0, 0%, 0%);
 }
 
 @layer base {
@@ -125,12 +137,12 @@
 /* Custom Text Selection - Black Background + Green Text */
 ::selection {
   background-color: var(--color-primary);
-  color: #000000;
+  color: var(--color-selected-text);
 }
 
 ::-moz-selection {
   background-color: var(--color-primary);
-  color: #000000;
+  color: var(--color-selected-text);
 }
 
 @layer utilities {
@@ -172,20 +184,21 @@
   }
 }
 
+/* Code highlighting - Light theme (dark colors for light background) */
 .token.comment,
 .token.prolog,
 .token.doctype,
 .token.cdata {
-  color: hsl(0, 0%, 55%);
+  color: hsl(0, 0%, 45%);
   font-style: italic;
 }
 
 .token.punctuation {
-  color: hsl(0, 0%, 55%);
+  color: hsl(0, 0%, 40%);
 }
 
 .token.tag {
-  color: #e36464;
+  color: hsl(0, 65%, 45%);
 }
 
 .token.property,
@@ -194,7 +207,7 @@
 .token.constant,
 .token.symbol,
 .token.deleted {
-  color: hsl(183, 100%, 50%);
+  color: hsl(183, 100%, 30%);
 }
 
 .token.selector,
@@ -203,7 +216,7 @@
 .token.char,
 .token.builtin,
 .token.inserted {
-  color: var(--color-primary);
+  color: hsl(142, 76%, 30%);
 }
 
 .token.operator,
@@ -211,28 +224,29 @@
 .token.url,
 .language-css .token.string,
 .style .token.string {
-  color: hsl(300, 94%, 68%);
+  color: hsl(300, 70%, 40%);
 }
 
 .token.atrule,
 .token.attr-value,
 .token.keyword {
-  color: hsl(271, 100%, 73%);
+  color: hsl(271, 80%, 45%);
 }
 
 .token.function {
-  color: hsl(203, 88%, 65%);
+  color: hsl(203, 80%, 40%);
   font-weight: 500;
 }
+
 .token.class-name {
-  color: hsl(28, 98%, 59%);
+  color: hsl(28, 90%, 45%);
   font-weight: 500;
 }
 
 .token.regex,
 .token.important,
 .token.variable {
-  color: hsl(283, 85%, 56%);
+  color: hsl(283, 70%, 40%);
 }
 
 .token.important,
@@ -245,5 +259,83 @@
 }
 
 .token.entity {
+  cursor: help;
+}
+
+/* Code highlighting - Dark theme (light colors for dark background) */
+.dark .token.comment,
+.dark .token.prolog,
+.dark .token.doctype,
+.dark .token.cdata {
+  color: hsl(0, 0%, 55%);
+  font-style: italic;
+}
+
+.dark .token.punctuation {
+  color: hsl(0, 0%, 55%);
+}
+
+.dark .token.tag {
+  color: #e36464;
+}
+
+.dark .token.property,
+.dark .token.boolean,
+.dark .token.number,
+.dark .token.constant,
+.dark .token.symbol,
+.dark .token.deleted {
+  color: hsl(183, 100%, 50%);
+}
+
+.dark .token.selector,
+.dark .token.attr-name,
+.dark .token.string,
+.dark .token.char,
+.dark .token.builtin,
+.dark .token.inserted {
+  color: var(--color-primary);
+}
+
+.dark .token.operator,
+.dark .token.entity,
+.dark .token.url,
+.dark .language-css .token.string,
+.dark .style .token.string {
+  color: hsl(300, 94%, 68%);
+}
+
+.dark .token.atrule,
+.dark .token.attr-value,
+.dark .token.keyword {
+  color: hsl(271, 100%, 73%);
+}
+
+.dark .token.function {
+  color: hsl(203, 88%, 65%);
+  font-weight: 500;
+}
+
+.dark .token.class-name {
+  color: hsl(28, 98%, 59%);
+  font-weight: 500;
+}
+
+.dark .token.regex,
+.dark .token.important,
+.dark .token.variable {
+  color: hsl(283, 85%, 56%);
+}
+
+.dark .token.important,
+.dark .token.bold {
+  font-weight: bold;
+}
+
+.dark .token.italic {
+  font-style: italic;
+}
+
+.dark .token.entity {
   cursor: help;
 }

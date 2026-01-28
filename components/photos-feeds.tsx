@@ -57,7 +57,7 @@ const PhotosFeeds: FC<IProps> = ({
             showCloseButton={false}
             className={cn(
               "max-w-3xl max-h-screen p-0 overflow-hidden flex flex-col gap-2",
-              "bg-neutral-900 border-muted border-2",
+              "bg-card border-muted border-2",
             )}
           >
             <div
@@ -72,10 +72,10 @@ const PhotosFeeds: FC<IProps> = ({
               />
             </div>
             <DialogHeader className="p-6 pt-4">
-              <DialogTitle className="text-neutral-100">
+              <DialogTitle className="text-foreground">
                 {photo.title}
               </DialogTitle>
-              <DialogDescription className="text-neutral-400">
+              <DialogDescription className="text-muted-foreground">
                 {photo.description}
               </DialogDescription>
             </DialogHeader>

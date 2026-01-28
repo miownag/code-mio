@@ -201,10 +201,10 @@ export default function Terminal({
 
           <div
             ref={terminalBodyRef}
-            className="flex-1 bg-black/80 backdrop-blur-sm px-4 py-2 overflow-y-auto font-mono"
+            className="flex-1 bg-editor backdrop-blur-sm px-4 py-2 overflow-y-auto font-mono"
             style={{
               scrollbarWidth: "thin",
-              scrollbarColor: "hsl(142, 76%, 20%) #030404",
+              scrollbarColor: "var(--scrollbar-thumb) var(--scrollbar-track)",
             }}
           >
             <div className="space-y-1">

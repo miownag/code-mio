@@ -55,7 +55,7 @@ function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
           variant="ghost"
           onClick={handleCopy}
           className={cn(
-            "rounded-lg text-xs transition-colors hover:bg-primary/10 text-foreground/70 hover:text-primary",
+            "rounded-lg text-xs transition-colors hover:bg-primary/10 text-foreground/90 hover:text-primary",
             { "cursor-pointer": !copied },
           )}
         >
@@ -76,7 +76,7 @@ function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
       <pre
         {...props}
         className={cn(
-          "overflow-x-auto shadow-lg text-sm text-shadow-none px-4 py-3 font-mono bg-muted/70 m-0",
+          "overflow-x-auto shadow-lg text-sm text-shadow-none px-4 py-3 font-mono bg-muted/20 m-0",
           props.className,
         )}
       />

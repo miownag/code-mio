@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 
 interface Particle {
   x: number;
@@ -16,6 +17,7 @@ export default function ParticleBackground() {
   const mouseRef = useRef({ x: 0, y: 0 });
   const particlesRef = useRef<Particle[]>([]);
   const animationFrameRef = useRef<number>(null);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -23,6 +25,14 @@ export default function ParticleBackground() {
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    // Get particle color based on theme
+    const getParticleColor = (alpha: number) => {
+      if (resolvedTheme === "dark") {
+        return `rgba(16, 185, 129, ${alpha})`; // Green for dark mode
+      }
+      return `rgba(12, 118, 83, ${alpha})`; // Black for light mode
+    };
 
     // Set canvas size
     const resizeCanvas = () => {
@@ -80,7 +90,7 @@ export default function ParticleBackground() {
         }
 
         // Draw pixel particle (square instead of circle)
-        ctx.fillStyle = `rgba(16, 185, 129, ${0.6 - distance / 1000})`;
+        ctx.fillStyle = getParticleColor(0.6 - distance / 1000);
         ctx.fillRect(
           Math.floor(particle.x),
           Math.floor(particle.y),
@@ -97,7 +107,7 @@ export default function ParticleBackground() {
           const dist = Math.sqrt(dx2 * dx2 + dy2 * dy2);
 
           if (dist < 120) {
-            ctx.strokeStyle = `rgba(16, 185, 129, ${0.2 * (1 - dist / 120)})`;
+            ctx.strokeStyle = getParticleColor(0.2 * (1 - dist / 120));
             ctx.lineWidth = 1; // Thicker line for pixel look
             ctx.beginPath();
             ctx.moveTo(Math.floor(particle.x), Math.floor(particle.y));
@@ -112,9 +122,7 @@ export default function ParticleBackground() {
         // Draw line to mouse if close
         const mouseDistance = Math.sqrt(dx * dx + dy * dy);
         if (mouseDistance < 200) {
-          ctx.strokeStyle = `rgba(16, 185, 129, ${
-            0.4 * (1 - mouseDistance / 200)
-          })`;
+          ctx.strokeStyle = getParticleColor(0.4 * (1 - mouseDistance / 200));
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(Math.floor(particle.x), Math.floor(particle.y));
@@ -139,7 +147,7 @@ export default function ParticleBackground() {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, []);
+  }, [resolvedTheme]);
 
   return (
     <canvas

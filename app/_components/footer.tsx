@@ -1,8 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
 
 export default function Footer() {
+  const { resolvedTheme } = useTheme();
+
+  const pinkColorCss =
+    resolvedTheme === "dark" ? "text-pink-300/80" : "text-pink-500/80";
+
   return (
     <motion.footer
       initial={{ opacity: 0 }}
@@ -12,7 +18,9 @@ export default function Footer() {
     >
       <p>
         Built with{" "}
-        <span className="text-pink-300/80 pixel-font text-2xl font-light ml-0.5">
+        <span
+          className={`${pinkColorCss} pixel-font text-2xl font-light ml-0.5`}
+        >
           Love
         </span>
       </p>

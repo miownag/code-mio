@@ -9,11 +9,13 @@ import { FiGithub } from "react-icons/fi";
 import { LuMail } from "react-icons/lu";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 import { useState } from "react";
 
 export default function HeroSection() {
   const [isTerminalFullscreen, setIsTerminalFullscreen] = useState(false);
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
+  const { resolvedTheme } = useTheme();
 
   return (
     <motion.section
@@ -45,15 +47,25 @@ export default function HeroSection() {
             isTerminalFullscreen && "hidden",
           )}
         >
-          <div
-            className={cn(
-              "opacity-7 pointer-events-none bg-no-repeat bg-center bg-contain bg-[url(/code.svg)]",
-              "absolute -top-16 -left-23",
-              "w-120 h-85",
-            )}
-          />
+          {resolvedTheme === "dark" ? (
+            <div
+              className={cn(
+                "opacity-7 pointer-events-none bg-no-repeat bg-center bg-contain bg-[url(/code.svg)]",
+                "absolute -top-16 -left-23",
+                "w-120 h-85",
+              )}
+            />
+          ) : (
+            <div
+              className={cn(
+                "opacity-7 pointer-events-none bg-no-repeat bg-center bg-contain bg-[url(/code-light.svg)]",
+                "absolute -top-16 -left-23",
+                "w-120 h-85",
+              )}
+            />
+          )}
           <Image
-            className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)] -ml-8 -mt-4 max-w-[220px] max-h-[220px]"
+            className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)] -ml-8 -mt-4 max-w-55 max-h-55"
             src="/man.png"
             objectFit="fill"
             width={215}

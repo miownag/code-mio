@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { serialize } from "next-mdx-remote/serialize";
 import { useGetPostContent } from "@/hooks";
@@ -23,21 +22,19 @@ const loadingContent = (
     transition={{ duration: 0.5, delay: 0.2 }}
     className="flex gap-8"
   >
-    <Card className="p-8 w-3/4">
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-3/4" />
-        <Skeleton className="h-4 w-1/4" />
-        <div className="flex gap-2">
-          <Skeleton className="h-6 w-16" />
-          <Skeleton className="h-6 w-16" />
-        </div>
-        <div className="space-y-3 pt-6">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
-        </div>
+    <div className="space-y-4 p-8 w-3/4">
+      <Skeleton className="h-10 w-3/4" />
+      <Skeleton className="h-4 w-1/4" />
+      <div className="flex gap-2">
+        <Skeleton className="h-6 w-16" />
+        <Skeleton className="h-6 w-16" />
       </div>
-    </Card>
+      <div className="space-y-3 pt-6">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+    </div>
   </motion.div>
 );
 
@@ -107,37 +104,31 @@ export default function PostPage() {
 
   return (
     <div className="flex gap-8">
-      <Card className="opacity-90 bg-[hsl(142,70%,2%)] flex-1 min-w-0">
-        <CardContent className="px-8 py-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">
-              {post.title}
-            </h1>
+      <div className="px-8 py-4 flex-1 min-w-0">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
 
-            <div className="flex items-center gap-4 mb-6 text-muted-foreground">
-              <span>{post.date}</span>
-            </div>
+          <div className="flex items-center gap-4 mb-6 text-muted-foreground">
+            <span>{post.date}</span>
+          </div>
 
-            <div className="flex flex-wrap gap-2 mb-8">
-              {post.tags.map((tag) => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+          <div className="flex flex-wrap gap-2 mb-8">
+            {post.tags.map((tag) => (
+              <Badge key={tag} variant="secondary">
+                {tag}
+              </Badge>
+            ))}
+          </div>
 
-            <div className="prose prose-invert max-w-none">
-              <p className="text-lg text-muted-foreground mb-6">
-                {post.excerpt}
-              </p>
+          <div className="prose prose-invert max-w-none">
+            <p className="text-lg text-muted-foreground mb-6">{post.excerpt}</p>
 
-              <div className="text-foreground leading-relaxed post-content-font mdx-content">
-                <MDXContent source={post.content} />
-              </div>
+            <div className="text-foreground leading-relaxed post-content-font mdx-content">
+              <MDXContent source={post.content} />
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Table of Contents - hidden on mobile */}
       <aside className="hidden xl:block shrink-0">
