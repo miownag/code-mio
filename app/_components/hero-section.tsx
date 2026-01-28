@@ -143,7 +143,7 @@ export default function HeroSection() {
               <Button
                 variant="outline"
                 size="lg"
-                className="font-semibold"
+                className="font-semibold transition-none"
                 asChild
               >
                 <a href="mailto:miownag@gmail.com">
