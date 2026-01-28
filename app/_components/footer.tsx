@@ -1,13 +1,18 @@
 "use client";
 
+import useHasMounted from "@/hooks/use-has-mounted";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 
 export default function Footer() {
   const { resolvedTheme } = useTheme();
+  const hasMounted = useHasMounted();
 
-  const pinkColorCss =
-    resolvedTheme === "dark" ? "text-pink-300/80" : "text-pink-500/80";
+  const pinkColorCss = hasMounted
+    ? resolvedTheme === "dark"
+      ? "text-pink-300/80"
+      : "text-pink-500/80"
+    : "text-pink-500/80";
 
   return (
     <motion.footer

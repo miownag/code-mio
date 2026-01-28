@@ -11,11 +11,13 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState } from "react";
+import useHasMounted from "@/hooks/use-has-mounted";
 
 export default function HeroSection() {
   const [isTerminalFullscreen, setIsTerminalFullscreen] = useState(false);
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
   const { resolvedTheme } = useTheme();
+  const hasMounted = useHasMounted();
 
   return (
     <motion.section
@@ -47,7 +49,7 @@ export default function HeroSection() {
             isTerminalFullscreen && "hidden",
           )}
         >
-          {resolvedTheme === "dark" ? (
+          {resolvedTheme === "dark" && hasMounted ? (
             <div
               className={cn(
                 "opacity-7 pointer-events-none bg-no-repeat bg-center bg-contain bg-[url(/code.svg)]",

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef, useSyncExternalStore } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
+import useHasMounted from "@/hooks/use-has-mounted";
 
 const bootMessages = [
   "BIOS v1.0.0",
@@ -10,15 +12,6 @@ const bootMessages = [
   "Loading system...",
   "READY.",
 ];
-
-// Use useSyncExternalStore to safely read sessionStorage
-function useHasMounted() {
-  return useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
-}
 
 export default function BootScreen({
   children,
@@ -35,6 +28,7 @@ export default function BootScreen({
   const animationStarted = useRef(false);
 
   const isBooting = hasMounted && !alreadyBooted && !isDone;
+  const { resolvedTheme } = useTheme();
 
   // Calculate total characters including line breaks
   const totalChars = bootMessages.reduce((sum, msg) => sum + msg.length, 0);
@@ -121,13 +115,23 @@ export default function BootScreen({
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-9999 bg-black flex items-center justify-center"
+            className="fixed inset-0 z-9999 bg-background flex items-center justify-center"
           >
             {/* CRT screen effect */}
-            <div className="absolute inset-0 pointer-events-none crt-overlay" />
+            <div
+              className={cn("absolute inset-0 pointer-events-none", {
+                "crt-overlay": resolvedTheme === "dark",
+                "crt-overlay-light": resolvedTheme === "light",
+              })}
+            />
 
             {/* Scanlines */}
-            <div className="absolute inset-0 pointer-events-none scanlines" />
+            <div
+              className={cn("absolute inset-0 pointer-events-none", {
+                scanlines: resolvedTheme === "dark",
+                "scanlines-light": resolvedTheme === "light",
+              })}
+            />
 
             {/* Boot content */}
             <div className="relative w-full max-w-2xl px-8 py-12">
@@ -176,7 +180,7 @@ export default function BootScreen({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: [0, 0.3, 0] }}
                 transition={{ duration: 0.15 }}
-                className="absolute inset-0 bg-primary pointer-events-none"
+                className="absolute inset-0 bg-foreground pointer-events-none"
               />
             )}
           </motion.div>
@@ -195,12 +199,31 @@ export default function BootScreen({
       </div>
 
       <style jsx global>{`
+        .crt-overlay-light {
+          background: radial-gradient(
+            ellipse at center,
+            transparent 0%,
+            rgba(0, 0, 0, 0.3) 60%,
+            rgba(0, 0, 0, 0.6) 100%
+          );
+        }
+
         .crt-overlay {
           background: radial-gradient(
             ellipse at center,
             transparent 0%,
-            rgba(0, 0, 0, 0.3) 90%,
-            rgba(0, 0, 0, 0.6) 100%
+            rgba(55, 55, 55, 0.3) 60%,
+            rgba(55, 55, 55, 0.6) 100%
+          );
+        }
+
+        .scanlines-light {
+          background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.15) 2px,
+            rgba(0, 0, 0, 0.15) 4px
           );
         }
 
@@ -209,8 +232,8 @@ export default function BootScreen({
             0deg,
             transparent,
             transparent 2px,
-            rgba(0, 0, 0, 0.15) 2px,
-            rgba(0, 0, 0, 0.15) 4px
+            rgba(55, 55, 55, 0.15) 2px,
+            rgba(55, 55, 55, 0.15) 4px
           );
         }
       `}</style>
