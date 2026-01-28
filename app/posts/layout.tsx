@@ -41,7 +41,7 @@ export default function PostsLayout({
       </motion.div>
 
       {/* Main Content Area */}
-      <div className="relative flex gap-8">
+      <div className="relative flex gap-1">
         {/* Article List - Collapsible Sidebar */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -49,9 +49,7 @@ export default function PostsLayout({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
             transition={{ duration: 0.3 }}
-            className={cn("shrink-0", {
-              "-ml-26": !sidebarOpen,
-            })}
+            className="shrink-0"
           >
             {sidebarOpen ? (
               <motion.aside

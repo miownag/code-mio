@@ -1,7 +1,6 @@
 "use client";
 
 import { MdBrowserNotSupported } from "react-icons/md";
-import { Card } from "@/components/ui/card";
 import {
   Empty,
   EmptyHeader,
@@ -12,7 +11,7 @@ import {
 
 function NoPost({ title, content }: { title: string; content: string }) {
   return (
-    <Card className="p-8 w-full">
+    <div className="p-8 w-full">
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -22,7 +21,7 @@ function NoPost({ title, content }: { title: string; content: string }) {
         </EmptyHeader>
         <EmptyContent className="text-primary">{content}</EmptyContent>
       </Empty>
-    </Card>
+    </div>
   );
 }
 
