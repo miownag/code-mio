@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { LuSun, LuMoon, LuMonitor } from "react-icons/lu";
+import { LuSun, LuMoon } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
