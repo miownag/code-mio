@@ -42,14 +42,12 @@ const PhotosFeeds: FC<IProps> = ({
                 "relative overflow-hidden cursor-pointer aspect-square",
                 photo.span === "tall" && "row-span-2 aspect-auto",
               )}
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.2 }}
             >
               <Image
                 src={photo.src}
                 alt={photo.alt}
                 fill
-                className="object-cover transition-all duration-300"
+                className="object-cover transition-all duration-300 hover:scale-105"
               />
             </motion.div>
           </DialogTrigger>
