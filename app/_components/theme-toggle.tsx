@@ -11,8 +11,13 @@ export default function ThemeToggle({ className }: { className?: string }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+      .matches
+      ? "dark"
+      : "light";
+    setTheme(systemTheme);
+    requestAnimationFrame(() => setMounted(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const cycleTheme = () => {
