@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import useSound from "use-sound";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import { useLenis } from "lenis/react";
 
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
@@ -13,6 +14,7 @@ export default function ScrollToTop() {
     volume: 0.5,
   });
   const { resolvedTheme } = useTheme();
+  const lenis = useLenis();
 
   useEffect(() => {
     const toggleVisibility = () => {
@@ -34,10 +36,7 @@ export default function ScrollToTop() {
 
   const scrollToTop = () => {
     playWoosh();
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    lenis?.scrollTo(0, { duration: 1.5 });
   };
 
   return (
