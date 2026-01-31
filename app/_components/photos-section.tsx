@@ -5,7 +5,7 @@ import { LuArrowRight } from "react-icons/lu";
 import { photographs } from "@/constants/photos";
 import PhotosFeeds from "@/components/photos-feeds";
 import Link from "next/link";
-import Subtitle from "./subtitle";
+import Subtitle from "../../components/subtitle";
 
 const containerVariants = {
   hidden: { opacity: 0 },

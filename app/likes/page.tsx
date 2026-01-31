@@ -1,5 +1,6 @@
 "use client";
 
+import Subtitle from "@/components/subtitle";
 import { motion } from "framer-motion";
 
 export default function LikesPage() {
@@ -11,10 +12,7 @@ export default function LikesPage() {
         transition={{ duration: 0.6 }}
         className="mb-10"
       >
-        <h1 className="text-4xl md:text-6xl font-light pixel-font mb-4 flex items-center gap-4">
-          <div className="h-10 w-1 bg-primary" />
-          Things I Like
-        </h1>
+        <Subtitle size="lg">Things I Like</Subtitle>
         <p className="text-muted-foreground text-lg">
           A collection of things that inspire and excite me.
         </p>

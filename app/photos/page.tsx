@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { photographs } from "@/constants/photos";
 import PhotosFeeds from "@/components/photos-feeds";
+import Subtitle from "@/components/subtitle";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -34,10 +35,7 @@ export default function PhotosPage() {
         transition={{ duration: 0.6 }}
         className="mb-10"
       >
-        <h1 className="text-4xl md:text-6xl font-light pixel-font mb-4 flex items-center gap-4">
-          <div className="h-10 w-1 bg-primary" />
-          Photography
-        </h1>
+        <Subtitle size="lg">Photography</Subtitle>
         <p className="text-neutral-400 text-lg">
           My photography collection - capturing moments and memories.
         </p>

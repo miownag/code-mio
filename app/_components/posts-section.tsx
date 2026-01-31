@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { LuArrowUpRight, LuArrowRight } from "react-icons/lu";
 import { recentLearning } from "@/constants";
 import Link from "next/link";
-import Subtitle from "./subtitle";
+import Subtitle from "../../components/subtitle";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { PostMetadata, ApiResponse } from "@/types/post";

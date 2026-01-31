@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { StepTimeline, StepTimelineItem } from "@/components/step-timeline";
 import { experiences } from "@/constants";
-import Subtitle from "./subtitle";
+import Subtitle from "../../components/subtitle";
 
 const containerVariants = {
   hidden: { opacity: 0 },
