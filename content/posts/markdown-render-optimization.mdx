@@ -18,11 +18,10 @@ X Markdown 的优化点主要是预解析 markdown string，支持用户自定�
 ### 主要逻辑
 
 1. useStreaming —— 流式解析 markdown string，主要作用是补全进行中的解析 + 补充占位符
-
    1. 判断前缀：如果当前的 string 的前缀和之前缓存的前缀一致，则认为是增量，正常解析；如果是不一致的，则重置缓存，从而从头解析
       前缀为解析完毕的字符串 + 进行中的解析字符串（指流式输出中还未闭合的内容，比如 # 标题 1 后面还没有换行符，则认为是一个正在输出中的 H1）
 
-      ```ts
+      ```typescript
       // 比较前缀，判断是否是增量解析，如果无法对齐，则重置缓存从头解析
       const expectedPrefix =
         cacheRef.current.completeMarkdown + cacheRef.current.pending;
@@ -34,7 +33,7 @@ X Markdown 的优化点主要是预解析 markdown string，支持用户自定�
 
    2. 增量解析：将新增的内容逐 char 解析，解析的结果可能为 complete 或 pending
 
-      ```ts
+      ```typescript
       const cache = cacheRef.current;
       const chunk = text.slice(cache.processedLength);
       if (!chunk) return;
@@ -56,7 +55,7 @@ X Markdown 的优化点主要是预解析 markdown string，支持用户自定�
         } else {
           // 如果上次解析的结果不是 Text，则认为现在是在解析某一个特殊的 token，比如 Link
           const handler = recognizeHandlers.find(
-            (handler) => handler.tokenType === cache.token
+            (handler) => handler.tokenType === cache.token,
           );
           handler?.recognize(cache);
         }
@@ -72,7 +71,7 @@ X Markdown 的优化点主要是预解析 markdown string，支持用户自定�
 
       handler 解析逻辑
 
-      ```ts
+      ```typescript
       const recognize = (
         cache: StreamCache,
         tokenType: StreamCacheTokenType
@@ -107,7 +106,7 @@ X Markdown 的优化点主要是预解析 markdown string，支持用户自定�
 
    3. 支持 MD 节点 loading：如果判断是一个非 text 的组件，比如 Link，并且还在 loading 中，则会展示占位符（由用户配置指定，自定义 HTML 标签）
 
-      ```ts
+      ```typescript
       // 如果命中了自定义组件，则使用自定义组件
       return components?.[componentName]
         ? `<${componentName} data-raw="${encodedPending}" />`
@@ -117,10 +116,9 @@ X Markdown 的优化点主要是预解析 markdown string，支持用户自定�
    这里就会在 markdown string 中插入自定义组件的占位符，比如 `<loading-link data-raw="https://www.goog" />`
 
 2. parser —— 使用 parser.parse 解析上述字符串，获得 html 字符串，会保留自定义组件的占位符
-
    1. 使用 marked，默认设置了几个配置项，useStreaming 的结果一变，就会重新 parse
 
-      ```ts
+      ```typescript
       class Parser {
         options: ParserOptions;
         markdownInstance: Marked;
@@ -146,7 +144,6 @@ X Markdown 的优化点主要是预解析 markdown string，支持用户自定�
       ```
 
 3. renderer —— 使用 renderer.render 渲染上述 html 字符串，转为 html react element，作为容器的 children
-
    1. 使用 html-react-parser，经过 purify 后，将 html 字符串解析为 react element
    2. 支持设置 replacement，将某些 html 节点替换为用户指定的自定义组件的 element（html-react-parser 的能力）
    3. 支持 HTML 节点 loading：如果判断是一个非闭合的标签，会给该标签添加一个 `streamStatus="loading"` 入参，需用户自己决定展示 loading
@@ -210,7 +207,6 @@ prompt kit 的思路比较清晰，主要优化点是分块渲染，即先把 ma
    }
    ```
 2. 遍历块进行渲染
-
    1. 渲染 key 为`${blockId}-block-${index}` ，block id 为用户传入，在渲染时传入，防止列表中混淆
    2. 做了 memo，只有 content 变化时才重渲染，考虑到 components 一般是静态配置，因此不在比较函数内
 
@@ -226,7 +222,7 @@ prompt kit 的思路比较清晰，主要优化点是分块渲染，即先把 ma
      // string 变化时才会重新分块
      const blocks = useMemo(
        () => parseMarkdownIntoBlocks(children),
-       [children]
+       [children],
      );
 
      return (
@@ -263,7 +259,7 @@ prompt kit 的思路比较清晰，主要优化点是分块渲染，即先把 ma
      // 只有 content 变化时才会重渲染
      function propsAreEqual(prevProps, nextProps) {
        return prevProps.content === nextProps.content;
-     }
+     },
    );
    ```
 
