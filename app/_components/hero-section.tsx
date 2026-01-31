@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import TypeWriter from "@/components/type-writer";
 import AboutMe from "@/app/_components/about-me";
 import Terminal from "@/components/terminal";
 import { FiGithub } from "react-icons/fi";
@@ -12,12 +11,28 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import useHasMounted from "@/hooks/use-has-mounted";
+import ScrambleText from "@/components/scramble-text";
 
 export default function HeroSection() {
   const [isTerminalFullscreen, setIsTerminalFullscreen] = useState(false);
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
   const { resolvedTheme } = useTheme();
   const hasMounted = useHasMounted();
+
+  const dynamicTexts = [
+    {
+      text: "Web Tech.",
+      className: `${resolvedTheme === "dark" && hasMounted ? "text-pink-400" : "text-pink-600"}`,
+    },
+    {
+      text: "Node.js.",
+      className: `${resolvedTheme === "dark" && hasMounted ? "text-green-400" : "text-green-600"}`,
+    },
+    {
+      text: "AI Agent.",
+      className: `${resolvedTheme === "dark" && hasMounted ? "text-cyan-400" : "text-cyan-600"}`,
+    },
+  ];
 
   return (
     <motion.section
@@ -86,7 +101,9 @@ export default function HeroSection() {
               transition={{ delay: 0.2, duration: 0.5 }}
             >
               <h1 className="text-5xl md:text-7xl font-bold">
-                <span className="text-foreground">Hi, I&apos;m </span>
+                <span className="text-foreground font-extrabold">
+                  Hi, I&apos;m{" "}
+                </span>
                 {["M", "i", "o"].map((char, index) => (
                   <span
                     key={index}
@@ -98,30 +115,15 @@ export default function HeroSection() {
               </h1>
               <div className="h-1 w-24 bg-primary rounded-full mt-4" />
             </motion.div>
-            <TypeWriter
+            <ScrambleText
               textProps={{
                 baseText:
                   "A Frontend Engineer working in Tencent. I'm focusing on ",
-                dynamicTexts: [
-                  {
-                    text: "Web Tech.",
-                    className: "text-pink-400",
-                  },
-                  {
-                    text: "Node.js.",
-                    className: "text-green-400",
-                  },
-                  {
-                    text: "AI Agent.",
-                    className: "text-cyan-400",
-                  },
-                ],
+                dynamicTexts,
               }}
-              delay={100}
-              className="text-4xl text-muted-foreground pixel-font"
-              cursorClassName="bg-neutral-500 w-2 h-6 translate-y-1/20"
+              className="text-[2rem] leading-[1.2] text-muted-foreground pixel-font"
               loop
-              loopDelay={3000}
+              loopDelay={2000}
             />
             {/* Contact */}
             <motion.div

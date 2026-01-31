@@ -35,9 +35,6 @@ export default function Navigation() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
-      if (window.scrollY > 50 && isExpanded) {
-        setIsExpanded(false);
-      }
     };
 
     window.addEventListener("scroll", handleScroll);

@@ -4,8 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # Design Rules
 
-- Use Shadcn/ui components for UI elements
-- Black and Green color scheme, you can find primary color in `app/globals.css`
+- Style is PIXEL and simulate old computer screen
+- Use Shadcn/ui components for UI elements and tailwindcss for styling
 
 ## Package Manager
 
@@ -38,10 +38,9 @@ This is a personal portfolio website built as a single-page Next.js application 
 - `app/layout.tsx` - Root layout with font configuration (dark mode forced)
 - `app/globals.css` - Global styles with Tailwind CSS
 - `components/` - Reusable components
-  - `particle-background.tsx` - Canvas-based particle animation with mouse interaction (repels/connects to particles)
-  - `type-writer.tsx` - Animated typing effect with loop capability for dynamic text
   - `ui/` - Shadcn-style components (Badge, Button, Card)
-- `lib/utils.ts` - `cn()` utility for merging Tailwind classes (clsx + tailwind-merge)
+  - `*` - Other common components
+- `lib/utils.ts` - Utility functions (e.g., `cn()`)
 
 ### Path Alias
 
@@ -50,6 +49,5 @@ This is a personal portfolio website built as a single-page Next.js application 
 ### Key Patterns
 
 - All page components use `motion.*` from Framer Motion for scroll-triggered animations
-- The particle background is an absolute positioned canvas that responds to mouse movement
 - All cards are clickable and open external links in new tabs
-- Dark mode is always enabled (`className="dark"` on html element)
+- Use kebab case for file names and component names
