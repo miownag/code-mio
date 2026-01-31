@@ -17,11 +17,17 @@ function extractHeadings(markdown: string): TocItem[] {
   const headings: TocItem[] = [];
   const slugger = new GithubSlugger();
 
+  // Remove code blocks first to avoid matching headings inside them
+  // Matches both fenced code blocks (```) and indented code blocks
+  const contentWithoutCodeBlocks = markdown
+    .replace(/```[\s\S]*?```/g, "") // Remove fenced code blocks
+    .replace(/`[^`\n]+`/g, ""); // Remove inline code
+
   // Match h1, h2, h3 headings (lines starting with #, ##, or ###)
   const headingRegex = /^(#{1,3})\s+(.+)$/gm;
   let match;
 
-  while ((match = headingRegex.exec(markdown)) !== null) {
+  while ((match = headingRegex.exec(contentWithoutCodeBlocks)) !== null) {
     const level = match[1].length as 1 | 2 | 3;
     const text = match[2].trim();
     // Generate slug the same way rehype-slug does
@@ -39,34 +45,33 @@ function useActiveHeading(headingIds: string[]) {
   useEffect(() => {
     if (headingIds.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        // Find the first heading that is intersecting
-        const visibleHeadings = entries.filter((entry) => entry.isIntersecting);
+    const handleScroll = () => {
+      // Find the heading that is closest to the top of the viewport but still above or at the scroll position
+      const scrollTop = window.scrollY;
+      const offset = 100; // Account for sticky header
 
-        if (visibleHeadings.length > 0) {
-          // Get the one closest to the top
-          const sortedByTop = visibleHeadings.sort(
-            (a, b) => a.boundingClientRect.top - b.boundingClientRect.top,
-          );
-          setActiveId(sortedByTop[0].target.id);
+      let currentActiveId = headingIds[0] || "";
+
+      for (const id of headingIds) {
+        const element = document.getElementById(id);
+        if (element) {
+          const elementTop = element.getBoundingClientRect().top + scrollTop;
+          if (elementTop <= scrollTop + offset) {
+            currentActiveId = id;
+          } else {
+            break;
+          }
         }
-      },
-      {
-        rootMargin: "-10% 0% -80% 0%", // Trigger when heading is in top 20% of viewport
-        threshold: 0,
-      },
-    );
-
-    // Observe all heading elements
-    headingIds.forEach((id) => {
-      const element = document.getElementById(id);
-      if (element) {
-        observer.observe(element);
       }
-    });
 
-    return () => observer.disconnect();
+      setActiveId(currentActiveId);
+    };
+
+    // Initial check
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [headingIds]);
 
   return activeId;

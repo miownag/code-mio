@@ -1,0 +1,303 @@
+# Rust-Wasm介绍
+
+Rust-Wasm，即由Rust的应用编译来的Wasm。
+
+## 1.1 Rust
+
+Rust是由Mozilla主导开发的通用、编译型编程语言。设计准则为“安全、并发、实用”，支持函数式、并发式以及面向对象等程序设计风格。
+
+Rust具有许多优势：
+
+- 内存安全：在编译时进行内存检查，避免出现空指针等问题；
+
+- 并发安全：还可以检查并发安全问题，避免了数据竞争等问题；
+
+- 高效：编译后的性能可以媲美C++；
+
+- 生态系统繁荣：就像JS一样，Rust也拥有丰富的库和工具。
+
+## 1.2 Wasm
+
+> WebAssembly 是一种新的编码方式，可以在现代的网络浏览器中运行 － 它是一种低级的类汇编语言，具有紧凑的二进制格式，可以接近原生的性能运行，并为诸如 C / C ++等语言提供一个编译目标，以便它们可以在 Web 上运行。它也被设计为可以与 JavaScript 共存，允许两者一起工作。并且Wasm是通过[W3C WebAssembly Community Group](https://www.w3.org/community/webassembly/)开发的一项网络标准，并得到了来自各大主要浏览器厂商的积极参与。
+>
+> &#x20; \------ [WebAssembly | MDN](https://developer.mozilla.org/zh-CN/docs/WebAssembly)
+
+# Rust环境安装
+
+- 在终端中输入以下命令行
+
+```Shell
+$ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
+```
+
+这中间可能会让你输入管理员密码，最终当终端中输出 "Rust is installed now. Great!" 即安装成功，也可以通过输入如下命令来验证是否已经安装成功：
+
+```Shell
+$ rustc -V
+$ cargo -V
+```
+
+- 其中，Cargo是Rust的包管理工具，就像JS的npm一样；
+
+- 编辑器推荐VsCode，可以安装rust-analyzer（支持解析rs文件）和Even Better TOML插件（支持解析toml文件，相当于JS的package.json）；
+
+- (非必需) 后续编译Rust应用时，可能会报link错误，这是因为Rust 会依赖libc和链接器linker，因此，如果你遇到此类报错，你需要安装C语言编译器，在终端中输入：
+
+```Shell
+$ xcode-select --install
+```
+
+# 编写&编译Rust应用
+
+## 3.1 Hello World
+
+在正式开始之前，我们可以先来一份Hello World饭前开胃菜～
+
+#### 3.1.1 新建项目
+
+- 在终端中输入cargo new hello_world，即可生成一个项目，我们可以通过VsCode打开，项目结构如图：
+
+![image](/posts/rust-wasm/rust-hello-world.png)
+
+- 打开main.rs主文件，我们可以发现Cargo已经帮我们把Hello World写到代码里了；
+
+![image](/posts/rust-wasm/rust-hello-world-main.png)
+
+#### 3.12 编译运行项目
+
+在终端中(hello_world路径下)输入cargo run，即可编译项目并执行main函数，把Hello World打印出来；
+
+![image](/posts/rust-wasm/cargo-run-hw.png)
+
+我们的第一个Rust项目就成功跑起来了！
+
+## 3.2 写一个稍微复杂的Function
+
+在本章节，我们将写一个稍微复杂的Rust函数，并且该函数也是将来我们在React项目中调用的函数。
+
+#### 3.2.1 另起炉灶
+
+- 我们不会使用Hello_World项目，而是会使用cargo新建一个lib类项目，在这之前，我们需要先做一些准备工作：
+
+在这里，我们首先用cra新建了一个React项目，然后在该项目的目录下新建了一个lib类的rust项目，此时的目录：
+
+![image](/posts/rust-wasm/cra-rust-lib.png)
+
+- 打开my_func/src/lib.rs可以看到，cargo帮助我们实现了一个add函数并且写好了测试用例，我们可以在my_func目录下执行cargo test来验证：
+
+![image](/posts/rust-wasm/rust-add.png)
+
+终端中输出了 1 passed，证明测试用例通过；
+
+- 接下来我们就可以写我们自己的函数了：
+
+在这里我写了两个函数，一个是经典的快排函数，另一个是斐波那契数列，并通过wasm_bindgen导出为JS函数：
+
+```Rust
+use wasm_bindgen::prelude::*;
+use js_sys::Array;
+
+/** 两个工具函数，用来实现JS数组和Rust Vec类型的相互转化 */
+fn js_array_to_vec(js_array: Array) -> Vec<f64> {
+    js_array.iter().map(|x| x.as_f64().unwrap()).collect()
+}
+fn vec_to_js_array(vec: Vec<f64>) -> Array {
+    vec.into_iter().map(JsValue::from_f64).collect()
+}
+
+fn quick_sort(mut arr: &mut [f64]) {
+    if arr.len() > 1 {
+        let pivot = partition(&mut arr);
+        quick_sort(&mut arr[..pivot]);
+        quick_sort(&mut arr[pivot + 1..]);
+    }
+}
+
+fn partition(arr: &mut [f64]) -> usize {
+    let pivot = arr.len() - 1;
+    let mut i = 0;
+    for j in 0..pivot {
+        if arr[j] < arr[pivot] {
+            arr.swap(i, j);
+            i += 1;
+        }
+    }
+    arr.swap(i, pivot);
+    i
+}
+// 最终的JS函数quickSort
+#[wasm_bindgen(js_name = quickSort)]
+pub fn quick_sort_js(arr: Array) -> Array {
+    let mut vec = js_array_to_vec(arr);
+    quick_sort(&mut vec);
+    vec_to_js_array(vec)
+}
+
+// 斐波那契数列
+fn fib_rec(num: i16) -> i64 {
+    if num < 2 {
+        return 1;
+    }
+    fib_rec(num - 1) + fib_rec(num - 2)
+}
+#[wasm_bindgen(js_name = fibRust)]
+pub fn fib_recursion(time: i16) -> i64 {
+    let mut result = 0;
+    let mut i = 1;
+    while i < time {
+        result = fib_rec(i);
+        i += 1;
+    }
+    result
+}
+```
+
+#### 3.2.2 编译为Wasm包
+
+- 首先，你需要一个新的工具——wasm-pack，这是一个将我们的代码编译为wasm的工具，在我们的React项目目录下执行：
+
+- 然后我们在package.json里增加这样一个脚本并执行：
+
+![image](/posts/rust-wasm/build-script.png)
+
+```JSON
+"build:wasm": "cd my_func && wasm-pack build --target web --out-dir pkg"
+```
+
+可以看到这里是从React项目目录进入了my_func子目录，并且执行wasm-pack build ... 将应用编译打包为Web PKG的形式，最终编译打包成功后会输出如下信息：
+
+![image](/posts/rust-wasm/wasm-build-res.png)
+
+- 终端告诉我们Your wasm pkg is ready to publish at ... 说明我们的包已经是可用状态了，此时我们的my_func文件夹下，新生成了一个pkg文件夹，打开后可以看到内部生成了.wasm文件(编译后的二进制文件)，还有.d.ts和.js文件，这正是我们将来JS调用的入口。
+
+![image](/posts/rust-wasm/wasm-build-dist.png)
+
+这时候我们的my_func就是一个在本地的npm包。
+
+# 在React中调用Wasm
+
+## 4.1 安装依赖
+
+既然my_func是一个本地包，那我们可以通过npm install \[本地包的相对路径]安装依赖，我们执行：
+
+```Shell
+$ npm i ./my_func/pkg
+```
+
+接下来我们会在React中调用上述实现的两个函数：
+
+```JavaScript
+import './App.css';
+import { useState, useEffect } from 'react';
+import init, { fibRust, quickSort } from 'my_func';
+import jsQuickSort from './jsQuickSort'
+// TEST_DATA为1000个随机数的数组
+import TEST_DATA from './test';
+import fibRecursion from './fib'
+
+function App() {
+  const [fibDuration, setFibDuration] = useState({JS: 0, Rust: 0});
+  const [quickSortDuration, setQuickSortDuration] = useState({JS: 0, Rust: 0});
+
+  useEffect(() => {
+    // 测试JS 斐波那契耗时
+    const jsStart1 = performance.now();
+    fibRecursion(40);
+    setFibDuration((pre) => ({...pre, JS: (performance.now() - jsStart1).toFixed(0)}));
+    // 测试JS 快排耗时
+    const jsStart2 = performance.now();
+    jsQuickSort(TEST_DATA);
+    setQuickSortDuration((pre) => ({...pre, JS: (performance.now() - jsStart2).toFixed(0)}));
+    /** web pkg形式的wasm是一个异步模块，我们必须要用init().then()后才能使用对应功能；
+     ** 如果想要同步调用，也可以考虑把模块编译为本地.wasm文件，然后使用同步的WebAssembly导入来访问它；
+     ** 在这种情况下可以使用WebAssembly.instantiate方法来加载模块，并使用返回的WebAssembly.Instance对象调用模块中的函数
+     */
+    init().then(() => {
+      // 测试Rust 斐波那契耗时
+      const rustStart1 = performance.now();
+      fibRust(40);
+      setFibDuration((pre) => ({...pre, Rust: (performance.now() - rustStart1).toFixed(0)}));
+      // 测试Rust 快排耗时
+      const rustStart2 = performance.now();
+      quickSort(TEST_DATA);
+      setQuickSortDuration((pre) => ({...pre, Rust: (performance.now() - rustStart2).toFixed(0)}));
+    })
+  }, []);
+
+  return (
+    <div className="App">
+      <div>
+          斐波那契数列 - Wasm耗时为：{fibDuration.Rust}
+          <div />
+          斐波那契数列 - JS耗时为：{fibDuration.JS}
+      </div>
+      ----------------------------------------------------
+      <div>
+          快速排序 - Wasm耗时为：{quickSortDuration.Rust}
+          <div />
+          快速排序 - JS耗时为：{quickSortDuration.JS}
+      </div>
+    </div>
+  );
+}
+
+export default App;
+```
+
+# 与原生JS的性能比较
+
+## 5.1 控制变量
+
+因为我们是测试代码的性能，所以要保证只有编程语言这一个变量，其他需要完全一致：
+
+- 代码逻辑：用Rust和JS写的快排和斐波那契数列函数在每一行的逻辑上几乎是完全一致的；
+
+- 测试数据：我们都用JS来调用函数且入参类型完全一致，因此可以保证仅有一份测试数据是没问题的，其中斐波那契数列我们算到40，而快排都用到了1000个随机数的数组的测试数据TEST_DATA。
+
+## 5.2 衡量手段
+
+我们通过JS的performance.now()时间戳的差值来衡量性能并展现在页面上，这里仅仅计算了函数运行的耗时，而没有包括异步模块导入初始化的耗时，这样其实是符合逻辑的：
+
+- 在我们这个Demo中，只用Rust完成这两个任务肯定不如只用JS快，因为涉及到了异步模块的耗时，但是这仅仅是这个Demo的局限性；
+
+- 假如我们的Rust函数不在首屏中调用，就可以在首屏引入后，之后在其他页面或者组件中同步调用了，或者是多次调用，那平均耗时最终还是会是wasm有优势；
+
+- 我们也可以通过其他方式优化，比如我们不用web pkg形式，而是把模块编译为本地.wasm文件，然后使用WebAssembly.instantiate方法来加载模块，并使用返回的WebAssembly.Instance对象调用模块中的函数，也可以实现同步调用。
+
+## 5.3 结果
+
+以下是三次随机的结果，耗时还是相对稳定的：
+
+<div data-grid-img>
+
+![image](/posts/rust-wasm/wasm-benchmark-1.png)
+
+![image](/posts/rust-wasm/wasm-benchmark-2.png)
+
+![image](/posts/rust-wasm/wasm-benchmark-3.png)
+
+</div>
+
+可以看到，在执行斐波那契数列函数时，wasm的性能大约是JS的2～3倍，而快排两者几乎相当。
+
+两者在快排时耗时相当的原因是：快排相比较于斐波那契数列，其参数为一个1000个随机数的数组，而在JS线程和wasm线程中交互数据是比较损耗性能的，因此，wasm真正能体现优势是当函数功能的内聚性比较高时，大多数逻辑都是计算逻辑且封装在函数内，而不是需要进行频繁的数据交互。
+
+当我们把快排的入参规模扩大十倍，用10000随机数的数组，最终结果会是JS优势更大：
+
+![image](/posts/rust-wasm/wasm-benchmark-4.png)
+
+# 结语
+
+在这篇文章中，我们从安装Rust开发环境开始，一步一步地实现了一个wasm函数且在React项目中调用了它，并最终比较了Rust-Wasm和原生JS的性能比较；
+
+业界也有许多成熟的例子，比如我们非常熟悉的Figma，一开始他们使用asm.js来做加速渲染，后来Web Assembly成为W3C标准，他们又积极投入wasm的怀抱，相比于asm.js更进一步地提升了渲染速度；
+
+这仅是Rust-Wasm在业界广泛应用的一个例子，而随着WebAssembly技术的普及和Rust语言的发展（现在就非常火爆），相信Rust-Wasm在未来会有更多的应用场景和使用案例。
+
+# 感谢帮助
+
+1.  https://www.tkat0.dev/posts/how-to-create-a-react-app-with-rust-and-wasm
+
+1.  POE-ChatGPT: https://poe.com
+
+1.  https://course.rs/about-book.html

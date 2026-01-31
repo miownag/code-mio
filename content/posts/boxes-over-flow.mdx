@@ -1,0 +1,280 @@
+## 需求概览
+
+---
+
+在某个业务需求中，UI同学提出了如下的要求：
+
+在某页面中的一级列表中的某字段中，需要展示内容不固定的Tag Groups，效果如图所示（数据已脱敏）：
+
+![image](/posts/boxes-over-flow/effect.png)
+
+---
+
+UI要求为：
+
+- 各Tag依次排列展示，由于内容不同，每一个Tag的宽度不定，但是高度是统一的
+
+- 当前行排不下，另起一行继续排列
+
+- 若行数 \<= 2，则全部展示（如**蓝圈**所示）
+
+- 若行数 > 2，则只展示两行，并在第二行末展示按钮（如**红圈**所示），点击按钮弹窗展示全部
+
+## 方案选型与实现
+
+UI要求分析：
+
+这个需求的重点在于，超过两行的情况下只展示两行
+
+- **方案1**：比较简单的方法，实际上存在所有的Tag，但是超过两行的不展示，然后用一种特殊的办法将按钮贴在第二行末的位置，这样不需要做任何的计算
+
+- **方案2**：其次是复杂一点的方法，即只渲染部分Tag（前两行），而且第二行不可以占满，需要留出一定的空间来渲染按钮，这样就需要进行计算来确定渲染个数
+
+### 方案1
+
+##### 可行性
+
+Tag高度是固定的，所以只需要给容器设置一个 **max-height: [2倍高度 + 间距]** 并且 **overflow: hidden**，即可最多展示两行，剩下的Tag对应的DOM还留在页面中，只是隐藏了；给容器设置**position: relative**，给按钮设置**position: absolute; right: 0; bottom: 0; **这样按钮就可以出现在容器右下角，接下来只需要判断容器的**scrollHeight**（实际内容撑开的高度）是否大于**clientHeight**（页面展示的高度）即可判断是否超过了两行，进而控制按钮的展示
+![image.png](/posts/boxes-over-flow/diagram.png)
+
+##### 否定原因
+
+- 不符合真正的需求，真正的需求其实是在第二行末尾展示按钮，这个按钮是和Tag一样依次排列的，但是这个方案是在第二行末尾将按钮“贴”上去，这个按钮可能会遮盖最后几个标签的一部分，显得很突兀
+
+- 虽然只展示两行，但是页面存在着所有Tag的DOM结构，数据量大的时候可能会对性能有影响
+
+### 方案2
+
+##### 可行性
+
+在容器定宽的情况下，只需要获得每个Tag的宽度，其实是可以计算出两行可以排下多少个的，然后根据按钮的宽度也可以计算并将按钮依次排上去，同时，也可以效仿方案1，设置max-height，防止影响CLS。
+
+##### 算法实现
+
+```typescript
+// 计算展示个数
+const calculateShowCount = (
+  line: number,
+  width: number,
+  widths: number[],
+  buttonWidth: number,
+) => {
+  let index = 0;
+  // lineIndex指行数
+  for (let lineIndex = 1; lineIndex < line + 1; lineIndex++) {
+    // widthRemain指这一行剩余可用的宽度
+    let widthRemain = width;
+    // 开始排盒子
+    while (index < widths.length) {
+      // 盒子的宽度
+      const boxWidth = widths[index];
+      // 如果剩余可用宽度不足够排上此盒子，进入新的一行
+      if (widthRemain < boxWidth) {
+        // 最后一行时直接处理添加按钮的逻辑
+        if (lineIndex === line) {
+          // 如果剩余空间可以放下按钮, 则可以展示【index之前的所有盒子 + 按钮】
+          if (widthRemain >= buttonWidth) {
+            return index;
+          } else {
+            // 如果不能放下，则要计算展示到第几个才能放下按钮
+            while (buttonWidth > 0) {
+              // 这是一个撤掉盒子的操作，看撤掉几个才能放下按钮
+              buttonWidth -= widths[index - 1];
+              index--;
+            }
+            return index;
+          }
+        }
+        break;
+      } else {
+        // 如果能够排下此盒子，将盒子排下
+        widthRemain -= boxWidth;
+        index++;
+      }
+    }
+  }
+  return widths.length;
+};
+```
+
+##### 1.0版
+
+```typescript
+interface IProps {
+  valueList: { businessLine: string; amount: string }[];
+  onClick: () => void;
+  buttonText?: string;
+}
+
+const BoxesOverFlow: FC<IProps> = ({
+  valueList,
+  onClick,
+  buttonText = `查看全部${valueList.length}条`,
+}) => {
+  const [showCount, setShowCount] = useState(valueList.length);
+  const containerRef = useRef<HTMLDivElement>(null);
+  // 比valueList更准确的dep值，可以减少useEffect进而减少计算及重绘，性能比JSON.stringify好
+  const valueHash = valueList.reduce(
+    (pre, cur) => `${pre}${cur.businessLine}${cur.amount}`,
+    ''
+  );
+
+  useEffect(() => {
+    setShowCount(
+      calculateShowCount(
+        590,
+        Array.from(containerRef.current?.childNodes ?? []).map(
+          dom => (dom as HTMLDivElement)?.offsetWidth + 4
+        ),
+        100
+      )
+    );
+  }, [valueHash]);
+
+  return (
+    <>
+      <div className={styles.container}>
+        {valueList.slice(0, showCount).map(({ businessLine, amount }) => (
+          <div className={styles.box} key={businessLine}>
+            <span style={{ fontWeight: 600 }}>{businessLine}</span>{' '}
+            <span>{amount}</span>
+          </div>
+        ))}
+        {showCount < valueList.length && (
+          <TextButton
+            className={styles.textButton}
+            text={buttonText}
+            onClick={onClick}
+          />
+        )}
+      </div>
+      {/* 隐藏DOM，用来计算展示个数 */}
+      <div
+        className={`${styles.container} ${styles.hidden}`}
+        ref={containerRef}
+      >
+        {valueList.map(({ businessLine, amount }) => (
+          <div className={styles.box} key={businessLine}>
+            <span style={{ fontWeight: 600 }}>{businessLine}</span>{' '}
+            <span>{amount}</span>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default BoxesOverFlow;
+```
+
+缺点：
+
+- 定制化，很多东西都是写死的，可扩展性和灵活性差
+
+- DOM结构太多，甚至相比方案1还多，DOM数为【应该展示的DOM】+ 【全量DOM】，性能可能会差
+
+注：
+
+图中72行的“+4”，指的是盒子之间的间距是4px，需要加上计算才准确
+
+##### 2.0版
+
+```typescript
+interface IProps {
+  valueList: { businessLine: string; amount: string; key: string }[];
+  line: number;
+  width: number;
+  onClick: () => void;
+  buttonText?: string;
+}
+
+const BoxesOverFlow: FC<IProps> = ({
+  valueList,
+  line,
+  width,
+  onClick,
+  buttonText = `查看全部${valueList.length}条`,
+}) => {
+  const [showCount, setShowCount] = useState(valueList.length);
+  const [shouldCalc, setShouldCalc] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // 比valueList更准确的dep值，可以减少useEffect进而减少计算及重绘，性能比JSON.stringify好
+  const valueHash = valueList.reduce(
+    (pre, cur) => `${pre}${cur.businessLine}${cur.amount}`,
+    ''
+  );
+
+  useEffect(() => {
+    setShowCount(valueList.length);
+    setShouldCalc(true);
+  }, [valueHash]);
+
+  useEffect(() => {
+    if (shouldCalc) {
+      const count = calculateShowCount(
+        line,
+        width,
+        Array.from(containerRef.current?.childNodes ?? []).map(
+          dom => (dom as HTMLDivElement)?.offsetWidth + 4
+        ),
+        100
+      );
+      setShowCount(count);
+      setShouldCalc(false);
+    }
+  }, [shouldCalc]);
+
+  return (
+    <div
+      className={styles.container}
+      style={{ width, maxHeight: line * 29 }}
+      ref={containerRef}
+    >
+      {valueList.slice(0, showCount).map(({ businessLine, amount, key }) => (
+        <div className={styles.box} key={key}>
+          <span className={styles.businessLine}>{businessLine}</span>{' '}
+          <span>{amount}</span>
+        </div>
+      ))}
+      {showCount < valueList.length && (
+        <TextButton
+          className={styles.textButton}
+          text={buttonText}
+          onClick={onClick}
+        />
+      )}
+    </div>
+  );
+};
+
+export default BoxesOverFlow;
+```
+
+优点：
+
+- 相比方案1，实现了key（Tag循环的key）、line（展示行数）、width（容器的宽度）的配置化
+
+- DOM结构简化，稳定状态下（渲染完）DOM数为【应该展示的DOM】
+
+缺点：
+
+- 还是一个定制化的组件，比如valueList的结构、按钮的宽度还是写死的
+
+- 相比1.0，多一次渲染，现在两个useEffect，需要渲染三次
+
+注：
+
+- 渲染次数少和DOM数少这两件事是互斥的，重新渲染进行计算的时候，必定要从第一个盒子开始计算，且计算取值范围为所有盒子，可以称这个状态为【初态】，而最终计算完成后，展示应该展示的个数，称为【终态】；
+
+- 当我们使用方案2的1.0版时，我们始终维护了一套【初态】的DOM（即隐藏DOM），所以重新计算时，只需要根据初态的DOM计算即可；
+
+- 如果只维护一套DOM，在需要重新计算的时候，需要先将DOM变为【初态】，再进行计算后变为【终态】，渲染次数就会多一次。
+
+## Extra
+
+由于内容和value的结构做到非定制化的成本较高，于是将比较容易复用的计算&控制展示能力封装为hook，后续也复用在了其他地方：
+
+![image](/posts/boxes-over-flow/hook.png)
+
+待改进：此处的“+4”也可以做到配置化

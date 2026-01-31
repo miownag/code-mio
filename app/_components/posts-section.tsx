@@ -9,13 +9,14 @@ import Subtitle from "../../components/subtitle";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { PostMetadata, ApiResponse } from "@/types/post";
+import PostTag from "@/components/post-tag";
 
 type PostItem = {
   id?: string;
   title: string;
   source?: string;
   date?: string;
-  tags: string[];
+  tags: (string | { name: string; important: boolean; color: string })[];
   link?: string;
   type: "post" | "learning";
 };
@@ -25,7 +26,6 @@ export default function PostsSection() {
 
   useEffect(() => {
     async function fetchAndMerge() {
-      // 转换 recentLearning 为统一格式
       const learningItems: PostItem[] = recentLearning.map((item) => ({
         title: item.title,
         source: item.source,
@@ -36,7 +36,6 @@ export default function PostsSection() {
       }));
 
       try {
-        // 从 API 获取 posts
         const res = await fetch("/api/posts");
         const json: ApiResponse<PostMetadata[]> = await res.json();
 
@@ -49,29 +48,25 @@ export default function PostsSection() {
             type: "post" as const,
           }));
 
-          // 合并并按时间倒序排序
           const merged = [...postItems, ...learningItems].sort((a, b) => {
             const dateA = a.date ? new Date(a.date).getTime() : 0;
             const dateB = b.date ? new Date(b.date).getTime() : 0;
             return dateB - dateA;
           });
 
-          // 取最新的 1 篇 post 和 2 篇 learning
           const posts = merged
             .filter((item) => item.type === "post")
-            .slice(0, 1);
+            .slice(0, 2);
           const learnings = merged
             .filter((item) => item.type === "learning")
-            .slice(0, 2);
+            .slice(0, 1);
 
           setItems([...posts, ...learnings]);
         } else {
-          // 如果 API 出错，只显示 learning
-          setItems(learningItems.slice(0, 2));
+          setItems(learningItems.slice(0, 1));
         }
       } catch {
-        // 如果请求失败，只显示 learning
-        setItems(learningItems.slice(0, 2));
+        setItems(learningItems.slice(0, 1));
       }
     }
 
@@ -145,13 +140,10 @@ export default function PostsSection() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {item.tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="outline"
-                      className="text-xs text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
-                    >
-                      {tag}
-                    </Badge>
+                    <PostTag
+                      key={typeof tag === "string" ? tag : tag.name}
+                      tag={tag}
+                    />
                   ))}
                 </div>
               </div>

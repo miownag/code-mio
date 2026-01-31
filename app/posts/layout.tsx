@@ -10,6 +10,7 @@ import { PiSidebarSimpleBold } from "react-icons/pi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetPostMetaData } from "@/hooks";
 import Subtitle from "@/components/subtitle";
+import PostTag from "@/components/post-tag";
 
 export default function PostsLayout({
   children,
@@ -52,12 +53,12 @@ export default function PostsLayout({
             {sidebarOpen ? (
               <motion.aside
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: "14rem", opacity: 1 }}
+                animate={{ width: "auto", opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: 0.3 }}
                 className="shrink-0 h-full"
               >
-                <div className="w-56 space-y-4 sticky top-20">
+                <div className="w-64 space-y-4 sticky top-20">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">All Posts</h2>
                     {/* Sidebar Toggle Button */}
@@ -79,7 +80,11 @@ export default function PostsLayout({
                       </>
                     ) : (
                       metaData.map((item) => (
-                        <Link key={item.id} href={`/posts/${item.id}`}>
+                        <Link
+                          key={item.id}
+                          href={`/posts/${item.id}`}
+                          scroll={false}
+                        >
                           <div
                             className={cn(
                               "cursor-pointer transition-all duration-300 hover:bg-primary/5 rounded-lg py-2 px-4 -ml-4 flex flex-col",
@@ -90,15 +95,28 @@ export default function PostsLayout({
                           >
                             <h3
                               className={cn(
-                                "font-semibold mb-2 line-clamp-2 overflow-hidden text-ellipsis text-sm",
+                                "font-semibold mb-2 line-clamp-2 overflow-hidden text-ellipsis",
                                 item.id === currentId && "text-primary",
                               )}
                             >
                               {item.title}
                             </h3>
-                            <p className="text-sm text-muted-foreground">
+                            <div className="text-sm text-muted-foreground flex gap-2">
                               {item.date}
-                            </p>
+                              {item.tags
+                                .filter(
+                                  (tag) =>
+                                    typeof tag !== "string" && tag.important,
+                                )
+                                .map((tag) => (
+                                  <PostTag
+                                    key={
+                                      typeof tag === "string" ? tag : tag.name
+                                    }
+                                    tag={tag}
+                                  />
+                                ))}
+                            </div>
                           </div>
                         </Link>
                       ))

@@ -1,0 +1,212 @@
+# 定位与优势
+
+## 定位
+
+pnpm官网用一句话定义了自己：Fast, disk space efficient package manager。
+
+pnpm是一个包管理工具，它的定位就是针对npm、Yarn的痛点进行改进，实现性能更好、资源占用率更少，并成为npm、Yarn的取代者。
+
+## 与npm及Yarn对比
+
+相比 npm 和 Yarn，pnpm具有以下优势：
+
+1.  **节省磁盘空间**：pnpm使用了文件链接和全局存储的概念，可以在不重复存储相同依赖的情况下共享这些依赖，也就是说相同的依赖只会在磁盘上存储一次，可以显著减少项目所占用的磁盘空间，而npm和Yarn在多项目都拥有相同依赖时，每一个项目都会复制一份这些依赖；
+
+1.  **更快的安装速度**：由于pnpm使用符号链接共享依赖，它可以避免重复下载和解压相同的包。这使得安装过程更快，特别是在多个项目中使用相同依赖的情况下；
+
+1.  **并行安装和并行执行**：相比npm，Yarn和pnpm都支持并行安装依赖包，可以加快项目的安装速度。此外，pnpm还支持并行执行命令，允许同时运行多个命令，提高开发体验与效率；
+
+1.  **本地缓存**：pnpm将下载的包存储在本地缓存中，以便在多个项目之间共享。这减少了对网络的依赖，并使得在不同项目中使用相同依赖时更加高效。相比Yarn的缓存，Yarn会从缓存中再复制一份文件，而pnpm只是从全局存储中链接它们；
+
+1.  **Hoist策略**：npm高版本和Yarn采用了扁平化依赖，虽然解决了他们原来的一些问题，但是也引进了新问题，比如幽灵依赖问题，而pnpm的设计避免了这些问题。
+
+# 设计与实现
+
+## 全局存储
+
+pnpm采用了Global Store这一概念，将所有的依赖都存储在磁盘上的一个位置，我们可以在终端中输入
+
+pnpm store path查看全局store的位置：
+
+![image](/posts/pnpm-analysis/pnpm-store-path.png)
+
+我们所有使用pnpm install的依赖，最终都会存储到这个全局store中，任何项目都会从全局store中找到自己需要的依赖，通过一定的手段为自身所用，这样就避免了尽管多个项目都依赖了相同的一些依赖，但最终还需要重新复制一份来解决问题，不可复用性决定了速度的变慢和资源的浪费。
+
+另外，为了优化npm包版本更新以及多版本控制的场景，在store中并不是存储着npm包的源码，而是hash模块，这种文件组织方式叫做 content-addressable，即内容寻址，而不是传统的文件名寻址。当出现一个npm包多个版本时，安装其中一个版本时，只会存储其diff的部分，这样加快了安装速度而且节省了磁盘空间。
+
+那么pnpm是如何做到这一切的呢？这就依赖于pnpm采取的新设计：使用操作系统的文件链接概念。
+
+## 前置知识
+
+讲解接下来的内容之前，我们需要知道一些前置知识。
+
+### 文件链接
+
+在pnpm中会用到两种文件链接，分别是软链接和硬链接：
+
+- 软链接（Soft Link）：也称为符号链接（Symbolic Link），它是一个指向目标文件或目录的特殊文件。软链接创建了一个文件路径引用，指向目标文件的位置。当访问软链接时，操作系统将跟随链接并访问目标文件，软链接可以跨越文件系统边界，可以简单理解为是一个快捷方式；
+
+- 硬链接（Hard Link）：它是指向文件存储位置的另一个文件条目。与软链接不同，硬链接直接指向文件的物理存储位置，而不是路径引用。硬链接与原始文件共享相同的 inode（索引节点），并且在文件系统中没有区别。删除原始文件不会影响硬链接，因为它们都指向相同的数据，硬链接对应到前端可理解为指向Object的指针，如：
+
+## node寻址
+
+当我们在项目中写下这些代码的时候，node是怎么找到对应文件的呢？
+
+```TypeScript
+// 其中'xxx'不是路径
+import xxx from 'xxx';
+const xxx = require('xxx');
+```
+
+node的寻址规则是这样的：
+
+- 首先，node会查找内置模块（如fs、http等）或核心模块，这些模块不需要额外的路径解析；
+
+- 如果模块不是内置模块，会查找当前目录下的node_modules目录。如果当前目录没有node_modules，它会从当前文件所在目录开始，逐级向上查找，直到找到最近的node_modules目录，在其中查找是否有该模块；
+
+- 如果在当前目录的node_modules目录中找不到所需的模块，会继续向上查找父级目录，直到根目录。它会在每个目录中的node_modules目录中搜索模块；
+
+- 如果在整个目录结构中都找不到所需的模块，将抛出模块未找到的错误。
+
+## 依赖结构
+
+### npm
+
+在npm的早期版本中，node_modules的文件结构完全和依赖树结构一一对应，很快开发者们便认识到，这样会导致严重的依赖冗余问题，假设npm包A被项目本身和的项目的依赖B都依赖了，那么node_modules中就会存储两份A，也就是说有多少个依赖A就会存储多少份A，这个数据量是非常大的；
+
+因此，在npm v3之后，它采取了一种名为 "Flat" 的文件结构来管理node_modules目录，整体上是这样的：
+
+- 开始解析依赖树结构，首先安装直接依赖于node_modules的一级目录下；
+
+- 安装二级依赖及其依赖，如果该依赖没被安装过，则安装到一级目录下，如果安装过，首先检查与已安装的包是否兼容，如果不兼容，则下载对应版本的依赖到对应的目录下；
+
+- 最终生成一个package-lock.json文件，这里面存储了最终的文件嵌套结构（由于package.json中的书写顺序并不是安装顺序，所以在没有lock文件的时候，执行多次npm i可能会导致node_modules结构不同，因此lock文件最好是一个项目保留一份，可以保证不出错）
+
+![image](/posts/pnpm-analysis/npm-structure.png)
+
+之所以可以通过这样的结构来存储依赖，得益于我们上面所说的node的寻址机制，因为会逐层向上寻找，所以当直接依赖的依赖安装在顶层目录中，依然可以正确的引用它。
+
+更多内容可见https://npm.github.io/how-npm-works-docs/npm3/how-npm3-works.html
+
+### Yarn
+
+而在Yarn中，yarn.lock是完全扁平的，直接依赖放入顶层目录中，二级依赖引用次数最多的放在顶层目录中，如果次数一样，最低版本放入顶层目录中，其他放到深层目录里。
+
+因此，yarn对安装顺序无感，结构只与引用次数以及版本相关，但是Yarn需要package.json，因为他的依赖结构在lock中是完全扁平的，因此无法区分出直接依赖，无法还原正确的node_modules。
+
+<div data-type="transform-warn" data-index="47">
+
+### pnpm
+
+</div>
+
+在pnpm中，文件结构的设计与npm和Yarn有很大不同，我们用一个官方demo作为示例：
+
+```Bash
+pnpm add express
+```
+
+只安装express，node_modules的结构如图所示：
+
+![image](/posts/pnpm-analysis/soft-link.png)
+
+可以看到，node_modules有点像最初的npm，顶级目录下只有直接依赖express，而不是像npm v3+或者Yarn那样把非直接依赖也平铺在顶级目录下；我们注意到直接依赖express文件夹的右侧有一个符号，即图中红色部分，在VsCode中这是符号链接的标志，说明这里并不是express的真实位置。
+
+那么express的真实位置在哪里呢？可以看到在node_modules里还有一个文件夹，打开.pnpm：
+
+![image](/posts/pnpm-analysis/dot-pnpm.png)
+
+可以看到是包括直接依赖express以及所有深层依赖，这就是项目所需的所有依赖，我们再打开express：
+
+![image](/posts/pnpm-analysis/express-deps.png)
+
+可以看到，express@4.18.2中，只有一个node_modules文件夹，里面保存了express本身和以及它的所有直接依赖的软链接，是一种平铺式结构，这样设计也避免了层级过深引起长路径问题。
+
+并且如图所示，express文件夹下就是真实的文件，是刚刚node_modules顶级目录的express软链接所链接的真实位置，所以项目的所有直接依赖都可以在这个路径下找到：
+
+```Bash
+node_modules/.pnpm/<pkg-name>@<pkg-version>/node_modules/<pkg-name>
+```
+
+这里的“真实位置”的实现，其实就是建立了链接到全局store中存储的express的硬链接，.pnpm下存储了项目所需的所有依赖的硬链接。
+
+所以在项目中我们引用了express的时候，是这样一个运作流程：
+
+<div
+  data-type="transform-error"
+  data-index="62"
+  data-block-type="流程图 & UML"
+  data-content=""
+></div>
+
+同时也可以看到，express下并没有node_modules，而是将直接依赖存储在了与自己平级的地方，通过软链接的形式链接到.pnpm中指定的文件，如图：
+
+![image](/posts/pnpm-analysis/how-soft-link.png)
+
+所以项目的直接依赖express引入它自己的依赖（项目的深层/间接依赖）时，是这样一个流程：
+
+<div
+  data-type="transform-error"
+  data-index="66"
+  data-block-type="流程图 & UML"
+  data-content=""
+></div>
+
+同理，accepts以及更深层次的依赖的处理也是如此，最终都会找到.pnpm中的真实位置，因为.pnpm中存储了项目的所有的依赖的硬链接。
+
+# 优与劣
+
+## 性能
+
+![image](/posts/pnpm-analysis/pm-benchmark.png)
+
+可以看到，在绝大多数场景下，pnpm在安装依赖时都具有很大的性能优势。
+
+## 安全
+
+pnpm的node_modules相比平铺型的node_modules，一大特点就是实现了直接依赖与间接依赖的隔离，解决了应用幽灵依赖问题从而规避了一些风险。
+
+在平铺型的node_modules的情况下，假设我们的项目依赖了A，A又依赖了B，此时我们敲下这样一行代码：
+
+```TypeScript
+const B = require('B');
+B.log(); // It works!
+```
+
+我们并没有依赖B，却可以用B，这就是因为当install A时，将它的依赖B平铺在了node_modules中，导入B时，node成功从项目中的node_modules里找到了B成功导入，这就是幽灵依赖问题，也称为幻影依赖。虽然这样会在有些时候提供一些便利，但是更多时候会引入潜在的问题，具体问题可见：
+
+https://rushjs.io/zh-cn/pages/advanced/phantom\_deps/
+
+而在pnpm中，如果我们导入B，会报错，因为pnpm的node_modules里只有A，B在node_modules/.pnpm/B
+
+@对应版本/node_modules/B下，node的寻址机制并不会找到这个路径，我们在应用中只能使用直接依赖A。
+
+但是，pnpm的这种结构并不是银弹，有时也会带来风险。
+
+鉴于有很大数量的第三方包会出现依赖缺失的情况，自身用到的依赖不写到deps或者devDeps中，pnpm默认在依赖与依赖之间开启了Hoist，我们可以在.pnpm文件夹下看到一个node_modules，这就是用来实现Hoist的：
+
+![image](/posts/pnpm-analysis/pnpm-hoist.png)
+
+可以看到，当我们在accepts中导入bytes时，首先寻找accepts@1.3.8/node_modules，并没有找到，然后向上寻找，在.pnpm/node_modules下找到了，并成功导入，这种机制也可能会导致一些潜在风险。
+
+所以，pnpm给了我们可以配置的机会，可以在.npmrc中来控制项目的依赖hoist行为：
+
+- 配置hoist=false，将禁止所有的hoist行为，即：在项目和依赖中都无法访问非自己直接依赖的包（推荐）；
+
+- 配置public-hoist-pattern []=\<包名匹配表达式>，将开启部分Hoist行为，如果不配置任何匹配，就是pnpm的默认行为；如果配置匹配到了某些包，比如public-hoist-pattern\[]=\*types\*，则是在pnpm的默认行为之上，可以允许我们在项目中访问相关包，例如：
+
+```TypeScript
+import type A from 'types/A'
+```
+
+- 配置shamefully-hoist=true，即像npm和Yarn一样。
+
+# 参考文献
+
+&#x20;
+
+https://pnpm.io/npmrc#hoist
+
+https://pnpm.io/zh/benchmarks
+
+https://juejin.cn/post/7252983522020180005?searchId=202308211048176BEDD9856A2186896461

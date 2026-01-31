@@ -5,6 +5,12 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 // Code block component with language label and copy button
 function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
@@ -48,9 +54,17 @@ function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
     <div className="relative group my-6 border border-primary/20 rounded-lg overflow-hidden">
       {/* Language label and copy button bar */}
       <div className="flex items-center justify-between px-4 py-2 bg-muted">
-        <span className="text-xs font-mono text-foreground/70 uppercase tracking-wider font-semibold">
-          {language}
-        </span>
+        <div className="flex items-center gap-3">
+          {/* Traffic lights */}
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+            <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
+            <div className="w-3 h-3 rounded-full bg-[#28c840]" />
+          </div>
+          <span className="text-xs font-mono text-foreground/70 uppercase tracking-wider font-semibold">
+            {language}
+          </span>
+        </div>
         <Button
           variant="ghost"
           onClick={handleCopy}
@@ -225,14 +239,45 @@ export const mdxComponents = {
     <td className="border border-border p-3 text-foreground/90" {...props} />
   ),
 
-  // Images
-  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <Image
-      src={typeof props.src === "string" ? props.src : ""}
-      height={Number(props.height)}
-      width={Number(props.width)}
-      className="rounded-lg shadow-lg my-6 max-w-full h-auto"
-      alt={props.alt || "Image"}
-    />
-  ),
+  // Images with lightbox
+  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
+    const src = typeof props.src === "string" ? props.src : "";
+    const alt = props.alt || "Image";
+    const hasSize = props.width && props.height;
+
+    const thumbnail = hasSize ? (
+      <Image
+        src={src}
+        height={Number(props.height)}
+        width={Number(props.width)}
+        className="rounded-lg shadow-lg my-6 max-w-full h-auto cursor-zoom-in transition-transform"
+        alt={alt}
+      />
+    ) : (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        className="rounded-lg shadow-lg my-6 max-w-full h-auto cursor-zoom-in transition-transform"
+        alt={alt}
+      />
+    );
+
+    return (
+      <Dialog>
+        <DialogTrigger asChild>{thumbnail}</DialogTrigger>
+        <DialogContent
+          className="max-w-[90vw] sm:max-w-[90vw] max-h-[90vh] w-fit p-2 bg-transparent border-none shadow-none"
+          showCloseButton={false}
+        >
+          <DialogTitle />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            className="max-w-full max-h-[85vh] object-contain rounded-lg"
+            alt={alt}
+          />
+        </DialogContent>
+      </Dialog>
+    );
+  },
 };

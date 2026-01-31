@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { serialize } from "next-mdx-remote/serialize";
 import { useGetPostContent } from "@/hooks";
@@ -14,6 +13,7 @@ import TableOfContents from "@/app/posts/_components/table-of-contents";
 import { useParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import NoPost from "@/app/posts/_components/no-post";
+import PostTag from "@/components/post-tag";
 
 const loadingContent = (
   <motion.div
@@ -114,9 +114,10 @@ export default function PostPage() {
 
           <div className="flex flex-wrap gap-2 mb-8">
             {post.tags.map((tag) => (
-              <Badge key={tag} variant="secondary">
-                {tag}
-              </Badge>
+              <PostTag
+                key={typeof tag === "string" ? tag : tag.name}
+                tag={tag}
+              />
             ))}
           </div>
 

@@ -41,24 +41,11 @@ const experiences = [
 
 const recentLearning = [
   {
-    title: "Signs of introspection in large language models",
-    source: "Anthropic",
-    date: "2025-12",
-    tags: ["AI", "LLM", "Introspection"],
-    link: "https://www.anthropic.com/research/introspection",
-  },
-  {
     title: "Context Engineering for AI Agents: Lessons from Building Manus",
     source: "Manus",
     date: "2025-07",
     tags: ["Context Engineering", "Agent", "LLM"],
     link: "https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus",
-  },
-  {
-    title: "DeepWiki",
-    source: "Devin",
-    tags: ["Learning"],
-    link: "https://deepwiki.com",
   },
 ];
 

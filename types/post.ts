@@ -3,7 +3,7 @@ export interface PostMetadata {
   title: string;
   date: string;
   excerpt: string;
-  tags: string[];
+  tags: (string | { name: string; important: boolean; color: string })[];
 }
 
 export interface Post extends PostMetadata {
