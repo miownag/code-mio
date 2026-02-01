@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { LuGitFork, LuStar, LuBookMarked } from "react-icons/lu";
 
 export interface GitHubRepo {
@@ -11,6 +12,7 @@ export interface GitHubRepo {
   stargazers_count: number;
   forks_count: number;
   language: string | null;
+  created_at: string;
   owner: {
     login: string;
   };
@@ -46,11 +48,19 @@ export function GitHubRepoCard({ repo }: GitHubRepoCardProps) {
     : null;
 
   return (
-    <Card className="group bg-card border-border hover:border-primary/50 transition-all py-4 px-6 h-full flex flex-col gap-2">
+    <Card
+      className={cn(
+        "group bg-card border-border py-4 px-6 h-full flex flex-col gap-2",
+        "hover:border-primary/50 transition-all duration-300",
+      )}
+    >
       <div className="flex items-center gap-2">
         <LuBookMarked className="h-4 w-4 text-muted-foreground shrink-0" />
         <span
-          className="font-semibold truncate hover:underline group-hover:text-primary cursor-pointer"
+          className={cn(
+            "font-semibold truncate cursor-pointer",
+            "hover:underline group-hover:text-primary transition-colors duration-300",
+          )}
           onClick={() => window.open(repo.html_url, "_blank")}
         >
           {repo.owner.login}/{repo.name}

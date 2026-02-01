@@ -4,6 +4,7 @@ import {
   ProjectsGrid,
   ProjectsGridSkeleton,
 } from "../_components/projects-grid";
+import { OwnedProjectsSection } from "../_components/owned-projects-section";
 import Subtitle from "@/components/subtitle";
 
 async function ProjectsContent() {
@@ -21,12 +22,7 @@ async function ProjectsContent() {
         </section>
       )}
 
-      <section>
-        <h2 className="text-2xl pixel-font text-muted-foreground/60 mb-4">
-          {"//"} ======== Owned ========
-        </h2>
-        <ProjectsGrid repos={filteredOwned} />
-      </section>
+      <OwnedProjectsSection repos={filteredOwned} />
     </div>
   );
 }

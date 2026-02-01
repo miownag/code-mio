@@ -31,7 +31,7 @@ export default function ProjectsSection() {
   return (
     <section id="projects" className="mb-20">
       <div className="flex items-center justify-between mb-8">
-        <Subtitle>Pinned Repositories</Subtitle>
+        <Subtitle>Pinned Projects</Subtitle>
         <Link href="/projects">
           <div className="flex items-center gap-2 hover:text-primary transition-colors pixel-font text-xl hover:scale-110 active:scale-90">
             View More

@@ -125,9 +125,8 @@ function StepNode({ status = "pending" }: { status?: StepStatus }) {
           transition={
             isInProgress
               ? {
-                  duration: 2,
+                  duration: 1,
                   repeat: Infinity,
-                  ease: "easeInOut",
                 }
               : undefined
           }
@@ -151,7 +150,7 @@ function StepConnector({ status = "pending" }: { status?: StepStatus }) {
       transition={{ duration: 0.3, delay: 0.1 }}
       style={{ originY: 0 }}
       className={cn(
-        "w-0 flex-1 min-h-6 border-l-2 border-dashed",
+        "w-0 flex-1 min-h-6 border-l-2 my-2",
         config.borderColor.replace("border-", "border-") + "/30",
       )}
     />
@@ -166,7 +165,6 @@ function StepItem({ item, isLatest, isLast }: StepItemProps) {
   const status =
     item.status?.(item) || (isLatest ? "in-progress" : "completed");
   const config = statusConfig[status];
-  console.log(item, status);
 
   return (
     <motion.div

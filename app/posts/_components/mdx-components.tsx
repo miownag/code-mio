@@ -61,7 +61,7 @@ function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
             <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
             <div className="w-3 h-3 rounded-full bg-[#28c840]" />
           </div>
-          <span className="text-xs font-mono text-foreground/70 uppercase tracking-wider font-semibold">
+          <span className="text-xs font-mono text-foreground/70 tracking-wider font-semibold">
             {language}
           </span>
         </div>

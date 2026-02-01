@@ -10,6 +10,7 @@ interface GraphQLRepo {
   stargazerCount: number;
   forkCount: number;
   isFork: boolean;
+  createdAt: string;
   primaryLanguage: {
     name: string;
   } | null;
@@ -55,6 +56,7 @@ function transformRepo(repo: GraphQLRepo): GitHubRepo {
     stargazers_count: repo.stargazerCount,
     forks_count: repo.forkCount,
     language: repo.primaryLanguage?.name || null,
+    created_at: repo.createdAt,
     owner: {
       login: repo.owner.login,
     },
@@ -75,6 +77,7 @@ export async function fetchPinnedRepos(): Promise<GitHubRepo[]> {
               stargazerCount
               forkCount
               isFork
+              createdAt
               primaryLanguage {
                 name
               }
@@ -122,6 +125,7 @@ export async function fetchAllRepos(): Promise<CategorizedRepos> {
             stargazerCount
             forkCount
             isFork
+            createdAt
             primaryLanguage {
               name
             }
@@ -139,6 +143,7 @@ export async function fetchAllRepos(): Promise<CategorizedRepos> {
             stargazerCount
             forkCount
             isFork
+            createdAt
             primaryLanguage {
               name
             }

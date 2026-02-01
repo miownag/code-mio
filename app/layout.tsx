@@ -12,7 +12,6 @@ import ParticleBackground from "@/app/_components/particle-background";
 import ScrollToTop from "@/app/_components/scroll-to-top";
 import Logo from "@/app/_components/logo";
 import QueryProvider from "@/providers/query-provider";
-import BootScreen from "@/app/_components/boot-screen";
 import { ThemeProvider } from "next-themes";
 import SmoothScroll from "@/components/smooth-scroll";
 
@@ -72,24 +71,22 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <SmoothScroll>
-            <BootScreen>
-              <div className="min-h-screen bg-background text-foreground english-font">
-                {/* Logo */}
-                <Logo />
+            <div className="min-h-screen bg-background text-foreground english-font">
+              {/* Logo */}
+              <Logo />
 
-                {/* Navigation Bar */}
-                <Navigation />
+              {/* Navigation Bar */}
+              <Navigation />
 
-                {/* Particle Background with Mouse Interaction */}
-                <ParticleBackground />
+              {/* Particle Background with Mouse Interaction */}
+              <ParticleBackground />
 
-                {/* Main Content */}
-                <QueryProvider>{children}</QueryProvider>
+              {/* Main Content */}
+              <QueryProvider>{children}</QueryProvider>
 
-                {/* Scroll to Top Button */}
-                <ScrollToTop />
-              </div>
-            </BootScreen>
+              {/* Scroll to Top Button */}
+              <ScrollToTop />
+            </div>
           </SmoothScroll>
         </ThemeProvider>
       </body>

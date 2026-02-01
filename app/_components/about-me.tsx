@@ -203,9 +203,8 @@ export default function AboutMe() {
                       <motion.div
                         onClick={() => !isPinned && setIsOpened(false)}
                         className={cn("cursor-pointer text-muted-foreground", {
-                          "text-neutral-800": isPinned,
                           "hover:text-primary": !isPinned,
-                          "cursor-not-allowed": isPinned,
+                          "cursor-not-allowed text-muted": isPinned,
                         })}
                         whileHover={{ scale: !isPinned ? 1.1 : 1 }}
                         whileTap={{ scale: !isPinned ? 0.95 : 1 }}
