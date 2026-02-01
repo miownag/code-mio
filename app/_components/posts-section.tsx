@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { LuArrowUpRight, LuArrowRight } from "react-icons/lu";
+import { HiOutlineExternalLink } from "react-icons/hi";
 import { recentLearning } from "@/constants";
 import Link from "next/link";
 import Subtitle from "../../components/subtitle";
@@ -148,12 +149,21 @@ export default function PostsSection() {
                 </div>
               </div>
 
-              <LuArrowUpRight
-                className={cn(
-                  "h-5 w-5 shrink-0 text-muted-foreground transition-all duration-200 mt-1",
-                  "group-hover:rotate-45 group-hover:text-primary ",
-                )}
-              />
+              {isPost ? (
+                <LuArrowUpRight
+                  className={cn(
+                    "h-5 w-5 shrink-0 text-muted-foreground transition-all duration-200 mt-1",
+                    "group-hover:rotate-45 group-hover:text-primary ",
+                  )}
+                />
+              ) : (
+                <HiOutlineExternalLink
+                  className={cn(
+                    "h-5 w-5 shrink-0 text-muted-foreground transition-all duration-200 mt-1",
+                    "group-hover:text-primary ",
+                  )}
+                />
+              )}
             </div>
           );
 
