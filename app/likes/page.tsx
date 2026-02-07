@@ -2,6 +2,7 @@
 
 import Subtitle from "@/components/subtitle";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function LikesPage() {
   return (
@@ -22,8 +23,14 @@ export default function LikesPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="flex items-center justify-center h-96 border-2 border-dashed border-border rounded-lg"
+        className="flex flex-col gap-4 items-center justify-center h-96 border-2 border-dashed border-border rounded-lg"
       >
+        <Image
+          src="/dark-side-of-the-moon.png"
+          alt="Dark Side of the Moon"
+          width={256}
+          height={256}
+        />
         <div className="text-center">
           <p className="text-muted-foreground text-xl mb-2">Coming Soon...</p>
           <p className="text-muted-foreground text-sm">
