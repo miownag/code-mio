@@ -82,9 +82,8 @@ export default function HeroSection() {
             />
           )}
           <Image
-            className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)] -ml-8 -mt-4 max-w-55 max-h-55"
+            className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)] -ml-8 -mt-4 w-auto h-auto max-w-55 max-h-55 object-fill"
             src="/man.png"
-            objectFit="fill"
             width={215}
             height={210}
             alt=""

@@ -47,7 +47,9 @@ const PhotosFeeds: FC<IProps> = ({
                 src={photo.src}
                 alt={photo.alt}
                 fill
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 className="object-cover transition-all duration-300 hover:scale-105"
+                loading="eager"
               />
             </motion.div>
           </DialogTrigger>
