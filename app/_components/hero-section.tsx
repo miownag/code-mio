@@ -22,15 +22,27 @@ export default function HeroSection() {
   const dynamicTexts = [
     {
       text: "Web Tech.",
-      className: `${resolvedTheme === "dark" && hasMounted ? "text-pink-400" : "text-pink-600"}`,
+      className: `${
+        resolvedTheme === "dark" && hasMounted
+          ? "text-pink-400"
+          : "text-pink-600"
+      }`,
     },
     {
       text: "Node.js.",
-      className: `${resolvedTheme === "dark" && hasMounted ? "text-green-400" : "text-green-600"}`,
+      className: `${
+        resolvedTheme === "dark" && hasMounted
+          ? "text-green-400"
+          : "text-green-600"
+      }`,
     },
     {
       text: "AI Agent.",
-      className: `${resolvedTheme === "dark" && hasMounted ? "text-cyan-400" : "text-cyan-600"}`,
+      className: `${
+        resolvedTheme === "dark" && hasMounted
+          ? "text-cyan-400"
+          : "text-cyan-600"
+      }`,
     },
   ];
 
@@ -47,8 +59,8 @@ export default function HeroSection() {
           isTerminalFullscreen
             ? "grid-cols-1"
             : isTerminalMinimized
-              ? "grid-cols-1 md:grid-cols-[8fr_1fr]"
-              : "grid-cols-1 md:grid-cols-[2fr_1fr]",
+            ? "grid-cols-1 md:grid-cols-[8fr_1fr]"
+            : "grid-cols-1 md:grid-cols-[2fr_1fr]"
         )}
       >
         {/* Left: Hero Content */}
@@ -61,7 +73,7 @@ export default function HeroSection() {
           transition={{ duration: 0.5 }}
           className={cn(
             "flex w-full gap-8 justify-between pr-12 relative",
-            isTerminalFullscreen && "hidden",
+            isTerminalFullscreen && "hidden"
           )}
         >
           {resolvedTheme === "dark" && hasMounted ? (
@@ -69,7 +81,7 @@ export default function HeroSection() {
               className={cn(
                 "opacity-7 pointer-events-none bg-no-repeat bg-center bg-contain bg-[url(/code.svg)]",
                 "absolute -top-16 -left-23",
-                "w-120 h-85",
+                "w-120 h-85"
               )}
             />
           ) : (
@@ -77,12 +89,12 @@ export default function HeroSection() {
               className={cn(
                 "opacity-7 pointer-events-none bg-no-repeat bg-center bg-contain bg-[url(/code-light.svg)]",
                 "absolute -top-16 -left-23",
-                "w-120 h-85",
+                "w-120 h-85"
               )}
             />
           )}
           <Image
-            className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)] -ml-8 -mt-4 w-auto h-auto max-w-55 max-h-55 object-fill"
+            className="mask-[linear-gradient(to_bottom,black_75%,transparent_100%)] -ml-8 -mt-4 w-auto h-auto max-w-55 max-h-55 object-fill select-none"
             src="/man.png"
             width={215}
             height={210}

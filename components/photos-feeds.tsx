@@ -39,8 +39,8 @@ const PhotosFeeds: FC<IProps> = ({
             <motion.div
               variants={itemVariants}
               className={cn(
-                "relative overflow-hidden cursor-pointer aspect-square",
-                photo.span === "tall" && "row-span-2 aspect-auto",
+                "relative overflow-hidden cursor-pointer aspect-square select-none",
+                photo.span === "tall" && "row-span-2 aspect-auto"
               )}
             >
               <Image
@@ -57,7 +57,7 @@ const PhotosFeeds: FC<IProps> = ({
             showCloseButton={false}
             className={cn(
               "max-w-3xl max-h-screen p-0 overflow-hidden flex flex-col gap-2",
-              "bg-card border-muted border-2",
+              "bg-card border-muted border-2"
             )}
           >
             <div
