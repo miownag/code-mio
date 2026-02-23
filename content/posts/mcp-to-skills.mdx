@@ -1,0 +1,83 @@
+## Skills解决了什么问题？
+
+我个人的总结，相比 MCP，Skills 其实解决了两大问题：
+
+1. **更加灵活的额外上下文能力**：Skills 本质和 MCP 一致，就是给 LLM 的额外的上下文，
+   让 LLM 能够根据这些额外上下文中的私域知识、最佳实践与规则甚至脚本来更加符合用户要求地完成某些事情。
+   Skills 是 Markdown 的格式并可以包含脚本，这相比 MCP 的 tools declaration 更加灵活，你可以把它当 tools 来用，也可以当 rules 来用。
+2. **通过渐进式披露来解决上下文超载问题**：MCP 的加载过程是 —— Agent 会将所有已经配置且 connected 的 MCP Servers 的所有 tools 都一股脑塞到 prompt 中，
+   其本质就是 tools declaration，无论是本地的 tools，如 read_file，还是 MCP Tools，都是一致对待。而 Agent 在处理 Skills，只会携带一些元信息
+   （当然，这里的元信息需要写得足够清晰），LLM 通过清晰的元信息来判断是否需要调用这个 Skills，此时才会去读取整个 Skills 的内容，这是一种懒加载的思路，避免塞入太多可能不必要的信息，从而精简上下文。
+
+## 如何优化 MCP 上下文问题
+
+MCP 在某些情况必然会导致上下文超载的问题，根据我自己的观察和思考，最常见的思路就是合并/裁剪工具。
+
+### Agentic MCP Tools
+
+可以将许多工具，尤其是 GET 类型的工具，合并为一个/多个 Agentic MCP Tools（我不知道有没有这个词，这是我凭直觉觉得这么叫合适😂），这些 tools 具有 Agentic 能力，
+比如 Agent 想查询 xx 为 yy 的工单的负责人的信息，直接通过自然语言描述即可。只需要一个 tool，而不是查工单是一个 tool，查人员信息也是一个tool。
+
+例如，Devin 的 DeepWiki MCP，通过一个 query tool 能回答任何有关 DeepWiki 中已经 indexed 的仓库的问题。
+
+具有 Agentic 能力的 MCP，也可以认为其是一个 Agent，所以有点类似 A2A，只是 MCP 现在各大 Agent 的支持非常完善，而 A2A 接入成本高。
+
+### 只保留必要的工具
+
+虽然 Manus 在 [Context Engineering 最佳实践](https://manus.im/zh-cn/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus) 中说，动态地增减 tools 可能会因为前后不一致而对模型造成困惑，
+影响效果。但是我个人认为随着模型能力的增强这个问题会有所缓解，而上下文窗口这一限制依然是存在的，所以动态 tools 也是一种思路。“必要的工具”可以通过RAG/Agentic Decision/状态机等多种形式来约束这个范围。
+
+## 一种新思路
+
+如上所述，Skills 通过按需加载解决了上下文问题，且其非常灵活，markdown 的格式甚至可以让你放任何你想要的内容，包括 MCP 定义需要用到的 JSON，你只需要使用 \`\`\`json 包裹住就可以了。
+
+我在想，既然 Skills 各大 Agent 都已经支持了，且其能力完全覆盖了 MCP，那么，**我们是否可以把想要接入的 MCP 放到 Skills 里，来达到优化的目的？**
+
+答案是可行的。
+
+### mcp-to-skills
+
+沿袭上面的思路，我们可以将已有的 MCP 来转变为 Skills，这对于不常用但是很重要的 MCP 工具效果尤其显著。
+
+**Github链接**：[miownag/mcp-to-skills](https://github.com/miownag/mcp-to-skills)
+
+用起来也非常简单：
+
+```bash
+npm install -g mcp-to-skills
+# 使用 Anthropic API Key
+m2s /path/to/mcp-config -o /path/to/skills --api-key sk-ant-xxx
+```
+
+### shadcn mcp 的 case
+
+```json
+{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
+```
+
+经过 m2s 处理后，其产物：
+
+![shadcn.jpg](/posts/mcp-to-skills/shadcn.jpg)
+
+可以看到，生成了标准的 SKILL.md 以及 call.mjs 脚本。
+
+- **SKILL.md**：包含 shadcn mcp 的全部信息，LLM 决定调用 shadcn skill 时，读取该文件就可以获取到原来 shadcn MCP 所支持的所有 tools 以及如何通过 call.mjs 脚本调用。
+  ![how-to-call.jpg](/posts/mcp-to-skills/how-to-call.jpg)
+- **call.mjs**：通过 MCP Client 的 SDK 来实现完整的 MCP Server 调用机制，包含了 shadcn 的 MCP 定义，LLM 直接调用即可。
+
+实际效果如下图，相当于调用了 shadcn mcp 中的 view_items_in_registry 工具：
+![claude-code.jpg](/posts/mcp-to-skills/claude-code.jpg)
+
+### 目前存在问题
+
+目前各 Agent 都不支持动态读取 MCP 定义进而调用，因此这里只能做如下两种妥协选择：
+
+1. 直接将 MCP SDK 打包到单文件中，无运行时依赖，call.mjs 单文件可执行，但是体积非常大，且每个 Skills 都包含这个 SDK
+2. 运行时依赖 MCP SDK，需要用户提前在项目中安装，call.mjs 脚本体积较小，通过 import 引入即可 **（当前方案）**
