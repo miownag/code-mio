@@ -7,6 +7,7 @@ interface MomentBase {
 interface TextMoment extends MomentBase {
   type: "text";
   content: string;
+  contentFile?: string;
 }
 
 interface PostMoment extends MomentBase {

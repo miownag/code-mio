@@ -35,13 +35,13 @@ const bubbleMdxComponents = {
   ),
   ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
     <ul
-      className="list-disc pl-4 space-y-1 text-sm marker:text-primary/80"
+      className="list-disc pl-4 space-y-1 text-sm marker:text-primary/80 mb-2"
       {...props}
     />
   ),
   ol: (props: React.OlHTMLAttributes<HTMLOListElement>) => (
     <ol
-      className="list-decimal pl-4 space-y-1 text-sm marker:text-primary/80"
+      className="list-decimal pl-4 space-y-1 text-sm marker:text-primary/80 mb-2"
       {...props}
     />
   ),

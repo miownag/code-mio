@@ -1,10 +1,16 @@
 [
   {
-    "id": "moment-1",
+    "id": "moment-0",
     "type": "text",
     "date": "2026-02-27",
     "pinned": true,
-    "content": "Welcome to my moments! Here I share random thoughts, new articles, and photography updates."
+    "content": "**Welcome to the moments!**"
+  },
+  {
+    "id": "moment-1",
+    "type": "text",
+    "date": "2026-02-28",
+    "contentFile": "./moments/claude-code-context.md"
   },
   {
     "id": "moment-2",
@@ -15,8 +21,50 @@
   },
   {
     "id": "moment-3",
+    "type": "post",
+    "date": "2026-01-18",
+    "postId": "ink-markdown-es",
+    "comment": "New Post"
+  },
+  {
+    "id": "moment-4",
+    "type": "post",
+    "date": "2026-01-15",
+    "postId": "markdown-render-optimization",
+    "comment": "New Post"
+  },
+  {
+    "id": "moment-5",
     "type": "photo",
     "date": "2026-01-20",
     "photoIds": [25, 6]
+  },
+  {
+    "id": "moment-6",
+    "type": "post",
+    "date": "2024-02-25",
+    "postId": "pnpm-analysis",
+    "comment": "New Post"
+  },
+  {
+    "id": "moment-7",
+    "type": "post",
+    "date": "2023-08-18",
+    "postId": "rust-wasm",
+    "comment": "New Post"
+  },
+  {
+    "id": "moment-8",
+    "type": "post",
+    "date": "2023-07-16",
+    "postId": "boxes-over-flow",
+    "comment": "New Post"
+  },
+  {
+    "id": "moment-9",
+    "type": "post",
+    "date": "2023-01-11",
+    "postId": "didact",
+    "comment": "New Post"
   }
 ]
