@@ -31,11 +31,10 @@ export default function MomentPhotoContent({ moment }: Props) {
 
   return (
     <div className="space-y-2">
-      {moment.caption && (
-        <p className="text-sm text-foreground/90 post-content-font">
-          {moment.caption}
-        </p>
-      )}
+      <p className="text-sm text-foreground/90 font-bold post-content-font">
+        Post {moment.photoIds.length} photo
+        {moment.photoIds.length > 1 ? "s" : ""}
+      </p>
 
       <div className={cn("grid gap-1.5", gridCols)}>
         {photos.map((photo) =>

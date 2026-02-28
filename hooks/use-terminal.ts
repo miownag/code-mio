@@ -19,7 +19,7 @@ interface TerminalState {
   isExecuting: boolean;
 }
 
-const VALID_ROUTES = ["/", "/projects", "/posts", "/photos", "/likes"];
+const VALID_ROUTES = ["/", "/moments", "/posts", "/projects", "/photos"];
 const COMMANDS = ["ls", "cd", "clear", "help"] as const;
 const MAX_COMMAND_HISTORY = 50;
 

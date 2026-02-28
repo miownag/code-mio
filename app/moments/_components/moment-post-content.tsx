@@ -9,6 +9,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { LuFileText } from "react-icons/lu";
 
 interface Props {
@@ -21,11 +22,12 @@ export default function MomentPostContent({ moment, postsMap }: Props) {
 
   return (
     <div className="space-y-2">
-      {moment.comment && (
-        <p className="text-sm text-foreground/90 post-content-font">
-          {moment.comment}
-        </p>
-      )}
+      <Badge
+        variant="default"
+        className="post-content-font font-semibold uppercase"
+      >
+        New Post
+      </Badge>
 
       {post ? (
         <Link href={`/posts/${post.id}`} className="block">

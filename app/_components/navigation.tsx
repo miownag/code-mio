@@ -10,11 +10,10 @@ import ThemeToggle from "@/app/_components/theme-toggle";
 
 const navItems = [
   { name: "Home", href: "/" },
+  { name: "Moments", href: "/moments" },
   { name: "Posts", href: "/posts" },
   { name: "Projects", href: "/projects" },
   { name: "Photos", href: "/photos" },
-  { name: "Moments", href: "/moments" },
-  { name: "Likes", href: "/likes" },
 ];
 
 export default function Navigation() {
