@@ -47,11 +47,11 @@ export default function MomentItem({ moment, postsMap }: Props) {
 
         {/* Timestamp + pin indicator */}
         <div className="flex items-center gap-2 mt-1.5 px-1">
-          <span className="text-sm text-muted-foreground pixel-font">
+          <span className="text-muted-foreground pixel-font">
             {moment.date}
           </span>
           {moment.pinned && (
-            <span className="flex items-center gap-0.5 text-sm text-primary">
+            <span className="flex items-center gap-0.5 text-primary">
               <LuPin className="w-3 h-3" />
               <span className="pixel-font">Pinned</span>
             </span>
