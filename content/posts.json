@@ -1,19 +1,25 @@
 [
   {
-    "id": "mcp-to-skills",
-    "title": "一个关于渐进式披露的想法",
-    "date": "2026-02-01",
-    "excerpt": "本质都是提示词，Skills是更好的提示词，那MCP能否往这个方向优化呢？",
+    "id": "tools-evolution",
+    "title": "Agent Tools 设计的进化",
+    "date": "2026-02-28",
+    "excerpt": "通过 Programmatic Tool Calling 思想来看 Agent Tools 设计的进化。",
     "tags": [
       {
         "name": "Latest",
         "important": true,
         "color": "#f58027"
       },
-      "MCP",
-      "Skills",
-      "Context Engineering"
+      "Tool calls",
+      "Agent"
     ]
+  },
+  {
+    "id": "mcp-to-skills",
+    "title": "一个关于渐进式披露的想法",
+    "date": "2026-02-01",
+    "excerpt": "本质都是提示词，Skills是更好的提示词，那MCP能否往这个方向优化呢？",
+    "tags": ["MCP", "Skills", "Context Engineering"]
   },
   {
     "id": "ink-markdown-es",

@@ -9,4 +9,6 @@
 
 并且Claude Code是Coding Agent，在一轮Loop后，代码已经改过，可能被format/lint/用户手动修改过，所以下一轮再读一遍也是合理的。另外发现有时LLM会想直接改文件，Claude Code的 `Edit` 方法还会报错，报错信息显示需要先读再改。
 
+![Claude Code 上下文压缩策略](/moments/read-first.jpg)
+
 有点一石二鸟的意思。

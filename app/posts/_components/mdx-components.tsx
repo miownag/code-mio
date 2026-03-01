@@ -11,6 +11,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import Mermaid from "@/components/mermaid";
+
+// Recursively extract text from React elements
+function extractText(node: React.ReactNode): string {
+  if (typeof node === "string") {
+    return node;
+  }
+  if (typeof node === "number") {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(extractText).join("");
+  }
+  if (React.isValidElement(node)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return extractText((node.props as any).children);
+  }
+  return "";
+}
 
 // Code block component with language label and copy button
 function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
@@ -21,27 +40,13 @@ function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
   const languageMatch = className.match(/language-(\w+)/);
   const language = languageMatch ? languageMatch[1] : "code";
 
-  // Get the code content - recursively extract text from React elements
-  const getCodeContent = (): string => {
-    const extractText = (node: React.ReactNode): string => {
-      if (typeof node === "string") {
-        return node;
-      }
-      if (typeof node === "number") {
-        return String(node);
-      }
-      if (Array.isArray(node)) {
-        return node.map(extractText).join("");
-      }
-      if (React.isValidElement(node)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return extractText((node.props as any).children);
-      }
-      return "";
-    };
+  // Render mermaid diagrams
+  if (language === "mermaid") {
+    const chart = extractText(props.children).trim();
+    return <Mermaid chart={chart} />;
+  }
 
-    return extractText(props.children);
-  };
+  const getCodeContent = (): string => extractText(props.children);
 
   const handleCopy = async () => {
     const code = getCodeContent();
@@ -65,11 +70,10 @@ function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
             {language}
           </span>
         </div>
-        <Button
-          variant="ghost"
+        <button
           onClick={handleCopy}
           className={cn(
-            "rounded-lg text-xs transition-colors hover:bg-primary/10 text-foreground/90 hover:text-primary",
+            "flex items-center gap-1.5 px-3 py-2 rounded-md text-xs transition-colors hover:bg-primary/10 text-foreground/90 hover:text-primary",
             { "cursor-pointer": !copied },
           )}
         >
@@ -84,7 +88,7 @@ function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
               <span>Copy</span>
             </>
           )}
-        </Button>
+        </button>
       </div>
       {/* Code block */}
       <pre
