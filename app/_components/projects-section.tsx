@@ -6,6 +6,7 @@ import Link from "next/link";
 import Subtitle from "../../components/subtitle";
 import { ProjectsGrid, ProjectsGridSkeleton } from "./projects-grid";
 import { GitHubRepo } from "@/components/github-repo-card";
+import { motion } from "framer-motion";
 
 export default function ProjectsSection() {
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
@@ -33,10 +34,14 @@ export default function ProjectsSection() {
       <div className="flex items-center justify-between mb-8">
         <Subtitle>Pinned Projects</Subtitle>
         <Link href="/projects">
-          <div className="flex items-center gap-2 hover:text-primary transition-colors pixel-font text-xl hover:scale-110 active:scale-90">
+          <motion.div
+            className="flex items-center gap-2 hover:text-primary transition-colors pixel-font text-xl"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
             View More
             <LuArrowRight className="h-4 w-4" />
-          </div>
+          </motion.div>
         </Link>
       </div>
       {loading ? <ProjectsGridSkeleton /> : <ProjectsGrid repos={repos} />}

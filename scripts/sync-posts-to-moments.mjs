@@ -21,7 +21,12 @@ const maxId = moments.reduce((max, m) => {
 let nextId = maxId + 1;
 let added = 0;
 
-for (const post of posts) {
+// Sort posts by date (ascending) to ensure chronological order
+const sortedPosts = posts
+  .slice()
+  .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+for (const post of sortedPosts) {
   if (existingPostIds.has(post.id)) continue;
 
   moments.push({
