@@ -1,45 +1,73 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 import mermaid from "mermaid";
 
-mermaid.initialize({
-  startOnLoad: false,
-  theme: "dark",
-  themeVariables: {
-    darkMode: true,
-    background: "#0a0a0a",
-    primaryColor: "#3b82f6",
-    primaryTextColor: "#e5e7eb",
-    primaryBorderColor: "#3b82f6",
-    lineColor: "#6b7280",
-    secondaryColor: "#1e293b",
-    tertiaryColor: "#1e1e2e",
-    noteBkgColor: "#1e293b",
-    noteTextColor: "#e5e7eb",
-    noteBorderColor: "#3b82f6",
-    actorBkg: "#1e293b",
-    actorBorder: "#3b82f6",
-    actorTextColor: "#e5e7eb",
-    actorLineColor: "#6b7280",
-    signalColor: "#e5e7eb",
-    signalTextColor: "#e5e7eb",
-  },
-  fontFamily: "monospace",
-});
+// Dark mode: black background, green accents on nodes, white lines/text
+const darkThemeVariables = {
+  darkMode: true,
+  background: "#0d0d0d",
+  primaryColor: "#1a2e1a",
+  primaryTextColor: "#f5f5f5",
+  primaryBorderColor: "#22c55e",
+  lineColor: "#e5e7eb",
+  secondaryColor: "#1a2e1a",
+  tertiaryColor: "#1a2e1a",
+  noteBkgColor: "#1a2e1a",
+  noteTextColor: "#f5f5f5",
+  noteBorderColor: "#22c55e",
+  actorBkg: "#1a2e1a",
+  actorBorder: "#22c55e",
+  actorTextColor: "#f5f5f5",
+  actorLineColor: "#22c55e",
+  signalColor: "#e5e7eb",
+  signalTextColor: "#e5e7eb",
+};
+
+// Light mode: white background, green accents on nodes, dark lines/text
+const lightThemeVariables = {
+  darkMode: false,
+  background: "#f2f2f2",
+  primaryColor: "#f0fdf4",
+  primaryTextColor: "#262626",
+  primaryBorderColor: "#15803d",
+  lineColor: "#262626",
+  secondaryColor: "#f0fdf4",
+  tertiaryColor: "#f0fdf4",
+  noteBkgColor: "#f0fdf4",
+  noteTextColor: "#262626",
+  noteBorderColor: "#15803d",
+  actorBkg: "#f0fdf4",
+  actorBorder: "#15803d",
+  actorTextColor: "#262626",
+  actorLineColor: "#15803d",
+  signalColor: "#262626",
+  signalTextColor: "#262626",
+};
 
 let mermaidIdCounter = 0;
 
 export default function Mermaid({ chart }: { chart: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState<string>("");
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
+    const isDark = resolvedTheme === "dark";
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isDark ? "dark" : "default",
+      themeVariables: isDark ? darkThemeVariables : lightThemeVariables,
+      fontFamily: "monospace",
+    });
+
     const id = `mermaid-${mermaidIdCounter++}`;
     mermaid.render(id, chart).then(({ svg }) => {
       setSvg(svg);
     });
-  }, [chart]);
+  }, [chart, resolvedTheme]);
 
   return (
     <div
