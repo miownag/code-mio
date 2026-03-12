@@ -7,6 +7,12 @@
     "content": "**Welcome to the moments!**"
   },
   {
+    "id": "moment-agent-call-human-like",
+    "type": "text",
+    "date": "2026-03-12",
+    "contentFile": "./moments/agent-call-human-like.md"
+  },
+  {
     "id": "moment-1",
     "type": "post",
     "date": "2026-03-01",

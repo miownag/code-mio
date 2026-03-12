@@ -1,10 +1,67 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
 import remarkGfm from "remark-gfm";
+import rehypePrism from "rehype-prism-plus";
 import { TextMoment } from "@/types/moment";
+import { cn } from "@/lib/utils";
+import { Check, Copy } from "lucide-react";
+
+function extractText(node: React.ReactNode): string {
+  if (typeof node === "string") return node;
+  if (typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(extractText).join("");
+  if (React.isValidElement(node))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return extractText((node.props as any).children);
+  return "";
+}
+
+function BubbleCodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
+  const [copied, setCopied] = useState(false);
+
+  const className = props.className || "";
+  const languageMatch = className.match(/language-(\w+)/);
+  const language = languageMatch ? languageMatch[1] : "code";
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(extractText(props.children));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="relative group my-2 border border-primary/20 rounded-lg overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-muted">
+        <span className="text-xs font-mono text-foreground/70 tracking-wider font-semibold">
+          {language}
+        </span>
+        <button
+          onClick={handleCopy}
+          className={cn(
+            "flex items-center gap-1 px-2 py-1 rounded-md text-xs transition-colors hover:bg-primary/10 text-foreground/90 hover:text-primary",
+            { "cursor-pointer": !copied },
+          )}
+        >
+          {copied ? (
+            <Check className="w-3 h-3" />
+          ) : (
+            <Copy className="w-3 h-3" />
+          )}
+        </button>
+      </div>
+      <pre
+        {...props}
+        className={cn(
+          "overflow-x-auto text-xs text-shadow-none px-3 py-2 font-mono bg-muted/20 m-0",
+          props.className,
+        )}
+      />
+    </div>
+  );
+}
 
 const bubbleMdxComponents = {
   p: (props: React.HTMLAttributes<HTMLParagraphElement>) => (
@@ -33,6 +90,7 @@ const bubbleMdxComponents = {
       {...props}
     />
   ),
+  pre: BubbleCodeBlock,
   ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
     <ul
       className="list-disc pl-4 space-y-1 text-sm marker:text-primary/80 mb-2"
@@ -64,7 +122,10 @@ export default function MomentTextContent({ moment }: Props) {
 
   useEffect(() => {
     serialize(moment.content, {
-      mdxOptions: { remarkPlugins: [remarkGfm] },
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [rehypePrism],
+      },
     }).then(setMdx);
   }, [moment.content]);
 
