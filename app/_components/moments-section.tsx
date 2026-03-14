@@ -96,16 +96,18 @@ export default function MomentsSection() {
         </Link>
       </motion.div>
 
-      <motion.div
-        variants={containerVariants}
-        className="flex flex-col gap-6 max-w-2xl"
-      >
-        {moments.map((moment) => (
-          <motion.div key={moment.id} variants={itemVariants}>
+      <div className="flex flex-col gap-6 max-w-2xl">
+        {moments.map((moment, index) => (
+          <motion.div
+            key={moment.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+          >
             <MomentItem moment={moment} postsMap={postsMap} />
           </motion.div>
         ))}
-      </motion.div>
+      </div>
     </motion.section>
   );
 }
