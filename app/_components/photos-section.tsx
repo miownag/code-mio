@@ -43,7 +43,7 @@ export default function PhotosSection() {
         className="flex items-center justify-between mb-8"
       >
         <Subtitle>Photographs</Subtitle>
-        <Link href="/photos">
+        <Link href="/photos" scroll={false}>
           <motion.div
             className="flex items-center gap-2 hover:text-primary transition-colors pixel-font text-xl"
             whileHover={{ scale: 1.1 }}

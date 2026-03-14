@@ -84,7 +84,7 @@ export default function MomentsSection() {
         className="flex items-center justify-between mb-8"
       >
         <Subtitle>Moments</Subtitle>
-        <Link href="/moments">
+        <Link href="/moments" scroll={false}>
           <motion.div
             className="flex items-center gap-2 hover:text-primary transition-colors pixel-font text-xl"
             whileHover={{ scale: 1.1 }}

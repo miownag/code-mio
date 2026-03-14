@@ -33,7 +33,7 @@ export default function ProjectsSection() {
     <section id="projects" className="mb-20">
       <div className="flex items-center justify-between mb-8">
         <Subtitle>Pinned Projects</Subtitle>
-        <Link href="/projects">
+        <Link href="/projects" scroll={false}>
           <motion.div
             className="flex items-center gap-2 hover:text-primary transition-colors pixel-font text-xl"
             whileHover={{ scale: 1.1 }}

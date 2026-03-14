@@ -36,6 +36,20 @@
     "tags": ["Markdown", "Render", "React"]
   },
   {
+    "id": "context-engineering",
+    "title": "Context Engineering 之道",
+    "date": "2025-12-10",
+    "excerpt": "理解常见 Agent 的上下文工程设计与实现。",
+    "tags": ["Context", "Engineering", "Agent"]
+  },
+  {
+    "id": "react-compiler",
+    "title": "React Compiler 作用机制分析",
+    "date": "2024-07-01",
+    "excerpt": "React Compiler 到底将 React 编译成什么了？",
+    "tags": ["React", "Compiler"]
+  },
+  {
     "id": "pnpm-analysis",
     "title": "pnpm 机制浅析",
     "date": "2024-02-25",

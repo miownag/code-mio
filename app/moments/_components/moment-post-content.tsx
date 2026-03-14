@@ -30,7 +30,7 @@ export default function MomentPostContent({ moment, postsMap }: Props) {
       </Badge>
 
       {post ? (
-        <Link href={`/posts/${post.id}`} className="block">
+        <Link href={`/posts/${post.id}`} scroll={false} className="block">
           <Card className="py-3 hover:border-primary/50 transition-colors cursor-pointer">
             <CardHeader className="px-4 gap-1">
               <div className="flex items-center gap-2">

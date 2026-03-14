@@ -22,7 +22,7 @@ export default function Logo() {
   }, []);
 
   return (
-    <Link href="/">
+    <Link href="/" scroll={false}>
       <motion.div
         className="fixed top-4 left-6 z-50 cursor-pointer select-none"
         initial={{ opacity: 0, x: -20 }}

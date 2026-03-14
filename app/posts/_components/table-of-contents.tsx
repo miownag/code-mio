@@ -105,7 +105,7 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
   }
 
   return (
-    <div className="sticky top-20">
+    <div className="sticky top-20 max-w-80 overflow-x-auto">
       <div
         className={cn("shrink-0", {
           "-mr-18": !isOpen,
@@ -146,7 +146,7 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
                       "text-left hover:text-primary transition-colors duration-200 line-clamp-2 cursor-pointer",
                       activeId === heading.id
                         ? "text-primary font-medium"
-                        : "text-muted-foreground",
+                        : "text-muted-foreground"
                     )}
                   >
                     {heading.text}

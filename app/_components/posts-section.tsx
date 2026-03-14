@@ -89,7 +89,7 @@ export default function PostsSection() {
         className="flex items-center justify-between mb-8"
       >
         <Subtitle>Posts & Learning</Subtitle>
-        <Link href="/posts">
+        <Link href="/posts" scroll={false}>
           <motion.div
             className="flex items-center gap-2 hover:text-primary transition-colors pixel-font text-xl"
             whileHover={{ scale: 1.1 }}
@@ -116,7 +116,7 @@ export default function PostsSection() {
               className={cn(
                 "group flex pr-4 items-start gap-4 py-5 transition-all cursor-pointer",
                 "border-b border-border/30",
-                index === items.length - 1 && "border-b-0",
+                index === items.length - 1 && "border-b-0"
               )}
             >
               <span className="text-primary pixel-font text-2xl shrink-0">
@@ -153,14 +153,14 @@ export default function PostsSection() {
                 <LuArrowUpRight
                   className={cn(
                     "h-5 w-5 shrink-0 text-muted-foreground transition-all duration-200 mt-1",
-                    "group-hover:rotate-45 group-hover:text-primary ",
+                    "group-hover:rotate-45 group-hover:text-primary "
                   )}
                 />
               ) : (
                 <HiOutlineExternalLink
                   className={cn(
                     "h-5 w-5 shrink-0 text-muted-foreground transition-all duration-200 mt-1",
-                    "group-hover:text-primary ",
+                    "group-hover:text-primary "
                   )}
                 />
               )}
@@ -169,7 +169,11 @@ export default function PostsSection() {
 
           if (isPost) {
             return (
-              <Link key={item.id || index} href={`/posts/${item.id}`}>
+              <Link
+                key={item.id || index}
+                href={`/posts/${item.id}`}
+                scroll={false}
+              >
                 {content}
               </Link>
             );

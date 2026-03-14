@@ -1,0 +1,840 @@
+> **文章导览**
+>
+> 在这篇文章中，首先我们会大体讲述一下什么是 Context Engineering，以及常见的工程手段是什么。然后，我们会以两个 Agent（闭源的 Manus 和开源的 Gemini CLI）为例来讲述他们是如何做上下文的。
+
+# 一、上下文工程
+
+## 1.1 什么是上下文工程
+
+从 Prompt Engineering（提示词工程）到 Context Engineering（上下文工程）的范式转变，是 LLM 应用/Agent 发展过程中的一个重要趋势。
+
+Agent 的极简定义可以由如下等式表示：
+
+![Agent 定义](/posts/context-engineering/agent-def.png)
+
+将 Agent 类比为一个人，LLM 是他的大脑或者意识/智慧，Tools 代表手、脚以及其他一切外部工具，如此便具备了【完成任务】这一能力。但是，人虽有智慧，也需要特定的知识、对周围环境的判断以及了解身边的工具的用途才能更好地、更准确地完成特定的任务，这些知识、环境信息和工具说明以及这里未提及的一些其他信息共同组成了需要灌输给这个人的上下文。
+
+Context Engineering 即是指通过**精心构造和管理模型所看到的全部上下文信息**，来影响和优化模型的行为与输出。上下文主要包括如下内容：
+
+![上下文组成部分](/posts/context-engineering/context-parts.png)
+
+## 1.2 Prompt Engineering 与 Context Engineering 的关系
+
+**Prompt Engineering 是 Context Engineering 的一个子集**。可以说，prompt 是上下文中的一部分，通常是 System Prompt 与 User Message。
+
+**Context Engineering 是更全面、更系统化的视角**，它关注的是模型所接收到的**全部环境信息**如何影响输出，强调对信息的组织、管理和优化，由 Prompt Engineering 范式向 Context Engineering 范式转变是工程化程度提高的体现。
+
+| 维度     | Prompt Engineering     | Context Engineering    |
+| -------- | ---------------------- | ---------------------- |
+| 关注点   | 单个提示词的设计       | 整体输入上下文的管理   |
+| 控制方式 | 显式指令引导           | 通过信息结构与语境引导 |
+| 适用阶段 | 早期探索、简单任务     | 复杂应用、生产环境     |
+| 知识利用 | 依赖模型已有知识       | 可注入实时/专业知识    |
+| 稳定性   | 对 prompt 敏感，易波动 | 更稳定，可系统化设计   |
+| 未来趋势 | 仍是基础技能           | 构建可靠 AI 应用的关键 |
+
+# 二、业界常见技巧
+
+### 2.1 Offload 卸载
+
+**一句话总结**：利用文件系统/sandbox 作为天然载体，将 Context 中的部分内容卸载至其中，并在 LLM 觉得需要时可以检索并找回相关的内容（可被恢复的压缩）
+
+参考：https://www.anthropic.com/engineering/multi-agent-research-system
+
+> As conversations extend, standard context windows become insufficient, necessitating intelligent compression and memory mechanisms. We implemented patterns where agents summarize completed work phases and store essential information in external memory before proceeding to new tasks. When context limits approach, agents can spawn fresh subagents with clean contexts while maintaining continuity through careful handoffs. Further, they can retrieve stored context like the research plan from their memory rather than losing previous work when reaching the context limit. This distributed approach prevents context overflow while preserving conversation coherence across extended interactions.
+>
+> 我们实施了这样的模式：智能体会总结已完成的工作阶段，并在开始新任务之前将关键信息存储到外部存储器中。当接近上下文限制时，智能体可以生成具有干净上下文的新子智能体，同时通过精心的交接来保持连贯性。此外，它们可以从自己的存储器中检索已存储的上下文（如研究计划），而不会在达到上下文限制时丢失之前的工作。这种分布式方法可以防止上下文溢出，同时在长时间交互中保持对话的连贯性。
+>
+>                                                                                                                                                                              ——— How we built our multi-agent research system, Anthropic
+
+### 2.1.1 Memory
+
+将 Long-term Memory/userMemory/模型生成的 TODO List/读取的大型文件的内容（如一个 pdf）等存储在文件系统，在 LLM 需要时去搜索读取文件以快速获取相关信息。
+
+例如，在项目目录执行 Claude Code 的 init 命令时生成的 `CLAUDE.md` 文件：
+
+![CLAUDE.md](/posts/context-engineering/claude-md.png)
+
+Claude Code 在执行具体任务时，可能会首先搜索/查看这个文件的相关信息，找到一些上下文，然后再执行对应的任务。
+
+### 2.1.2 Tools
+
+在 Context 中，描述清晰、参数详尽的 tools declaration 往往占据很大一部分。尤其是在 MCP 协议推出后，膨胀了这一现象。因此，业界提出了 **progressive disclosure（渐进式披露）** 这样的概念。
+
+如上所述，一个好的 declaration 是一个非常复杂的 JSON Schema，尤其是当工具的参数非常多时，JSON 数据会膨胀非常大，这会对模型造成迷惑。各大 Agent 平台对此问题一般有以下两点思路：
+
+1. 尽量使用元工具。如 runInTerminal，参数只有一个，即 command，但是可以囊括许多事情。这里的一个点是 LLM 天然具备很强的代码能力，其直接写代码完成某个任务（先写个脚本然后在终端里运行再拿到输出）的完成度甚至超过理解开发者为其精心设计的复杂工具并调用
+
+2. 复杂的能力需要渐进式的披露。如 Claude Code 的 skills，初始情况下只发送给 LLM 极少 skill 的元信息，如果 LLM 决定他要使用这个技能，再去读取被 offload 在文件系统中的 SKILL.md 等文件，从而避免了暴露一大堆本就不需要的参数信息等冗余内容，其实 Anthropic 推出 skills 一定程度上就是想弥补 MCP 的设计缺陷。
+
+![context-skills](/posts/context-engineering/context-skills.png)
+
+这里我们也可以看下 langchain 的 deep agents 的工具设计，其就是用了较少且简单的 tools 让 LLM 去调用，至于复杂的、特定流程的、具有专业概念的工具等，通过 skills 或类似 Manus 的 scripts dir 来渐进式披露。
+
+**deep agents package**
+
+| Tool Name   | Description                                               |
+| ----------- | --------------------------------------------------------- |
+| write_todos | Creates and manages todo lists for tracking complex tasks |
+| ls          | Lists files in a directory (requires absolute path)       |
+| read_file   | Reads files with pagination support (offset/limit)        |
+| write_file  | Creates new files with content                            |
+| edit_file   | Performs exact string replacements in files               |
+| glob        | Finds files matching glob patterns (e.g., `**/*.py`)      |
+| grep        | Searches for text patterns in files                       |
+| task        | Launches ephemeral subagents for complex isolated tasks   |
+
+**deep agents cli**
+
+| Tool Name            | Description                                      |
+| -------------------- | ------------------------------------------------ |
+| write_todos          | Todo list management                             |
+| All filesystem tools | ls, read_file, write_file, edit_file, glob, grep |
+| task                 | Subagent launcher                                |
+| shell                | Execute shell commands with HITL support         |
+| http_request         | Make HTTP requests (GET, POST, PUT, DELETE)      |
+| web_search           | Web search using Tavily API (requires API key)   |
+
+### 2.2 Reduce 减少
+
+减少上下文的关键是压缩机制，好的压缩机制可以做到压缩大小的同时可以按需恢复，最大限度上减少 information loss。压缩机制可以分为 compaction 和 summarization。
+
+Compaction 即指对上下文中的非必要信息进行“精简压缩”，如下图所示，当 LLM 写入一个文件时，文件的内容可能是比较多的，但是在多轮会话中，LLM 无需每次都知道刚刚自己写了什么，可能只需要知道是因为什么而写，写的内容的主题是什么就够了，如果再需要获取时，只需调用对应的工具读取文件内容即可。
+
+![compact](/posts/context-engineering/compact.png)
+
+Summarization 即指的是一旦对话超过某些轮数，再厉害的 compaction 也无济于事，只能对前文进行总结，总结后虽然会造成部分 information loss，但这是不可避免的。
+
+### 2.3 Isolate 隔离
+
+提高 Agent 能力的常见做法是将部分固定的、特定的的任务交给子 Agent 来做，从而一方面可以将一部分信息从上下文中去掉，另一方面可以防止上下文过多过杂导致的注意力混乱问题。当涉及到多 Agent 架构时，上下文的隔离是非常重要，尽管在多 Agent 架构中，有时可能会通过共享上下文来实现 A2A，但是这也要是以上下文不混杂为前提。
+
+# 三、Manus 上下文工程
+
+> 参考：https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus
+
+Manus 是最早的 **通用 AI Agent** 的代表，作为通用型 Agent，其主要复杂度就是在上下文工程（最重要的当属工具设计），因此，经过不断踩坑与版本迭代，Manus 在 Context Engineering 上积累了许多经验。由于 Manus 是闭源的，我们只能在官方写的一些 blog 中学习到相关内容。
+
+## 3.1 速度与性价比
+
+作为生产环境的产品，速度和成本（性价比）是不可或缺的两部分，Manus 非常重视这部分，在文章中以 **Design Around** 来重点强调。基于 transformer 的特性，实现速度提升和成本降低的最直观也最重要的方法就是 **KV Cache**。
+
+> If I had to choose just one metric, I'd argue that the KV-cache hit rate is the single most important metric for a production-stage AI agent.
+>
+>                                                                              ——— Context Engineering for AI Agents: Lessons from Building Manus
+
+KV Cache 是 LLM 推理阶段的核心加速技术，本质是缓存历史 token 的注意力计算中间结果，避免重复运算。
+
+**核心逻辑**：LLM 推理是逐 token 迭代的，每一步都需通过注意力机制计算【当前 token 与所有历史 token （即之前的 token）的关联】。KV Cache 会缓存之前所有 token 的「Key（键向量）」和「Value（值向量）」（注意力计算的核心中间产物），仅对新生成的 token 计算其「Query（查询向量）」，再直接与缓存的 KV 进行匹配，无需重新计算全部历史 token 的 KV。比如，如果连续解析两轮 token，而这两轮 token 的前 100 个 token 是一样的，只是后 10 个不同，那前 100 个就会命中缓存。
+
+**为什么 KV Cache 很重要？**
+
+上下文很大，而且随着每一轮迭代（多轮对话或工具调用）上下文会不断增长，这导致输入的 token 远远大于输出，Manus 在这方面的统计大约为 100:1。因此，处理输入是很重要的，解析如此庞大的上下文的速度是决定 AI 整体运行速度的最关键部分。而如果能命中缓存，速度和成本（如 claude sonnet，缓存 $0.3/M，未命中 $3/M）都会有所改观。
+
+![KV Cache](/posts/context-engineering/kv-cache.png)
+
+针对如何提高缓存命中率，Manus 给出了如下最佳实践：
+
+- **保持整个上下文前缀稳定**：由于 KV Cache 的特性 —— 缓存的是当前 token 与所有历史 token （即之前的 token）的关联，如果某个 token 之前的 token 都不变，则该 token 就能命中缓存，所以最终给到 LLM 的输入一定要尽量保证前缀不变。
+
+- **增量修改上下文**：保证之前的 action 或 observation 时不可变的，每轮只新增一部分上下文。这里需要工程层面的工作来保证，比如某些 JSON 序列化的库不保证 key 的顺序或者一些不稳定排序，都会导致缓存出错。
+
+- **标记 Cache 断点**：某些模型和推理框架不支持自增前缀缓存，需要用户自己在上下文中插入断点。
+
+## 3.2 工具设计
+
+因为 Manus 是【通用 Agent】，所以其工具数量必然是非常多的，Agent 能力越强越通用，工具数量越多，这里面不仅包括 Manus 自己的工具，还有用户配置的自定义工具、MCP 等等。工具过多，Agent 就会变得愚蠢。
+
+许多 Agent 的解决方案是参考 RAG 的思路，根据用户诉求和当前环境信息对所有工具进行检索，按需发送工具的信息给 LLM，Manus 之前也尝试过这种方法，但最终得出结论：除非万不得已，不要在多轮对话中动态地添加或移除工具。原因如下：
+
+- 工具一般定义在整个给 LLM 输入的前面（这可能是 Agent 自己决定的，也可能是模型服务商决定的，比如 OpenAI API 的 tools），如果每轮工具都是动态的，KV 缓存会频繁失效；
+
+- 输入给 LLM 的 Memory 中，存在之前的调用记录工具 A，但是工具 A 此次输入可能就没有了，这很可能会导致幻觉。
+
+**解决方案**
+
+有一个事实是避不开的，即工具数量确实多，而确实很多工具是本轮对话中 LLM 无需关注与调用的。Manus 通过使用可以感知上下文的壮态机来管理工具是否可用，通过覆写 token logits 来控制模型行为。这样既发送给 LLM 全量工具，又限制 LLM 可以调用哪些工具。
+
+![mask](/posts/context-engineering/mask.png)
+
+Token Logits 是模型生成每个词时的概率分数。覆写操作就是对不可用工具的对应的 token logits 进行修改，强制模型不选择这些 token：对于当前不可用的工具（如上图 Tool A），找到其对应的动作 token（比如调用 Tool A 的指令关键词），将这些 token 的 logits 设为极低值（或直接置 0）。这样，模型在生成动作时，几乎不会选择这些被掩蔽的 Token，只能从 “当前可用工具的 token” 中选择，从而避免 “schema 违规”（调用不存在的工具）。
+
+能实现这一能力主要是因为大多数模型提供商和推理框架支持某种形式的**响应预填充**（让你通过自己填充模型的回复来限制模型的行为，举个极端例子，预先填充调用工具 A，模型就会调用工具 A），这就相当于是覆写 token logits。工具调用通常有三种类型，通过这三种类型即可实现工具的控制：
+
+- **Auto**：无强制约束 Hermes 格式的预填充内容 `<|im_start|>assistant`
+
+- **Required**：必须调用，但是工具无约束 Hermes 格式的预填充内容 `<|im_start|>assistant<tool_call>`
+
+- **Specified**：指定工具子集，限制可用哪些，也就限制了不能用哪些 Hermes 格式的预填充内容 `<|im*start|>assistant<tool_call>{"name": "browser*`
+
+## 3.3 上下文压缩
+
+LLM 上下文窗口是有限的，而随着对话轮数的增多，上下文会越来越大，尤其是不可控的外部/非结构化数据（比如网页内容）比较容易超限。虽然像 Gemini 这种已经支持 1M token 的上下文，但是如果你的上下文真的有 999K，那它的回复质量将是很差几乎不可用的。还有就是输入越长，成本越高。
+
+![compact-out](/posts/context-engineering/compact-out.png)
+
+因此，要解决这个问题，上下文截断/压缩是不可避免的，正如 langchain 中的几种 Memory 的设计：
+
+| memory 类型                        | 定义                                                                                           |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------- |
+| buffer window memory               | 最近的 K 轮对话（截断）                                                                        |
+| conversation summary memory        | 随着聊天不断生成和更新对聊天记录的摘要（压缩）                                                 |
+| conversation summary buffer memory | 如果上下文历史过大时就切换到 summary，如果上下文比较小时就使用原始的聊天记录（截断与压缩混合） |
+
+但是，过度压缩和不可逆压缩都是具有风险的，很有可能会导致信息丢失且不可恢复。
+
+> From a logical standpoint, any irreversible compression carries risk.
+>
+>                                                                       ——— Context Engineering for AI Agents: Lessons from Building Manus
+
+Manus 的解决方案是使用文件系统作为上下文的载体，文件系统的优点：
+
+- 无限 size
+
+- 自然持久化存储
+
+- Agent 可以自己直接读取
+
+![fs](/posts/context-engineering/fs.png)
+
+上下文压缩不可避免，但是把原始信息存放在文件系统，意味着发送给 LLM 的 Context 里有部分是摘要/索引，如果 LLM 觉得它需要某部分的详细信息，他可以通过读文件按需恢复被压缩的部分，是可逆的。
+
+## 3.4 其他
+
+### 3.4.1 重复
+
+Agent 的工作流程就是逐步进行的，比如 plan-and-excute 范式，会设定一个计划，然后不断的执行并 review 自己的计划执行并进行 replan，以防止自己跑偏。这是一种操控注意力的方式，本质上是使用 LLM 自己的能力来补齐 LLM 自己的短板（使用自然语言来控制注意力，而不需要对 LLM 本身进行架构优化等）。
+
+### 3.4.2 暴露错误
+
+是 LLM 就会犯错，犯错是正常的，有的 Agent 的设计是不暴露错误，而重新让 LLM 再执行一遍，这样的效果远不如先把错误抛给它，再让它自我调整并执行一遍。
+
+### 3.4.3 Few-Shot 优化
+
+LLM 模仿能力很强，如果上下文中的 examples 都是类似的，就会导致 LLM 可能会过度模仿，即使这样不是最优/正确的。Manus 的解决方案就是多样化，就像我们改论文降重一样。
+
+# 四、Gemini CLI
+
+> 参考：https://github.com/google-gemini/gemini-cli
+
+Gemini CLI 是开源的，我们可以通过其代码看下他是怎么管理/组装上下文的。
+
+在 Gemini CLI 中，其发送给 LLM 的内容大致包含如下内容：System Prompt + Long-term Memory、tools、content
+
+```ts
+// line 224
+async startChat(
+    // 压缩后、恢复会话等都会 startChat，并把 history 传入
+    extraHistory?: Content[],
+    resumedSessionData?: ResumedSessionData,
+): Promise<GeminiChat> {
+// ...
+
+    // STEP 1 获取工具的声明
+    const toolRegistry = this.config.getToolRegistry();
+    const toolDeclarations = toolRegistry.getFunctionDeclarations();
+    const tools: Tool[] = [{ functionDeclarations: toolDeclarations }];
+
+    // STEP 2 获取初始对话历史（如果是resume/压缩过，会有历史）
+    const history = await getInitialChatHistory(this.config, extraHistory);
+
+    // STEP 3 获取userMemory并生成系统指令，并初始化 GeminiChat 实例
+    try {
+      const userMemory = this.config.getUserMemory();
+      const systemInstruction = getCoreSystemPrompt(this.config, userMemory);
+      return new GeminiChat(
+        this.config,
+        systemInstruction,
+        tools,
+        history,
+        resumedSessionData,
+      );
+    } catch (error) {
+      // ...
+    }
+}
+```
+
+## 4.1 System Prompt + Long-term Memory
+
+代码位置：packages/core/src/core/prompts.ts:78
+
+### 4.1.1 基础定义
+
+preamble (120 行)：定义 AI 角色 - "专业的软件工程 CLI 助手"
+
+```markdown
+You are an interactive CLI agent specializing in software engineering tasks. Your primary goal is to help users safely and efficiently, adhering strictly to the following instructions and utilizing your available tools.
+```
+
+coreMandates (121-132 行)：核心工作原则
+
+```markdown
+Core Mandates
+
+- **Conventions:** Rigorously adhere to existing project conventions when reading or modifying code. Analyze surrounding code, tests, and configuration first.
+- **Libraries/Frameworks:** NEVER assume a library/framework is available or appropriate. Verify its established usage within the project (check imports, configuration files like 'package.json', 'Cargo.toml', 'requirements.txt', 'build.gradle', etc., or observe neighboring files) before employing it.
+- **Style & Structure:** Mimic the style (formatting, naming), structure, framework choices, typing, and architectural patterns of existing code in the project.
+- **Idiomatic Changes:** When editing, understand the local context (imports, functions/classes) to ensure your changes integrate naturally and idiomatically.
+- **Comments:** Add code comments sparingly. Focus on _why_ something is done, especially for complex logic, rather than _what_ is done. Only add high-value comments if necessary for clarity or if requested by the user. Do not edit comments that are separate from the code you are changing. _NEVER_ talk to the user or describe your changes through comments.
+- **Proactiveness:** Fulfill the user's request thoroughly. When adding features or fixing bugs, this includes adding tests to ensure quality. Consider all created files, especially tests, to be permanent artifacts unless the user says otherwise.
+- **Confirm Ambiguity/Expansion:** Do not take significant actions beyond the clear scope of the request without confirming with the user. If asked _how_ to do something, explain first, don't just do it.
+- **Explaining Changes:** After completing a code modification or file operation _do not_ provide summaries unless asked.
+- **Do Not revert changes:** Do not revert changes to the codebase unless asked to do so by the user. Only revert changes made by you if they have resulted in an error or if the user has explicitly asked you to revert the changes.
+```
+
+- 遵循项目约定
+
+- 不假设库/框架可用性
+
+- 模拟现有代码风格
+
+- 精简注释策略
+
+### 4.1.2 Workflow 前缀
+
+包括【理解】和【计划】，根据可用工具动态选择 Workflow，不同 Workflow 的
+
+- 标准流程 (primaryWorkflows_prefix)
+
+  - 使用 grep、glob、read-file 工具
+  - 6 步执行：理解 → 计划 → 实现 → 测试(1)→ 测试(2)→ 完成
+
+  ```markdown
+  # Primary Workflows
+
+  ## Software Engineering Tasks
+
+  When requested to perform tasks like fixing bugs, adding features, refactoring, or explaining code, follow this sequence:
+
+  1. **Understand:** Think about the user's request and the relevant codebase context. Use '${GREP_TOOL_NAME}' and '${GLOB_TOOL_NAME}' search tools extensively (in parallel if independent) to understand file structures, existing code patterns, and conventions.
+     Use '${READ_FILE_TOOL_NAME}' to understand context and validate any assumptions you may have. If you need to read multiple files, you should make multiple parallel calls to '${READ_FILE_TOOL_NAME}'.
+  2. **Plan:** Build a coherent and grounded (based on the understanding in step 1) plan for how you intend to resolve the user's task. Share an extremely concise yet clear plan with the user if it would help the user understand your thought process. As part of the plan, you should use an iterative development process that includes writing unit tests to verify your changes. Use output logs or debug statements as part of this process to arrive at a solution.
+  ```
+
+- 代码库调查器流程 (primaryWorkflows_prefix_ci)
+
+  - 复杂任务首先使用 CodebaseInvestigatorAgent
+  - 构建全面理解后再制定计划
+
+  ```markdown
+  # Primary Workflows
+
+  ## Software Engineering Tasks
+
+  When requested to perform tasks like fixing bugs, adding features, refactoring, or explaining code, follow this sequence:
+
+  1. **Understand & Strategize:** Think about the user's request and the relevant codebase context. When the task involves **complex refactoring, codebase exploration or system-wide analysis**, your **first and primary tool** must be '${CodebaseInvestigatorAgent.name}'. Use it to build a comprehensive understanding of the code, its structure, and dependencies. For **simple, targeted searches** (like finding a specific function name, file path, or variable declaration), you should use '${GREP_TOOL_NAME}' or '${GLOB_TOOL_NAME}' directly.
+  2. **Plan:** Build a coherent and grounded (based on the understanding in step 1) plan for how you intend to resolve the user's task. If '${CodebaseInvestigatorAgent.name}' was used, do not ignore the output of '${CodebaseInvestigatorAgent.name}', you must use it as the foundation of your plan. Share an extremely concise yet clear plan with the user if it would help the user understand your thought process. As part of the plan, you should use an iterative development process that includes writing unit tests to verify your changes. Use output logs or debug statements as part of this process to arrive at a solution.
+  ```
+
+- TODO 管理流程 (primaryWorkflows_todo)
+
+  - 包含 write-todos 工具的任务管理
+  - 将复杂任务分解为可跟踪的子任务
+
+  ```markdown
+  # Primary Workflows
+
+  ## Software Engineering Tasks
+
+  When requested to perform tasks like fixing bugs, adding features, refactoring, or explaining code, follow this sequence:
+
+  1. **Understand & Strategize:** Think about the user's request and the relevant codebase context. When the task involves **complex refactoring, codebase exploration or system-wide analysis**, your **first and primary tool** must be '${CodebaseInvestigatorAgent.name}'. Use it to build a comprehensive understanding of the code, its structure, and dependencies. For **simple, targeted searches** (like finding a specific function name, file path, or variable declaration), you should use '${GREP_TOOL_NAME}' or '${GLOB_TOOL_NAME}' directly.
+  2. **Plan:** Build a coherent and grounded (based on the understanding in step 1) plan for how you intend to resolve the user's task. If '${CodebaseInvestigatorAgent.name}' was used, do not ignore the output of '${CodebaseInvestigatorAgent.name}', you must use it as the foundation of your plan. For complex tasks, break them down into smaller, manageable subtasks and use the \`${WRITE_TODOS_TOOL_NAME}\` tool to track your progress. Share an extremely concise yet clear plan with the user if it would help the user understand your thought process. As part of the plan, you should use an iterative development process that includes writing unit tests to verify your changes. Use output logs or debug statements as part of this process to arrive at a solution.
+  ```
+
+### 4.1.3 Workflow 后缀
+
+包括【实现】、【验证】和【结束】，以及对开发完整的新应用做了特殊的指令：
+
+```markdown
+3. **Implement:** Use the available tools (e.g., '${EDIT_TOOL_NAME}', '${WRITE_FILE_TOOL_NAME}' '${SHELL_TOOL_NAME}' ...) to act on the plan, strictly adhering to the project's established conventions (detailed under 'Core
+   Mandates').
+4. **Verify (Tests):** If applicable and feasible, verify the changes using the project's testing procedures. Identify the correct test commands and frameworks by examining 'README' files, build/package configuration (e.g., 'package.json'), or existing test execution patterns. NEVER assume standard test commands. 5. **Verify (Standards):** VERY IMPORTANT: After making code changes, execute the project-specific build, linting and type-checking commands (e.g., 'tsc', 'npm run lint', 'ruff check .') that you have identified for this project (or obtained from the user). This ensures code quality and adherence to standards. If unsure about these commands, you can ask the user if they'd like you to run them and if so how to. 6. **Finalize:** After all verification passes, consider the task complete. Do not remove or revert any changes or created files (like tests). Await the user's next instruction.
+
+## New Applications
+
+**Goal:** Autonomously implement and deliver a visually appealing, substantially complete, and functional prototype. Utilize all tools at your disposal to implement the application. Some tools you may especially find useful are '${WRITE_FILE_TOOL_NAME}', '${EDIT_TOOL_NAME}' and '${SHELL_TOOL_NAME}'.
+
+1. **Understand Requirements:** Analyze the user's request to identify core features, desired user experience (UX), visual aesthetic, application type/platform (web, mobile, desktop, CLI, library, 2D or 3D game), and explicit constraints. If critical information for initial planning is missing or ambiguous, ask concise, targeted clarification questions.
+2. **Propose Plan:** Formulate an internal development plan. Present a clear, concise, high-level summary to the user. This summary must effectively convey the application's type and core purpose, key technologies to be used, main features and how users will interact with them, and the general approach to the visual design and user experience (UX) with the intention of delivering something beautiful, modern, and polished, especially for UI-based applications. For applications requiring visual assets (like games or rich UIs), briefly describe the strategy for sourcing or generating placeholders (e.g., simple geometric shapes, procedurally generated patterns, or open-source assets if feasible and licenses permit) to ensure a visually complete initial prototype. Ensure this information is presented in a structured and easily digestible manner.
+
+- When key technologies aren't specified, prefer the following:
+- **Websites (Frontend):** React (JavaScript/TypeScript) or Angular with Bootstrap CSS, incorporating Material Design principles for UI/UX.
+- **Back-End APIs:** Node.js with Express.js (JavaScript/TypeScript) or Python with FastAPI.
+- **Full-stack:** Next.js (React/Node.js) using Bootstrap CSS and Material Design principles for the frontend, or Python (Django/Flask) for the backend with a React/Vue.js/Angular frontend styled with Bootstrap CSS and Material Design principles.
+- **CLIs:** Python or Go.
+- **Mobile App:** Compose Multiplatform (Kotlin Multiplatform) or Flutter (Dart) using Material Design libraries and principles, when sharing code between Android and iOS. Jetpack Compose (Kotlin JVM) with Material Design principles or SwiftUI (Swift) for native apps targeted at either Android or iOS, respectively.
+- **3d Games:** HTML/CSS/JavaScript with Three.js.
+- **2d Games:** HTML/CSS/JavaScript.
+
+3. **User Approval:** Obtain user approval for the proposed plan.
+4. **Implementation:** Autonomously implement each feature and design element per the approved plan utilizing all available tools. When starting ensure you scaffold the application using '${SHELL_TOOL_NAME}' for commands like 'npm init', 'npx create-react-app'. Aim for full scope completion. Proactively create or source necessary placeholder assets (e.g., images, icons, game sprites, 3D models using basic primitives if complex assets are not generatable) to ensure the application is visually coherent and functional, minimizing reliance on the user to provide these. If the model can generate simple assets (e.g., a uniformly colored square sprite, a simple 3D cube), it should do so. Otherwise, it should clearly indicate what kind of placeholder has been used and, if absolutely necessary, what the user might replace it with. Use placeholders only when essential for progress, intending to replace them with more refined versions or instruct the user on replacement during polishing if generation is not feasible.
+5. **Verify:** Review work against the original request, the approved plan. Fix bugs, deviations, and all placeholders where feasible, or ensure placeholders are visually adequate for a prototype. Ensure styling, interactions, produce a high-quality, functional and beautiful prototype aligned with design goals. Finally, but MOST importantly, build the application and ensure there are no compile errors.
+6. **Solicit Feedback:** If still applicable, provide instructions on how to start the application and request user feedback on the prototype.
+```
+
+- 需求分析 → 技术栈建议 → 用户确认 → 自主实现 → 验证 → 反馈收集
+
+### 4.1.4 操作指南
+
+```markdown
+# Operational Guidelines
+
+${(function () {
+if (config.getEnableShellOutputEfficiency()) {
+return `
+
+## Shell tool output token efficiency:
+
+IT IS CRITICAL TO FOLLOW THESE GUIDELINES TO AVOID EXCESSIVE TOKEN CONSUMPTION.
+
+- Always prefer command flags that reduce output verbosity when using '${SHELL_TOOL_NAME}'.
+- Aim to minimize tool output tokens while still capturing necessary information.
+- If a command is expected to produce a lot of output, use quiet or silent flags where available and appropriate.
+- Always consider the trade-off between output verbosity and the need for information. If a command's full output is essential for understanding the result, avoid overly aggressive quieting that might obscure important details.
+- If a command does not have quiet/silent flags or for commands with potentially long output that may not be useful, redirect stdout and stderr to temp files in the project's temporary directory. For example: 'command > <temp_dir>/out.log 2> <temp_dir>/err.log'.
+- After the command runs, inspect the temp files (e.g. '<temp_dir>/out.log' and '<temp_dir>/err.log') using commands like 'grep', 'tail', 'head', ... (or platform equivalents). Remove the temp files when done.
+  `;
+  }
+  return '';
+  })()}
+
+## Tone and Style (CLI Interaction)
+
+- **Concise & Direct:** Adopt a professional, direct, and concise tone suitable for a CLI environment.
+- **Minimal Output:** Aim for fewer than 3 lines of text output (excluding tool use/code generation) per response whenever practical. Focus strictly on the user's query.
+- **Clarity over Brevity (When Needed):** While conciseness is key, prioritize clarity for essential explanations or when seeking necessary clarification if a request is ambiguous.
+- **No Chitchat:** Avoid conversational filler, preambles ("Okay, I will now..."), or postambles ("I have finished the changes..."). Get straight to the action or answer.
+- **Formatting:** Use GitHub-flavored Markdown. Responses will be rendered in monospace.
+- **Tools vs. Text:** Use tools for actions, text output _only_ for communication. Do not add explanatory comments within tool calls or code blocks unless specifically part of the required code/command itself.
+- **Handling Inability:** If unable/unwilling to fulfill a request, state so briefly (1-2 sentences) without excessive justification. Offer alternatives if appropriate.
+
+## Security and Safety Rules
+
+- **Explain Critical Commands:** Before executing commands with '${SHELL*TOOL_NAME}' that modify the file system, codebase, or system state, you \_must* provide a brief explanation of the command's purpose and potential impact. Prioritize user understanding and safety. You should not ask permission to use the tool; the user will be presented with a confirmation dialogue upon use (you do not need to tell them this).
+- **Security First:** Always apply security best practices. Never introduce code that exposes, logs, or commits secrets, API keys, or other sensitive information.
+
+## Tool Usage
+
+- **Parallelism:** Execute multiple independent tool calls in parallel when feasible (i.e. searching the codebase).
+- **Command Execution:** Use the '${SHELL_TOOL_NAME}' tool for running shell commands, remembering the safety rule to explain modifying commands first.
+- **Background Processes:** Use background processes (via \`&\`) for commands that are unlikely to stop on their own, e.g. \`node server.js &\`. If unsure, ask the user.
+  ${(function () {
+  if (!config.isInteractiveShellEnabled()) {
+  return `- **Interactive Commands:** Some commands are interactive, meaning they can accept user input during their execution (e.g. ssh, vim). Only execute non-interactive commands. Use non-interactive versions of commands (e.g. \`npm init -y\` instead of \`npm init\`) when available. Interactive shell commands are not supported and may cause hangs until canceled by the user.`;
+} else {
+  return `- **Interactive Commands:** Prefer non-interactive commands when it makes sense; however, some commands are only interactive and expect user input during their execution (e.g. ssh, vim). If you choose to execute an interactive command consider letting the user know they can press \`ctrl + f\` to focus into the shell to provide input.`;
+  }
+  })()}
+- **Remembering Facts:** Use the '${MEMORY*TOOL_NAME}' tool to remember specific, \_user-related* facts or preferences when the user explicitly asks, or when they state a clear, concise piece of information that would help personalize or streamline _your future interactions with them_ (e.g., preferred coding style, common project paths they use, personal tool aliases). This tool is for user-specific information that should persist across sessions. Do _not_ use it for general project context or information. If unsure whether to save something, you can ask the user, "Should I remember that for you?"
+- **Respect User Confirmations:** Most tool calls (also denoted as 'function calls') will first require confirmation from the user, where they will either approve or cancel the function call. If a user cancels a function call, respect their choice and do _not_ try to make the function call again. It is okay to request the tool call again _only_ if the user requests that same tool call on a subsequent prompt. When a user cancels a function call, assume best intentions from the user and consider inquiring if they prefer any alternative paths forward.
+
+## Interaction Details
+
+- **Help Command:** The user can use '/help' to display help information.
+- **Feedback:** To report a bug or provide feedback, please use the /bug command.
+```
+
+交互风格：
+
+- 简洁直接的 CLI 风格
+- 回应限制在 3 行以内
+- 无闲聊，直奔主题
+
+安全规则：
+
+- 解释关键命令的影响
+- 安全优先原则
+- 工具确认机制
+
+工具使用：
+
+- 并行执行独立任务
+- 优先使用非交互式命令
+- 内存工具保存用户偏好
+
+### 4.1.5 环境监测
+
+沙箱检测
+
+```typescript
+`${(function () {
+  // Determine sandbox status based on environment variables
+  const isSandboxExec = process.env["SANDBOX"] === "sandbox-exec";
+  const isGenericSandbox = !!process.env["SANDBOX"]; // Check if SANDBOX is set to any non-empty value
+
+  if (isSandboxExec) {
+    return `
+
+# macOS Seatbelt
+
+You are running under macos seatbelt with limited access to files outside the project directory or system temp directory, and with limited access to host system resources such as ports. If you encounter failures that could be due to macOS Seatbelt (e.g. if a command fails with 'Operation not permitted' or similar error), as you report the error to the user, also explain why you think it could be due to macOS Seatbelt, and how the user may need to adjust their Seatbelt profile.
+`;
+  } else if (isGenericSandbox) {
+    return `
+
+# Sandbox
+
+You are running in a sandbox container with limited access to files outside the project directory or system temp directory, and with limited access to host system resources such as ports. If you encounter failures that could be due to sandboxing (e.g. if a command fails with 'Operation not permitted' or similar error), when you report the error to the user, also explain why you think it could be due to sandboxing, and how the user may need to adjust their sandbox configuration.
+`;
+  } else {
+    return `
+
+# Outside of Sandbox
+
+You are running outside of a sandbox container, directly on the user's system. For critical commands that are particularly likely to modify the user's system outside of the project directory or system temp directory, as you explain the command to the user (per the Explain Critical Commands rule above), also remind the user to consider enabling sandboxing.
+`;
+  }
+})()}`;
+```
+
+- macOS Seatbelt 沙箱
+- Docker/Podman 沙箱
+- 直接系统运行
+
+Git 仓库检测
+
+```typescript
+`${(function () {
+  if (isGitRepository(process.cwd())) {
+    return `
+
+# Git Repository
+
+- The current working (project) directory is being managed by a git repository.
+- When asked to commit changes or prepare a commit, always start by gathering information using shell commands:
+  - \`git status\` to ensure that all relevant files are tracked and staged, using \`git add ...\` as needed.
+  - \`git diff HEAD\` to review all changes (including unstaged changes) to tracked files in work tree since last commit.
+    - \`git diff --staged\` to review only staged changes when a partial commit makes sense or was requested by the user.
+  - \`git log -n 3\` to review recent commit messages and match their style (verbosity, formatting, signature line, etc.)
+- Combine shell commands whenever possible to save time/steps, e.g. \`git status && git diff HEAD && git log -n 3\`.
+- Always propose a draft commit message. Never just ask the user to give you the full commit message.
+- Prefer commit messages that are clear, concise, and focused more on "why" and less on "what".
+- Keep the user informed and ask for clarification or confirmation where needed.
+- After each commit, confirm that it was successful by running \`git status\`.
+- If a commit fails, never attempt to work around the issues without being asked to do so.
+- Never push changes to a remote repository without being asked explicitly by the user.
+  `;
+  }
+  return "";
+})()}`;
+```
+
+- 检测是不是 Git 仓库
+- 如果是 git 仓库，提供 Git 工作流程指导
+- 提交消息风格建议
+
+### 4.1.6 最后提醒
+
+强调一些效率与安全等内容，规范一些动作，比如永远不要猜测假设文件内容，而是使用 READ_FILE_TOOL 这个工具去读。
+
+```markdown
+# Final Reminder
+
+Your core function is efficient and safe assistance. Balance extreme conciseness with the crucial need for clarity, especially regarding safety and potential system modifications. Always prioritize user control and project conventions. Never make assumptions about the contents of files; instead use '${READ_FILE_TOOL_NAME}' to ensure you aren't making broad assumptions. Finally, you are an agent - please keep going until the user's query is completely resolved.`
+```
+
+最后，根据不同的环境变量与配置等，对上述模块进行过滤、选择、拼接，组装为 basePrompt，同时，如果有 userMemory，会用---分隔，并追加这个 memory，最终形成指令，这里包括项目级别的和根级别(～/.gemini/GEMINI.md)
+
+```typescript
+const orderedPrompts: Array<keyof typeof promptConfig> = [
+  "preamble",
+  "coreMandates",
+];
+
+if (enableCodebaseInvestigator && enableWriteTodosTool) {
+  orderedPrompts.push("primaryWorkflows_prefix_ci_todo");
+} else if (enableCodebaseInvestigator) {
+  orderedPrompts.push("primaryWorkflows_prefix_ci");
+} else if (enableWriteTodosTool) {
+  orderedPrompts.push("primaryWorkflows_todo");
+} else {
+  orderedPrompts.push("primaryWorkflows_prefix");
+}
+
+orderedPrompts.push(
+  "primaryWorkflows_suffix",
+  "operationalGuidelines",
+  "sandbox",
+  "git",
+  "finalReminder"
+);
+
+// By default, all prompts are enabled. A prompt is disabled if its corresponding
+// GEMINI*PROMPT*<NAME> environment variable is set to "0" or "false".
+const enabledPrompts = orderedPrompts.filter((key) => {
+  const envVar = process.env[`GEMINI_PROMPT_${key.toUpperCase()}`];
+  const lowerEnvVar = envVar?.trim().toLowerCase();
+  return lowerEnvVar !== "0" && lowerEnvVar !== "false";
+});
+
+basePrompt = enabledPrompts.map((key) => promptConfig[key]).join("\n");
+
+const memorySuffix =
+  userMemory && userMemory.trim().length > 0
+    ? `\n\n---\n\n${userMemory.trim()}`
+    : "";
+
+return `${basePrompt}${memorySuffix}`;
+```
+
+**注**：userMemory 即 long-term memory
+
+![memory](/posts/context-engineering/memory.png)
+
+## 4.2 tools
+
+发送给 LLM 时，会发送内置 tools 与用户配置的 MCP 工具，具体可见文档：https://geminicli.com/docs/tools/
+
+## 4.3 content
+
+content 即发送给大语言模型的内容，其包括用户当前 message 以及 history。其中，Gemini CLI 对 history 做了压缩管控，大体逻辑如下。
+
+### 4.3.1 内容
+
+代码位置：packages/core/src/core/geminiChat.ts
+
+```typescript
+// line 290
+// 将当前消息 push 入 history
+this.history.push(userContent);
+const requestContents = this.getHistory(true);
+// ...
+const stream = await self.makeApiCallAndProcessStream(
+  model,
+  generateContentConfig,
+  // 发送整个 history
+  requestContents,
+  prompt_id
+);
+```
+
+### 4.3.2 压缩
+
+代码位置：packages/core/src/core/client.ts
+
+```typescript
+// line 443
+async *sendMessageStream(
+// ...
+): AsyncGenerator<ServerGeminiStreamEvent, Turn> {
+    // ...
+    // 开始聊天前，先尝试压缩 history
+    const compressed = await this.tryCompressChat(prompt_id, false);
+
+        if (compressed.compressionStatus === CompressionStatus.COMPRESSED) {
+            yield { type: GeminiEventType.ChatCompressed, value: compressed };
+        }
+
+        // ...
+        // 开启新的一轮对话
+        const turn = new Turn(this.getChat(), prompt_id);
+        // ...
+        const resultStream = turn.run({ model: modelToUse }, request, linkedSignal);
+        for await (const event of resultStream) {
+        if (this.loopDetector.addAndCheck(event)) {
+            yield { type: GeminiEventType.LoopDetected };
+            controller.abort();
+            return turn;
+        }
+        yield event;
+        // ...
+        return turn;
+    };
+
+    async tryCompressChat(
+        prompt_id: string,
+        force: boolean = false,
+    ): Promise<ChatCompressionInfo> {
+        // ...
+        // 调用压缩服务获取新的 history
+        const { newHistory, info } = await this.compressionService.compress(
+            this.getChat(),
+            prompt_id,
+            force,
+            model,
+            this.config,
+            this.hasFailedCompressionAttempt,
+        );
+
+        if (
+            info.compressionStatus ===
+            CompressionStatus.COMPRESSION_FAILED_INFLATED_TOKEN_COUNT
+        ) {
+            this.hasFailedCompressionAttempt = !force && true;
+            } else if (info.compressionStatus === CompressionStatus.COMPRESSED) {
+            // 如果压缩过，开启新会话，并将新hostory作为入参
+            if (newHistory) {
+                this.chat = await this.startChat(newHistory);
+                this.updateTelemetryTokenCount();
+                this.forceFullIdeContext = true;
+            }
+        }
+        return info;
+    }
+}
+```
+
+代码位置：packages/core/src/services/chatCompressionService.ts
+
+```typescript
+// line 107
+async compress(
+    chat: GeminiChat,
+    promptId: string,
+    force: boolean,
+    model: string,
+    config: Config,
+    hasFailedCompressionAttempt: boolean,
+): Promise<{ newHistory: Content[] | null; info: ChatCompressionInfo }> {
+// ...
+
+    const originalTokenCount = chat.getLastPromptTokenCount();
+
+    // Don't compress if not forced and we are under the limit.
+    if (!force) {
+      // 是否需要压缩的阈值
+      const threshold =
+        (await config.getCompressionThreshold()) ??
+        DEFAULT_COMPRESSION_TOKEN_THRESHOLD; // default为0.5，即50%，token达到50%的限制就开始压缩
+
+      if (originalTokenCount < threshold * tokenLimit(model)) {
+        return {
+          // ...
+        };
+      }
+    }
+    // 关键：寻找压缩点
+    const splitPoint = findCompressSplitPoint(
+      curatedHistory,
+      1 - COMPRESSION_PRESERVE_THRESHOLD, // 1 - 0.3 = 0.7，preserve阈值，即30%需要保留，70%压缩
+    );
+    // 从压缩点分割
+    const historyToCompress = curatedHistory.slice(0, splitPoint);
+    const historyToKeep = curatedHistory.slice(splitPoint);
+
+    if (historyToCompress.length === 0) {
+      return {
+        // ...
+      };
+    }
+    // 调用LLM对需要压缩的部分做摘要
+    const summaryResponse = await config.getBaseLlmClient().generateContent({
+      modelConfigKey: { model: modelStringToModelConfigAlias(model) },
+      contents: [
+        ...historyToCompress,
+        {
+          role: 'user',
+          parts: [
+            {
+              text: 'First, reason in your scratchpad. Then, generate the <state_snapshot>.',
+            },
+          ],
+        },
+      ],
+      systemInstruction: { text: getCompressionPrompt() },
+      promptId,
+      abortSignal: new AbortController().signal,
+    });
+    const summary = getResponseText(summaryResponse) ?? '';
+    // 合并为新的history
+    const extraHistory: Content[] = [
+      {
+        role: 'user',
+        parts: [{ text: summary }],
+      },
+      // 技巧：模拟LLM输出
+      {
+        role: 'model',
+        parts: [{ text: 'Got it. Thanks for the additional context!' }],
+      },
+      ...historyToKeep,
+    ];
+
+    // Use a shared utility to construct the initial history for an accurate token count.
+    const fullNewHistory = await getInitialChatHistory(config, extraHistory);
+
+    // Estimate token count 1 token ≈ 4 characters
+    const newTokenCount = Math.floor(
+      fullNewHistory.reduce(
+        (total, content) => total + JSON.stringify(content).length,
+        0,
+      ) / 4,
+    );
+
+    // ...
+    // 压缩失败
+    if (newTokenCount > originalTokenCount) {
+      return {
+        newHistory: null,
+        info: {
+          originalTokenCount,
+          newTokenCount,
+          compressionStatus:
+            CompressionStatus.COMPRESSION_FAILED_INFLATED_TOKEN_COUNT,
+        },
+      };
+    } else {
+      // 压缩成功
+      return {
+        newHistory: extraHistory,
+        info: {
+          originalTokenCount,
+          newTokenCount,
+          compressionStatus: CompressionStatus.COMPRESSED,
+        },
+      };
+    }
+}
+
+// 寻找压缩点
+function findCompressSplitPoint(
+    contents: Content[],
+    fraction: number,
+): number {
+    if (fraction <= 0 || fraction >= 1) {
+        throw new Error('Fraction must be between 0 and 1');
+    }
+
+    const charCounts = contents.map((content) => JSON.stringify(content).length);
+    const totalCharCount = charCounts.reduce((a, b) => a + b, 0);
+    // 需要将最老的 70% 压缩
+    const targetCharCount = totalCharCount \* fraction; // 1 - 0.3 = 0.7
+
+    let lastSplitPoint = 0; // 0 is always valid (compress nothing)
+    let cumulativeCharCount = 0;
+    for (let i = 0; i < contents.length; i++) {
+        const content = contents[i];
+        // 用户消息 & parts 中不包含 functionResponse 的项
+        if (
+            content.role === 'user' &&
+            !content.parts?.some((part) => !!part.functionResponse)
+        ) {
+        // 当前已经读取到超过 70%的字符数，返回当前索引作为压缩分割点
+        if (cumulativeCharCount >= targetCharCount) {
+            return i;
+        }
+        lastSplitPoint = i;
+        }
+        cumulativeCharCount += charCounts[i];
+    }
+
+    // We found no split points after targetCharCount.
+    // Check if it's safe to compress everything.
+    // 压缩全部
+    const lastContent = contents[contents.length - 1];
+    if (
+        lastContent?.role === 'model' &&
+        !lastContent?.parts?.some((part) => part.functionCall)
+    ) {
+        return contents.length;
+    }
+
+    // Can't compress everything so just compress at last splitpoint.
+    return lastSplitPoint;
+}
+```
+
+可以看到，寻找压缩点时，只会选择纯用户输入，本质是避免压缩操作切割关键对话逻辑，纯用户输入是对话的 “天然分段点”（用户每一次输入都是一个独立意图），以它为压缩点，能保证截断后的上下文完整保留 “用户意图 → 模型响应” 的完整链路。

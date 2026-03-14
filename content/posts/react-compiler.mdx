@@ -1,0 +1,213 @@
+## 背景
+
+React 的设计理念是自顶向下的渲染模型，即每次状态更新时（包括 setState、改变 context 值以及各种状态管理的状态改变时）都会从状态更新的组件开始，重新渲染该组件及其子组件，从这个 demo 中可见一斑：
+
+![demo](/posts/react-compiler/demo.png)
+
+当我点击 A 按钮时，App 没有重新渲染，打印了 render A，A 组件重新渲染了，同时打印了 render B，B 组件作为 A 组件的子组件也重新渲染了，即使 B 中数据没有任何变化，重渲染的结果与上次一模一样。
+
+这种方式虽然简单直观，但可能会导致一些不必要的渲染，原因在于 React 无法自动追踪到具体哪个变量发生了变化，因此无法做到完全精准的渲染，故我们可以把 React 称为“应用级框架”，而像 Vue（可以称为“组件级框架”）、Svelte（可以称为“元素级框架”）等框架就可以更精准地控制渲染。
+
+React 自己其实也认识到了这一点，即当开发者写出一个 App 时（不写任何优化），其平均性能是不如其他一些模板类前端框架的。因此，为了帮助开发者优化性能，React 提供了一些 API，例如 `useMemo`、`useCallback` 和 `memo`。这些工具允许开发者手动控制组件的渲染行为，从而避免不必要的渲染。不过，这种手动优化的方法显然是一种折衷的方案（这也是 React 团队自己承认的），因为它可能会导致如下问题：
+
+1. 开发者需具备一定的性能优化知识，增加了心智负担；
+2. 需要在代码中显式地进行优化和维护，增加了工作量；
+3. 导致代码更加混乱，代码量更多了。
+
+当给上述 demo 手动加上优化后，表现是这样的：
+
+![demo-opt](/posts/react-compiler/demo-opt.png)
+
+给 B 加上 `memo` 后，B 就不再重渲染了。
+
+此外，上述优化还有另一个弊端：加上优化，性能可能还不及原来。这是因为像 `useMemo`、`useCallback`、`memo` 本身就算额外开销。因此，之前在社区流传着一个 React 的优化原则 —— **当你的项目没有出现性能问题时，不要使用 `useMemo`、`useCallback`、`memo`**。
+
+由此，我们不禁思考，是否可以存在自动化工具，可以既决定使不使用优化，如果决定使用又能自动做这些事情，即：我们无需手动做任何事情，默认写出来的应用就具有不错的性能。这也正是 React Compiler 的设计目标之一，而事实上，它不仅把这事干了，还做了一些其他优化，它全干了！
+
+## 一句话定义
+
+React Compiler 是一个自动优化工具，通过分析和自动化 memo（记忆化），减少不必要的重新渲染，从而提升 React 应用的性能。
+
+## 目标
+
+> 核心理念是 —— 在不影响 React 核心心智模型的情况下，重新渲染时自动渲染应该渲染的 UI 部分
+
+**目标**：
+
+1. **限制重新渲染的次数**：通过自动 memo 来减少不必要的渲染；
+
+2. **保持启动时间不变**：确保包体积和 memo 的开销不会影响启动时间；
+
+3. **保留 React 的声明式、组件化编程模型，遵循原有规则**：不做 break change，不改变开发者编写 React 代码的方式，只是减少对 `React.memo`、`useMemo` 和 `useCallback` 的依赖；
+
+4. **支持开发调试等能力**：在开发过程中，开发者可以使用 React Devtools 等工具来查看优化后的结果；
+
+5. **对 React 开发者来说可理解性高**：开发者能够快速地理解 React Compiler 的原理；
+
+6. **不需要显式注解（类型或其他）**：应在没有类型信息或其他注解的情况下也能很好地工作。
+
+**什么不是目标**？
+
+1. **完美的渲染优化**：如果给所有的代码都加上记忆化，那这个开销本身可能会影响性能；
+
+2. **支持所有 JS、React**：对源码进行编译时，不会支持所有的 JS 和 React，如：不支持 100%的 JavaScript（如使用 `eval`）、不支持旧的 React 特性（如不支持类组件）、不支持违反 React 规则的代码（如在条件语句中调用 hooks）。
+
+## 组成
+
+由两部分组成：
+
+- **Babel 插件**：构建时用，其主要工作流如下：
+
+  - 负责将 React 代码转换为 React Compiler 能够理解和优化的中间表示（HIR）。
+
+  - 确定需要编译的函数，并调用 React Compiler 进行进一步处理。
+
+  - 最终将优化后的代码转换回原始的 Babel AST 节点，并返回给 Babel 插件。
+
+- **ESLint 插件**：工程化层面的限制，其主要作用如下：
+
+  - 用于检测和报告代码中可能违反 React 规则的情况。
+
+  - 帮助开发者遵循 React 最佳实践，确保代码符合 React 的规范和性能优化建议。
+
+## 效果
+
+可以看下这个 demo：
+
+![compiler-demo](/posts/react-compiler/compiler-demo.png)
+
+当开启 compiler 后，点击 count button 时，Child 没有再渲染，自动优化了。最新版的 React Devtools 也支持查看 compiler 优化的内容，可以看到元素右侧有 标签，表示已被优化过。
+
+此外深究一下，我们可以在 React Compiler PlayGround 看到普通的函数组件经过编译后的产物：
+
+编译前（用户手写的）
+
+```tsx
+import Child from "./components/child";
+import { useState } from "react";
+
+export default function Home() {
+  const [count, setCount] = useState(1);
+
+  const a = "这是一段无用代码";
+
+  return (
+    <div>
+      <button
+        onClick={() => {
+          setCount(count + 1);
+        }}
+        className="bg-blue-500 hover:bg-blue-700 text-white py-1 px-2 rounded"
+      >
+        + 1
+      </button>
+      <div>
+        With state: count = {count}
+        {console.log("With state")}
+      </div>
+      <div>
+        Without state
+        {console.log("Without state")}
+      </div>
+
+      <Child />
+      <div>hahah</div>
+    </div>
+  );
+}
+```
+
+编译后
+
+```tsx
+function Home() {
+  // _c方法是用来创建memo池的，入参是size，这里表示有10个xx需要memo
+  const $ = _c(10);
+
+  const [count, setCount] = useState(1);
+  // t几是“元素”，会创建或从memo池中取
+  let t0;
+  // 第一个memo的是button元素
+  // 由于button元素实际上依赖了count这个值，所以这里是把count作为缓存key来判断
+  if ($[0] !== count) {
+    // 当第一次render执行该函数时，没有在memo池中，创建JSX Element赋值给t0
+    t0 = (
+      <button
+        onClick={() => {
+          setCount(count + 1);
+        }}
+        className="bg-blue-500 hover:bg-blue-700 text-white py-1 px-2 rounded"
+      >
+        + 1
+      </button>
+    );
+    // 因为依赖了外部count，所以要占用两个缓存位，$[0]缓存count，$[1]缓存JSX Element
+    $[0] = count;
+    $[1] = t0;
+  } else {
+    // 如果不是第一次执行（count在池中 && count没变），不会重新创建JSX Element，而是从memo池中取
+    t0 = $[1];
+  }
+  // 下面这个是div，也依赖了count，同样的逻辑，占据$[2]和$[3]的memo池
+  let t1;
+
+  if ($[2] !== count) {
+    t1 = (
+      <div>
+        With state: count = {count}
+        {console.log("With state")}
+      </div>
+    );
+    $[2] = count;
+    $[3] = t1;
+  } else {
+    t1 = $[3];
+  }
+  // 下面三个元素都没依赖外部状态，因此一起处理
+  let t2;
+  let t3;
+  let t4;
+  // 当没有依赖外部状态时，就不需要特殊的缓存key了，只要有值算命中了
+  // Symbol.for("react.memo_cache_sentinel")是初始值，第一次执行后会替换掉
+  if ($[4] === Symbol.for("react.memo_cache_sentinel")) {
+    t2 = <div>Without state{console.log("Without state")}</div>;
+    t3 = <Child />;
+    t4 = <div>hahah</div>;
+    $[4] = t2;
+    $[5] = t3;
+    $[6] = t4;
+  } else {
+    t2 = $[4];
+    t3 = $[5];
+    t4 = $[6];
+  }
+  // 每一个子元素处理完，处理最外层元素
+  let t5;
+  // t0和t1是依赖外部状态的两个组件，因此以这两个组件作为缓存key
+  // state变化 -> t0和t1重新赋值并更新缓存 -> t5重新赋值并更新缓存 -> return最新的内容
+  if ($[7] !== t0 || $[8] !== t1) {
+    t5 = (
+      <div>
+        {t0}
+        {t1}
+        {t2}
+        {t3}
+        {t4}
+      </div>
+    );
+    $[7] = t0;
+    $[8] = t1;
+    $[9] = t5;
+  } else {
+    t5 = $[9];
+  }
+
+  return t5;
+}
+```
+
+通过这个 demo 可以看到，React 不仅会做上述的自动化 memo 渲染优化，还会缓存元素，并且做一些其他优化，如 dead code 的祛除。
+
+## 个人感想
+
+之前，很多前端框架都吸收了 React 的一些设计思想为自己所用，如 Vue3 的 hooks 写法，preact 等。而现在 React 也在积极学习和借鉴其他框架，尤其是模板类框架，这些框架由于自身的特性，很容易做一些 AOT 优化，如 Svelte 就做的非常好，非常侧重编译时而不是运行时，极大减轻运行时的负担，包体积极小并且性能也很好。React 在设计时的一些问题（比如他们自己承认的，过于 reactive、过度设计的事件代理等）也为人所诟病，React 团队也正在积极改善这些问题，React 的高上手门槛（相比 Vue 等）会有所降低。
