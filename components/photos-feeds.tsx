@@ -12,6 +12,10 @@ import Image from "next/image";
 import { Photograph } from "@/constants/photos";
 import { FC } from "react";
 
+// 8x8 neutral gray placeholder shared by all dialog images
+const BLUR_DATA_URL =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABJ0lEQVR4nMXTN3bDUAxEUWxIYs5JJMVMSt7/ZuxuzrjDIYpfvPqiGMjj4f1yz6ePPC9Avh+iIIhQGMb/iqIExXGKkiRDaZojcX4Ag3dQBrVolhVIGLyDMqhF87xEwuAdlEEtWhQVcn8Ag3dQBrVoWdZIrCtmUItWVYPEumIGtWhdt0isK2ZQizZNh9wfYF0xg1q0bV9IrCtmUIt2XY/EumIGtejrNSD3B1jfiEEt2vcjEuuKGdSiw/BGYl0xg1p0HCck1hUzqEXf7xm5P8C6Yga16DQtSKwrZlCLzvOKxLpiBrXosmzI/QHWN2JQi67rjsS6Yga16LYdSKwrZlCL7vuJxLpiBrXocVzI/QHWFTOoRc/zg8S6Yga16HV9kVhXzKAW/Xx+0B/vW+Bb0fWmXgAAAABJRU5ErkJggg==";
+
 interface IProps {
   photographs: Photograph[];
   containerVariants?: Variants;
@@ -40,7 +44,7 @@ const PhotosFeeds: FC<IProps> = ({
               variants={itemVariants}
               className={cn(
                 "relative overflow-hidden cursor-pointer aspect-square select-none",
-                photo.span === "tall" && "row-span-2 aspect-auto"
+                photo.span === "tall" && "row-span-2 aspect-auto",
               )}
             >
               <Image
@@ -57,7 +61,7 @@ const PhotosFeeds: FC<IProps> = ({
             showCloseButton={false}
             className={cn(
               "max-w-3xl max-h-screen p-0 overflow-hidden flex flex-col gap-2",
-              "bg-card border-muted border-2"
+              "bg-card border-muted border-2",
             )}
           >
             <div
@@ -69,6 +73,8 @@ const PhotosFeeds: FC<IProps> = ({
                 alt={photo.alt}
                 fill
                 className="object-contain"
+                placeholder="blur"
+                blurDataURL={BLUR_DATA_URL}
               />
             </div>
             <DialogHeader className="p-6 pt-4">
