@@ -12,7 +12,7 @@ export default function SmoothScroll({
       root
       options={{
         lerp: 0.1,
-        duration: 1.2,
+        duration: 0.8,
         smoothWheel: true,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       }}
