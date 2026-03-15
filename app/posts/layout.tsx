@@ -80,11 +80,7 @@ export default function PostsLayout({
                       </>
                     ) : (
                       metaData.map((item) => (
-                        <Link
-                          key={item.id}
-                          href={`/posts/${item.id}`}
-                          scroll={false}
-                        >
+                        <Link key={item.id} href={`/posts/${item.id}`}>
                           <div
                             className={cn(
                               "cursor-pointer transition-all duration-300 hover:bg-primary/5 rounded-lg py-2 px-4 -ml-4 flex flex-col",
