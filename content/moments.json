@@ -1,10 +1,9 @@
 [
   {
-    "id": "moment-0",
+    "id": "deskly-mcp",
     "type": "text",
-    "date": "2026-02-27",
-    "pinned": true,
-    "content": "**Welcome to the moments!**"
+    "date": "2026-03-25",
+    "content": "昨天刚把 PxTerm 的核心 tools 抽成 `deskly-mcp` 想给我的 CC 试试（之前一直在 Qwen 9b 本地模型上跑），结果发现 CC 昨天刚好也支持了 Computer Use，正如之前在做 Forkestra 的时候 CC 原生支持了 Worktree..."
   },
   {
     "id": "moment-agent-call-human-like",
