@@ -267,9 +267,6 @@ function StepItem({ item, isLatest, isLast }: StepItemProps) {
 // ============================================
 
 export function StepTimeline({ items, className }: StepTimelineProps) {
-  // Reverse the items so the latest is at the bottom
-  const reversedItems = [...items].reverse();
-
   return (
     <motion.div
       variants={containerVariants}
@@ -278,12 +275,12 @@ export function StepTimeline({ items, className }: StepTimelineProps) {
       viewport={{ once: true, margin: "-100px" }}
       className={cn("flex flex-col", className)}
     >
-      {reversedItems.map((item, index) => (
+      {items.map((item, index) => (
         <StepItem
           key={item.id}
           item={item}
-          isLatest={index === reversedItems.length - 1}
-          isLast={index === reversedItems.length - 1}
+          isLatest={index === 0}
+          isLast={index === items.length - 1}
         />
       ))}
     </motion.div>
