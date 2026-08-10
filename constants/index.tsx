@@ -1,4 +1,4 @@
-import { SiShopee, SiTencentqq, SiTiktok } from "react-icons/si";
+import { SiBytedance, SiTencentqq } from "react-icons/si";
 
 const tags = [
   { name: "TypeScript", category: "Technology" },
@@ -12,30 +12,30 @@ const tags = [
 
 const experiences = [
   {
+    company: "ByteDance",
+    icon: <SiBytedance />,
+    position: "AI Coding R&D Engineer",
+    department: "Douyin AI",
+    period: "2026.07 - Present",
+    description: "Building AI Coding products and developer tools for Douyin AI.",
+  },
+  {
     company: "Tencent",
     icon: <SiTencentqq />,
     position: "Frontend Engineer",
     department: "CDG-AMS",
-    period: "2024.06 - Present",
+    period: "2024.06 - 2026.06",
     description:
       "In charge of the low-code platform, PC Advertising SDK, and other related business.",
   },
   {
     company: "ByteDance",
-    icon: <SiTiktok />,
+    icon: <SiBytedance />,
     position: "Frontend Engineer",
     department: "Customer Service Platform",
     period: "2022.10 - 2024.06",
     description:
       "Support Douyin's customer service. As a member of the FE arch team, responsible for Hi CLI.",
-  },
-  {
-    company: "Shopee",
-    icon: <SiShopee />,
-    position: "Frontend Engineer",
-    department: "APP Performance",
-    period: "2022.07 - 2022.09",
-    description: "Laid off as a fresh graduate.",
   },
 ];
 

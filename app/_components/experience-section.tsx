@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { StepTimeline, StepTimelineItem } from "@/components/step-timeline";
+import { StepTimeline } from "@/components/step-timeline";
 import { experiences } from "@/constants";
 import Subtitle from "../../components/subtitle";
 
@@ -34,11 +34,6 @@ export default function ExperienceSection() {
           period: exp.period,
           description: exp.description,
           icon: exp.icon,
-          textClassNames: (exp: StepTimelineItem) =>
-            exp.subtitle === "Shopee"
-              ? "line-through decoration-muted-foreground/70 decoration-1"
-              : "",
-          status: (exp) => (exp.subtitle === "Shopee" ? "failed" : undefined),
         }))}
       />
     </motion.section>

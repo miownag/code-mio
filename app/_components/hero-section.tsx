@@ -129,7 +129,7 @@ export default function HeroSection() {
             <ScrambleText
               textProps={{
                 baseText:
-                  "A Frontend Engineer working in Tencent. I'm focusing on ",
+                  "An AI Coding R&D Engineer at Douyin AI, ByteDance. I'm focusing on ",
                 dynamicTexts,
               }}
               className="text-[2rem] leading-[1.2] text-muted-foreground pixel-font"
