@@ -1,9 +1,12 @@
+"use client";
+
 import { GitHubRepo } from "@/components/github-repo-card";
 import {
   featuredProjectProfiles,
   ProjectVisual,
 } from "@/constants/projects";
 import { cn } from "@/lib/utils";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, GitFork, Star } from "lucide-react";
 
 interface FeaturedProjectsProps {
@@ -11,6 +14,7 @@ interface FeaturedProjectsProps {
 }
 
 function SessionsVisual() {
+  const reduceMotion = useReducedMotion();
   const sessions = [
     ["01", "feature/agent-ui", "RUNNING"],
     ["02", "fix/context-sync", "READY"],
@@ -31,9 +35,42 @@ function SessionsVisual() {
         >
           <span className="text-primary">{number}</span>
           <span className="truncate">{branch}</span>
-          <span className={index === 0 ? "text-primary" : ""}>{status}</span>
+          <motion.span
+            className={index === 0 ? "text-primary" : ""}
+            animate={
+              index === 0 && !reduceMotion
+                ? { opacity: [0.45, 1, 0.45] }
+                : undefined
+            }
+            transition={{ duration: 1.8, repeat: Infinity }}
+          >
+            {status}
+          </motion.span>
         </div>
       ))}
+      <div className="rounded-lg border border-border/70 bg-background/40 px-3 py-3">
+        <div className="flex items-center justify-between text-[9px] tracking-[0.16em] text-muted-foreground">
+          <span>AGENT ACTIVITY</span>
+          <span className="text-primary">3 WORKTREES</span>
+        </div>
+        <div className="mt-3 h-1 overflow-hidden rounded-full bg-muted">
+          <motion.div
+            className="h-full rounded-full bg-primary"
+            initial={{ width: "28%" }}
+            animate={
+              reduceMotion
+                ? { width: "72%" }
+                : { width: ["28%", "84%", "56%", "72%"] }
+            }
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[9px] text-muted-foreground">
+          <span>ISOLATED</span>
+          <span>SYNCED</span>
+          <span>READY</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -60,6 +97,8 @@ function MarkdownVisual() {
 }
 
 function AgentVisual() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <div className="rounded-xl border border-border/70 bg-background/65 p-3 font-mono text-[10px] sm:text-xs">
       <p className="text-muted-foreground">
@@ -69,7 +108,15 @@ function AgentVisual() {
       <div className="my-3 h-px bg-border/70" />
       <p className="text-muted-foreground">scanning workspace...</p>
       <p className="mt-1 text-muted-foreground">editing src/runner.ts</p>
-      <p className="mt-3 text-primary">✓ patch ready</p>
+      <p className="mt-3 text-primary">
+        ✓ patch ready
+        <motion.span
+          aria-hidden
+          className="ml-1 inline-block h-3 w-1.5 bg-primary align-middle"
+          animate={reduceMotion ? undefined : { opacity: [1, 0, 1] }}
+          transition={{ duration: 0.9, repeat: Infinity }}
+        />
+      </p>
     </div>
   );
 }
@@ -81,6 +128,7 @@ function ProjectVisualPanel({ visual }: { visual: ProjectVisual }) {
 }
 
 export function FeaturedProjects({ repos }: FeaturedProjectsProps) {
+  const reduceMotion = useReducedMotion();
   const repoMap = new Map(repos.map((repo) => [repo.full_name, repo]));
   const projects = featuredProjectProfiles.flatMap((profile) => {
     const repo = repoMap.get(profile.fullName);
@@ -90,8 +138,26 @@ export function FeaturedProjects({ repos }: FeaturedProjectsProps) {
   if (projects.length === 0) return null;
 
   return (
-    <section aria-labelledby="selected-work-heading">
-      <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+    <motion.section
+      aria-labelledby="selected-work-heading"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.08 }}
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: { staggerChildren: reduceMotion ? 0 : 0.12 },
+        },
+      }}
+    >
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, x: reduceMotion ? 0 : -18 },
+          visible: { opacity: 1, x: 0, transition: { duration: 0.45 } },
+        }}
+        className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end"
+      >
         <div className="flex items-start gap-3">
           <span className="pt-1 font-mono text-xs text-primary">01</span>
           <div>
@@ -109,15 +175,36 @@ export function FeaturedProjects({ repos }: FeaturedProjectsProps) {
         <span className="hidden font-mono text-[10px] tracking-[0.18em] text-muted-foreground sm:block">
           03 / FEATURED BUILDS
         </span>
-      </div>
+      </motion.div>
 
-      <div className="grid gap-4 lg:grid-cols-12">
+      <motion.div
+        variants={{
+          hidden: {},
+          visible: {
+            transition: { staggerChildren: reduceMotion ? 0 : 0.14 },
+          },
+        }}
+        className="grid gap-4 lg:grid-cols-12"
+      >
         {projects.map(({ profile, repo }, index) => {
           const primary = index === 0;
 
           return (
-            <article
+            <motion.article
               key={repo.full_name}
+              variants={{
+                hidden: {
+                  opacity: 0,
+                  y: reduceMotion ? 0 : 28,
+                  scale: reduceMotion ? 1 : 0.985,
+                },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                  transition: { duration: 0.5 },
+                },
+              }}
               className={cn(
                 primary
                   ? "lg:col-span-7 lg:row-span-2"
@@ -131,7 +218,7 @@ export function FeaturedProjects({ repos }: FeaturedProjectsProps) {
                 aria-label={`Open ${repo.full_name} on GitHub`}
                 className={cn(
                   "group relative flex h-full min-h-[310px] flex-col overflow-hidden rounded-2xl border border-border/70 bg-card/75 p-5 shadow-sm transition-all duration-300",
-                  "hover:-translate-y-1 hover:border-primary/45 hover:shadow-[0_24px_70px_-45px_var(--color-primary)]",
+                  "hover:border-primary/45 hover:shadow-[0_24px_70px_-45px_var(--color-primary)]",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   primary && "sm:min-h-[410px] lg:min-h-[520px] lg:p-7",
                 )}
@@ -161,7 +248,7 @@ export function FeaturedProjects({ repos }: FeaturedProjectsProps) {
                   </div>
                   <ArrowUpRight
                     aria-hidden
-                    className="size-5 shrink-0 text-muted-foreground transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary"
+                    className="size-5 shrink-0 text-muted-foreground transition-colors duration-300 group-hover:text-primary"
                   />
                 </div>
 
@@ -177,7 +264,19 @@ export function FeaturedProjects({ repos }: FeaturedProjectsProps) {
                   {profile.summary}
                 </p>
 
-                <div className="relative my-5 flex-1 rounded-2xl border border-border/50 bg-background/35 p-3 sm:p-4">
+                <div className="relative my-5 flex-1 overflow-hidden rounded-2xl border border-border/50 bg-background/35 p-3 sm:p-4">
+                  {!reduceMotion && (
+                    <motion.div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-x-3 top-0 z-10 h-px bg-linear-to-r from-transparent via-primary/45 to-transparent"
+                      animate={{ y: primary ? [10, 330, 10] : [10, 150, 10] }}
+                      transition={{
+                        duration: primary ? 7 : 5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    />
+                  )}
                   <div className="mb-3 flex items-center gap-1.5" aria-hidden>
                     <span className="size-2 rounded-full bg-red-400" />
                     <span className="size-2 rounded-full bg-amber-400" />
@@ -186,7 +285,9 @@ export function FeaturedProjects({ repos }: FeaturedProjectsProps) {
                       PREVIEW
                     </span>
                   </div>
-                  <ProjectVisualPanel visual={profile.visual} />
+                  <div className="relative">
+                    <ProjectVisualPanel visual={profile.visual} />
+                  </div>
                 </div>
 
                 <div className="relative mt-auto flex flex-wrap items-end justify-between gap-4">
@@ -214,10 +315,10 @@ export function FeaturedProjects({ repos }: FeaturedProjectsProps) {
                   </div>
                 </div>
               </a>
-            </article>
+            </motion.article>
           );
         })}
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   );
 }

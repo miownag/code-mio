@@ -69,7 +69,7 @@ export function GitHubRepoCard({
       <Card
         className={cn(
           "relative h-full min-h-[172px] gap-4 overflow-hidden border-border/70 bg-card/70 px-5 py-5 shadow-none backdrop-blur-sm",
-          "transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-primary/45 group-hover:shadow-[0_18px_55px_-42px_var(--color-primary)]",
+          "transition-[border-color,box-shadow] duration-300 group-hover:border-primary/45 group-hover:shadow-[0_18px_55px_-42px_var(--color-primary)]",
         )}
       >
         <div
@@ -90,7 +90,7 @@ export function GitHubRepoCard({
           </div>
           <ArrowUpRight
             aria-hidden
-            className="size-4 shrink-0 text-muted-foreground transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary"
+            className="size-4 shrink-0 text-muted-foreground transition-colors duration-300 group-hover:text-primary"
           />
         </div>
 

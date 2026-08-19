@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { GitHubRepoCard, GitHubRepo } from "@/components/github-repo-card";
 import { featuredProjectNames } from "@/constants/projects";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,7 @@ export function ProjectsExplorer({
   owned,
   contributed,
 }: ProjectsExplorerProps) {
+  const reduceMotion = useReducedMotion();
   const [filter, setFilter] = useState<ProjectFilter>("all");
   const [sortBy, setSortBy] = useState<ProjectSort>("featured");
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
@@ -102,8 +103,23 @@ export function ProjectsExplorer({
   };
 
   return (
-    <section aria-labelledby="project-explorer-heading">
-      <div className="mb-6 flex items-start gap-3">
+    <motion.section
+      aria-labelledby="project-explorer-heading"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.05 }}
+      variants={{
+        hidden: { opacity: 0 },
+        visible: { opacity: 1 },
+      }}
+    >
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, x: reduceMotion ? 0 : -18 },
+          visible: { opacity: 1, x: 0, transition: { duration: 0.45 } },
+        }}
+        className="mb-6 flex items-start gap-3"
+      >
         <span className="pt-1 font-mono text-xs text-primary">02</span>
         <div>
           <h2
@@ -116,31 +132,53 @@ export function ProjectsExplorer({
             Browse original builds and open-source contributions.
           </p>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/55 p-2.5 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, y: reduceMotion ? 0 : 16 },
+          visible: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.45, delay: reduceMotion ? 0 : 0.08 },
+          },
+        }}
+        className="mb-5 flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/55 p-2.5 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div
           className="flex min-w-0 gap-1 overflow-x-auto"
           role="group"
           aria-label="Filter projects"
         >
           {filters.map((item) => (
-            <button
+            <motion.button
               key={item.value}
               type="button"
               aria-pressed={filter === item.value}
               onClick={() => changeFilter(item.value)}
+              whileTap={reduceMotion ? undefined : { scale: 0.96 }}
               className={cn(
-                "flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                "relative flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                 filter === item.value
-                  ? "bg-primary text-primary-foreground shadow-sm"
+                  ? "text-primary-foreground"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
-              <span>{item.label}</span>
+              {filter === item.value && (
+                <motion.span
+                  layoutId="active-project-filter"
+                  className="absolute inset-0 rounded-xl bg-primary shadow-sm"
+                  transition={
+                    reduceMotion
+                      ? { duration: 0 }
+                      : { type: "spring", stiffness: 420, damping: 34 }
+                  }
+                />
+              )}
+              <span className="relative">{item.label}</span>
               <span
                 className={cn(
-                  "font-mono text-[10px] tabular-nums",
+                  "relative font-mono text-[10px] tabular-nums",
                   filter === item.value
                     ? "text-primary-foreground/70"
                     : "text-muted-foreground",
@@ -148,7 +186,7 @@ export function ProjectsExplorer({
               >
                 {String(item.count).padStart(2, "0")}
               </span>
-            </button>
+            </motion.button>
           ))}
         </div>
 
@@ -167,18 +205,22 @@ export function ProjectsExplorer({
           </select>
           <ArrowDown className="-ml-5 size-3 pointer-events-none" aria-hidden />
         </label>
-      </div>
+      </motion.div>
 
       <motion.div layout className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <AnimatePresence initial={false} mode="popLayout">
-          {displayedEntries.map(({ repo, relationship }) => (
+          {displayedEntries.map(({ repo, relationship }, index) => (
             <motion.div
               layout
               key={`${relationship}-${repo.full_name}`}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: reduceMotion ? 0 : 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
               exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.25 }}
+              transition={{
+                duration: 0.35,
+                delay: reduceMotion ? 0 : Math.min(index, 3) * 0.05,
+              }}
             >
               <GitHubRepoCard repo={repo} relationship={relationship} />
             </motion.div>
@@ -194,22 +236,23 @@ export function ProjectsExplorer({
 
       {remainingCount > 0 && (
         <div className="mt-8 flex flex-col items-center gap-2">
-          <button
+          <motion.button
             type="button"
             onClick={() => setVisibleCount(visibleEntries.length)}
-            className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/45 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            whileTap={reduceMotion ? undefined : { scale: 0.97 }}
+            className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium transition-colors duration-300 hover:border-primary/45 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             Show {remainingCount} more
             <ArrowDown
-              className="size-4 transition-transform duration-300 group-hover:translate-y-0.5"
+              className="size-4"
               aria-hidden
             />
-          </button>
+          </motion.button>
           <span className="font-mono text-[10px] tracking-wider text-muted-foreground">
             SHOWING {displayedEntries.length} / {visibleEntries.length}
           </span>
         </div>
       )}
-    </section>
+    </motion.section>
   );
 }
