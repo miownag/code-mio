@@ -29,12 +29,12 @@ export const featuredProjectProfiles: FeaturedProjectProfile[] = [
     visual: "markdown",
   },
   {
-    fullName: "miownag/code-agent-lite",
-    eyebrow: "CODING AGENT",
-    tagline: "A small agent for real coding work.",
+    fullName: "miownag/walle-agent",
+    eyebrow: "AGENT SDK",
+    tagline: "Build focused agents from composable plugins.",
     summary:
-      "A lightweight coding agent inspired by the focused workflow of Claude Code.",
-    tags: ["AI Agent", "CLI", "TypeScript"],
+      "A plugin-first SDK for creating extensible agent workflows without unnecessary complexity.",
+    tags: ["AI Agent", "Agent SDK", "Plugins"],
     visual: "agent",
   },
 ];
