@@ -225,7 +225,7 @@ export default function AboutMe() {
               {/* Location Info */}
               <div className="flex items-center gap-2 mb-2 text-sm">
                 <HiOutlineLocationMarker className="h-4 w-4 text-blue-300" />
-                <span className="text-muted-foreground">Beijing, China</span>
+                <span className="text-muted-foreground">Shanghai, China</span>
               </div>
 
               {/* Birthday Info */}

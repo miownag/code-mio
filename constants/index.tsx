@@ -14,10 +14,11 @@ const experiences = [
   {
     company: "ByteDance",
     icon: <SiBytedance />,
-    position: "AI Coding R&D Engineer",
+    position: "AI Coding Develop Engineer",
     department: "Douyin AI4SE",
     period: "2026.07 - Present",
-    description: "Building the AI4SE Platform and Douyin Harmony Harness.",
+    description:
+      "Building a cloud-based Coding Agent platform and the Douyin HarmonyOS harness.",
   },
   {
     company: "Tencent",

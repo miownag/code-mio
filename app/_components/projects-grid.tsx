@@ -9,7 +9,7 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.07,
     },
   },
 };
@@ -20,7 +20,7 @@ const itemVariants = {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.5,
+      duration: 0.35,
     },
   },
 };
@@ -35,7 +35,7 @@ export function ProjectsGrid({ repos }: ProjectsGridProps) {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+      className="grid grid-cols-1 gap-4 md:grid-cols-2"
     >
       {repos.map((repo) => (
         <motion.div key={repo.full_name} variants={itemVariants}>
@@ -48,13 +48,17 @@ export function ProjectsGrid({ repos }: ProjectsGridProps) {
 
 export function ProjectsGridSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="border border-border rounded-xl p-4 space-y-3">
+        <div
+          key={i}
+          className="min-h-[172px] space-y-4 rounded-2xl border border-border/70 bg-card/50 p-5"
+        >
           <div className="flex items-center gap-2">
-            <Skeleton className="h-4 w-4" />
-            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-3 w-3" />
+            <Skeleton className="h-3 w-24" />
           </div>
+          <Skeleton className="h-5 w-44 max-w-full" />
           <Skeleton className="h-10 w-full" />
           <div className="flex items-center gap-4">
             <Skeleton className="h-3 w-16" />

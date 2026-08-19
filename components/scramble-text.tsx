@@ -40,7 +40,11 @@ const ScrambleText = ({
   const [isScrambling, setIsScrambling] = useState(false);
   const textPropsRef = useRef(textProps);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const frameRef = useRef<number | null>(null);
+
+  const normalizedDynamicTexts = textProps.dynamicTexts.map((item) =>
+    typeof item === "string" ? { text: item } : item,
+  );
+  const currentDynamicText = normalizedDynamicTexts[dynamicTextIndex];
 
   const getRandomChar = () => {
     return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
@@ -136,28 +140,38 @@ const ScrambleText = ({
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
-      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dynamicTextIndex]);
 
   return (
     <div className={cn("flex items-center", className)} style={style}>
-      <span className="whitespace-wrap">
+      <span>
         {textProps.baseText}
-        <span
-          className={
-            typeof textProps.dynamicTexts[dynamicTextIndex] === "string"
-              ? ""
-              : textProps.dynamicTexts[dynamicTextIndex].className
-          }
-        >
-          {displayText}
+        <span className="relative inline-grid whitespace-nowrap align-baseline">
+          {normalizedDynamicTexts.map((item, index) => (
+            <span
+              key={`${item.text}-${index}`}
+              aria-hidden
+              className={cn(
+                "invisible col-start-1 row-start-1",
+                item.className,
+              )}
+            >
+              {item.text}
+            </span>
+          ))}
+          <span
+            className={cn(
+              "absolute inset-0",
+              currentDynamicText?.className,
+            )}
+          >
+            {displayText}
+          </span>
         </span>
         {showCursor && (
-          <div
+          <span
             className={cn("ml-1", "inline-block", cursorClassName)}
             style={{
               animation: "blink 1s infinite",

@@ -21,19 +21,11 @@ export default function HeroSection() {
 
   const dynamicTexts = [
     {
-      text: "Web Tech.",
+      text: "Full Stack.",
       className: `${
         resolvedTheme === "dark" && hasMounted
           ? "text-pink-400"
           : "text-pink-600"
-      }`,
-    },
-    {
-      text: "Node.js.",
-      className: `${
-        resolvedTheme === "dark" && hasMounted
-          ? "text-green-400"
-          : "text-green-600"
       }`,
     },
     {
@@ -42,6 +34,14 @@ export default function HeroSection() {
         resolvedTheme === "dark" && hasMounted
           ? "text-cyan-400"
           : "text-cyan-600"
+      }`,
+    },
+    {
+      text: "AI Coding.",
+      className: `${
+        resolvedTheme === "dark" && hasMounted
+          ? "text-green-400"
+          : "text-green-600"
       }`,
     },
   ];
@@ -129,7 +129,7 @@ export default function HeroSection() {
             <ScrambleText
               textProps={{
                 baseText:
-                  "An AI Coding R&D Engineer at Douyin AI, ByteDance. I'm focusing on ",
+                  "AI Coding Develop Engineer at Douyin AI4SE, focusing on ",
                 dynamicTexts,
               }}
               className="text-[2rem] leading-[1.2] text-muted-foreground pixel-font"
